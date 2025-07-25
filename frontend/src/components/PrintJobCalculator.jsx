@@ -272,7 +272,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                   </SelectTrigger>
                   <SelectContent>
                     {getAvailableSheetSizes().map((sheetSize) => (
-                      <SelectItem key={sheetSize.id} value={sheetSize.id}>
+                      <SelectItem key={sheetSize.id} value={sheetSize.id.toString()}>
                         {sheetSize.name} ({sheetSize.width} × {sheetSize.height} mm)
                       </SelectItem>
                     ))}
