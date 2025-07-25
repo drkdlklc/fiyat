@@ -263,8 +263,8 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
               <div>
                 <Label htmlFor="sheetSize">Print Sheet Size (Optional)</Label>
                 <Select 
-                  value={selectedSheetSize} 
-                  onValueChange={setSelectedSheetSize}
+                  value={selectedSheetSize?.toString()} 
+                  onValueChange={(value) => setSelectedSheetSize(value ? parseInt(value) : null)}
                   disabled={!selectedMachine}
                 >
                   <SelectTrigger>
