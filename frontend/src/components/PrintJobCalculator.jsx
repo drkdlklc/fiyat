@@ -111,12 +111,12 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
   };
 
   const handleMachineChange = (machineId) => {
-    setSelectedMachine(machineId);
+    setSelectedMachine(machineId ? parseInt(machineId) : null);
     setSelectedSheetSize(null); // Reset sheet size when machine changes
   };
 
   const handlePaperTypeChange = (paperTypeId) => {
-    setSelectedPaperType(paperTypeId);
+    setSelectedPaperType(paperTypeId ? parseInt(paperTypeId) : null);
   };
 
   const getAvailableSheetSizes = () => {
