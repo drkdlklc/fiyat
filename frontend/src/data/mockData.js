@@ -3,39 +3,119 @@
 export const mockPaperTypes = [
   {
     id: 1,
-    name: "A4 Standard",
-    width: 210,
-    height: 297,
+    name: "80g Standard",
     gsm: 80,
     pricePerTon: 850,
-    unit: "mm"
+    stockSheetSizes: [
+      {
+        id: 1,
+        name: "A4",
+        width: 210,
+        height: 297,
+        unit: "mm"
+      },
+      {
+        id: 2,
+        name: "A3",
+        width: 297,
+        height: 420,
+        unit: "mm"
+      },
+      {
+        id: 3,
+        name: "SRA3",
+        width: 320,
+        height: 450,
+        unit: "mm"
+      }
+    ]
   },
   {
     id: 2,
-    name: "A3 Premium",
-    width: 297,
-    height: 420,
+    name: "120g Premium",
     gsm: 120,
     pricePerTon: 1200,
-    unit: "mm"
+    stockSheetSizes: [
+      {
+        id: 4,
+        name: "A3",
+        width: 297,
+        height: 420,
+        unit: "mm"
+      },
+      {
+        id: 5,
+        name: "SRA3",
+        width: 320,
+        height: 450,
+        unit: "mm"
+      },
+      {
+        id: 6,
+        name: "B2",
+        width: 500,
+        height: 707,
+        unit: "mm"
+      }
+    ]
   },
   {
     id: 3,
-    name: "Letter Size",
-    width: 216,
-    height: 279,
+    name: "90g Letter",
     gsm: 90,
     pricePerTon: 900,
-    unit: "mm"
+    stockSheetSizes: [
+      {
+        id: 7,
+        name: "Letter",
+        width: 216,
+        height: 279,
+        unit: "mm"
+      },
+      {
+        id: 8,
+        name: "Legal",
+        width: 216,
+        height: 356,
+        unit: "mm"
+      },
+      {
+        id: 9,
+        name: "Tabloid",
+        width: 279,
+        height: 432,
+        unit: "mm"
+      }
+    ]
   },
   {
     id: 4,
-    name: "SRA3",
-    width: 320,
-    height: 450,
+    name: "100g Coated",
     gsm: 100,
     pricePerTon: 1000,
-    unit: "mm"
+    stockSheetSizes: [
+      {
+        id: 10,
+        name: "SRA3",
+        width: 320,
+        height: 450,
+        unit: "mm"
+      },
+      {
+        id: 11,
+        name: "A2",
+        width: 420,
+        height: 594,
+        unit: "mm"
+      },
+      {
+        id: 12,
+        name: "B1",
+        width: 707,
+        height: 1000,
+        unit: "mm"
+      }
+    ]
   }
 ];
 
@@ -203,57 +283,60 @@ export const findOptimalPrintSheetSize = (job, paperTypes, machines) => {
   
   for (const machine of machines) {
     for (const printSheetSize of machine.printSheetSizes) {
-      for (const paper of paperTypes) {
-        // Check if print sheet size fits within the raw paper
-        if (printSheetSize.width > paper.width || printSheetSize.height > paper.height) {
-          continue;
+      for (const paperType of paperTypes) {
+        for (const stockSheetSize of paperType.stockSheetSizes) {
+          // Check if print sheet size fits within the stock sheet size
+          if (printSheetSize.width > stockSheetSize.width || printSheetSize.height > stockSheetSize.height) {
+            continue;
+          }
+          
+          const margins = {
+            top: job.marginTop,
+            right: job.marginRight,
+            bottom: job.marginBottom,
+            left: job.marginLeft
+          };
+          
+          const productsPerPrintSheet = calculateProductsPerSheet(
+            printSheetSize.width, printSheetSize.height, job.finalWidth, job.finalHeight, margins
+          );
+          
+          if (productsPerPrintSheet <= 0) continue;
+          
+          const printSheetsNeeded = calculateSheetsNeeded(job.quantity, productsPerPrintSheet);
+          
+          // Calculate how many print sheets fit per stock sheet
+          const printSheetsPerStockSheet = Math.floor(stockSheetSize.width / printSheetSize.width) * 
+                                         Math.floor(stockSheetSize.height / printSheetSize.height);
+          
+          if (printSheetsPerStockSheet <= 0) continue;
+          
+          const stockSheetsNeeded = Math.ceil(printSheetsNeeded / printSheetsPerStockSheet);
+          
+          const paperWeight = calculatePaperWeight(stockSheetSize.width, stockSheetSize.height, paperType.gsm, stockSheetsNeeded);
+          const paperCost = calculatePaperCost(paperWeight, paperType.pricePerTon);
+          const clickCost = printSheetsNeeded * printSheetSize.clickCost;
+          const setupCost = job.setupRequired ? machine.setupCost : 0;
+          const totalCost = paperCost + clickCost + setupCost;
+          const costPerUnit = totalCost / job.quantity;
+          
+          results.push({
+            machine,
+            printSheetSize,
+            paperType,
+            stockSheetSize,
+            productsPerPrintSheet,
+            printSheetsNeeded,
+            printSheetsPerStockSheet,
+            stockSheetsNeeded,
+            paperWeight,
+            paperCost,
+            clickCost,
+            setupCost,
+            totalCost,
+            costPerUnit
+          });
         }
-        
-        const margins = {
-          top: job.marginTop,
-          right: job.marginRight,
-          bottom: job.marginBottom,
-          left: job.marginLeft
-        };
-        
-        const productsPerPrintSheet = calculateProductsPerSheet(
-          printSheetSize.width, printSheetSize.height, job.finalWidth, job.finalHeight, margins
-        );
-        
-        if (productsPerPrintSheet <= 0) continue;
-        
-        const printSheetsNeeded = calculateSheetsNeeded(job.quantity, productsPerPrintSheet);
-        
-        // Calculate how many print sheets fit per raw paper sheet
-        const printSheetsPerRawSheet = Math.floor(paper.width / printSheetSize.width) * 
-                                       Math.floor(paper.height / printSheetSize.height);
-        
-        if (printSheetsPerRawSheet <= 0) continue;
-        
-        const rawSheetsNeeded = Math.ceil(printSheetsNeeded / printSheetsPerRawSheet);
-        
-        const paperWeight = calculatePaperWeight(paper.width, paper.height, paper.gsm, rawSheetsNeeded);
-        const paperCost = calculatePaperCost(paperWeight, paper.pricePerTon);
-        const clickCost = printSheetsNeeded * printSheetSize.clickCost;
-        const setupCost = job.setupRequired ? machine.setupCost : 0;
-        const totalCost = paperCost + clickCost + setupCost;
-        const costPerUnit = totalCost / job.quantity;
-        
-        results.push({
-          machine,
-          printSheetSize,
-          paper,
-          productsPerPrintSheet,
-          printSheetsNeeded,
-          printSheetsPerRawSheet,
-          rawSheetsNeeded,
-          paperWeight,
-          paperCost,
-          clickCost,
-          setupCost,
-          totalCost,
-          costPerUnit
-        });
       }
     }
   }
@@ -276,59 +359,78 @@ export const getMachineSheetSizeOptions = (machineId, machines) => {
 export const calculateSpecificSheetSize = (job, paperTypes, machine, printSheetSize) => {
   const results = [];
   
-  for (const paper of paperTypes) {
-    // Check if print sheet size fits within the raw paper
-    if (printSheetSize.width > paper.width || printSheetSize.height > paper.height) {
-      continue;
+  for (const paperType of paperTypes) {
+    for (const stockSheetSize of paperType.stockSheetSizes) {
+      // Check if print sheet size fits within the stock sheet size
+      if (printSheetSize.width > stockSheetSize.width || printSheetSize.height > stockSheetSize.height) {
+        continue;
+      }
+      
+      const margins = {
+        top: job.marginTop,
+        right: job.marginRight,
+        bottom: job.marginBottom,
+        left: job.marginLeft
+      };
+      
+      const productsPerPrintSheet = calculateProductsPerSheet(
+        printSheetSize.width, printSheetSize.height, job.finalWidth, job.finalHeight, margins
+      );
+      
+      if (productsPerPrintSheet <= 0) continue;
+      
+      const printSheetsNeeded = calculateSheetsNeeded(job.quantity, productsPerPrintSheet);
+      
+      // Calculate how many print sheets fit per stock sheet
+      const printSheetsPerStockSheet = Math.floor(stockSheetSize.width / printSheetSize.width) * 
+                                     Math.floor(stockSheetSize.height / printSheetSize.height);
+      
+      if (printSheetsPerStockSheet <= 0) continue;
+      
+      const stockSheetsNeeded = Math.ceil(printSheetsNeeded / printSheetsPerStockSheet);
+      
+      const paperWeight = calculatePaperWeight(stockSheetSize.width, stockSheetSize.height, paperType.gsm, stockSheetsNeeded);
+      const paperCost = calculatePaperCost(paperWeight, paperType.pricePerTon);
+      const clickCost = printSheetsNeeded * printSheetSize.clickCost;
+      const setupCost = job.setupRequired ? machine.setupCost : 0;
+      const totalCost = paperCost + clickCost + setupCost;
+      const costPerUnit = totalCost / job.quantity;
+      
+      results.push({
+        machine,
+        printSheetSize,
+        paperType,
+        stockSheetSize,
+        productsPerPrintSheet,
+        printSheetsNeeded,
+        printSheetsPerStockSheet,
+        stockSheetsNeeded,
+        paperWeight,
+        paperCost,
+        clickCost,
+        setupCost,
+        totalCost,
+        costPerUnit
+      });
     }
-    
-    const margins = {
-      top: job.marginTop,
-      right: job.marginRight,
-      bottom: job.marginBottom,
-      left: job.marginLeft
-    };
-    
-    const productsPerPrintSheet = calculateProductsPerSheet(
-      printSheetSize.width, printSheetSize.height, job.finalWidth, job.finalHeight, margins
-    );
-    
-    if (productsPerPrintSheet <= 0) continue;
-    
-    const printSheetsNeeded = calculateSheetsNeeded(job.quantity, productsPerPrintSheet);
-    
-    // Calculate how many print sheets fit per raw paper sheet
-    const printSheetsPerRawSheet = Math.floor(paper.width / printSheetSize.width) * 
-                                   Math.floor(paper.height / printSheetSize.height);
-    
-    if (printSheetsPerRawSheet <= 0) continue;
-    
-    const rawSheetsNeeded = Math.ceil(printSheetsNeeded / printSheetsPerRawSheet);
-    
-    const paperWeight = calculatePaperWeight(paper.width, paper.height, paper.gsm, rawSheetsNeeded);
-    const paperCost = calculatePaperCost(paperWeight, paper.pricePerTon);
-    const clickCost = printSheetsNeeded * printSheetSize.clickCost;
-    const setupCost = job.setupRequired ? machine.setupCost : 0;
-    const totalCost = paperCost + clickCost + setupCost;
-    const costPerUnit = totalCost / job.quantity;
-    
-    results.push({
-      machine,
-      printSheetSize,
-      paper,
-      productsPerPrintSheet,
-      printSheetsNeeded,
-      printSheetsPerRawSheet,
-      rawSheetsNeeded,
-      paperWeight,
-      paperCost,
-      clickCost,
-      setupCost,
-      totalCost,
-      costPerUnit
-    });
   }
   
   // Sort by total cost (best option first)
   return results.sort((a, b) => a.totalCost - b.totalCost);
+};
+
+// Helper function to get all stock sheet sizes for all paper types
+export const getAllStockSheetSizes = (paperTypes) => {
+  const allSizes = [];
+  paperTypes.forEach(paperType => {
+    paperType.stockSheetSizes.forEach(stockSize => {
+      allSizes.push({
+        ...stockSize,
+        paperType: paperType.name,
+        gsm: paperType.gsm,
+        pricePerTon: paperType.pricePerTon
+      });
+    });
+  });
+  return allSizes;
 };
