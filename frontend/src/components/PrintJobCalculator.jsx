@@ -4,9 +4,10 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Checkbox } from './ui/checkbox';
-import { Calculator, FileText } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Calculator, FileText, Award, Settings } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
-import { findBestPaperAndMachine } from '../data/mockData';
+import { findOptimalPrintSheetSize, calculateSpecificSheetSize } from '../data/mockData';
 
 const PrintJobCalculator = ({ paperTypes, machines }) => {
   const [jobData, setJobData] = useState({
@@ -21,7 +22,10 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
     isColor: false,
     setupRequired: true
   });
+  const [selectedMachine, setSelectedMachine] = useState(null);
+  const [selectedSheetSize, setSelectedSheetSize] = useState(null);
   const [results, setResults] = useState(null);
+  const [showOptimalOnly, setShowOptimalOnly] = useState(true);
   const { toast } = useToast();
 
   const handleSubmit = (e) => {
@@ -49,12 +53,22 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
       setupRequired: jobData.setupRequired
     };
 
-    const calculationResults = findBestPaperAndMachine(job, paperTypes, machines);
+    let calculationResults;
+    
+    if (selectedMachine && selectedSheetSize) {
+      // Calculate for specific machine and sheet size
+      const machine = machines.find(m => m.id === selectedMachine);
+      const sheetSize = machine.printSheetSizes.find(s => s.id === selectedSheetSize);
+      calculationResults = calculateSpecificSheetSize(job, paperTypes, machine, sheetSize);
+    } else {
+      // Find optimal combinations
+      calculationResults = findOptimalPrintSheetSize(job, paperTypes, machines);
+    }
     
     if (calculationResults.length === 0) {
       toast({
         title: "Error",
-        description: "No suitable paper and machine combination found for this job",
+        description: "No suitable paper, machine, and sheet size combination found for this job",
         variant: "destructive"
       });
       return;
@@ -80,8 +94,23 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
       isColor: false,
       setupRequired: true
     });
+    setSelectedMachine(null);
+    setSelectedSheetSize(null);
     setResults(null);
   };
+
+  const handleMachineChange = (machineId) => {
+    setSelectedMachine(machineId);
+    setSelectedSheetSize(null); // Reset sheet size when machine changes
+  };
+
+  const getAvailableSheetSizes = () => {
+    if (!selectedMachine) return [];
+    const machine = machines.find(m => m.id === selectedMachine);
+    return machine ? machine.printSheetSizes : [];
+  };
+
+  const displayResults = showOptimalOnly && results ? results.calculations.slice(0, 3) : results?.calculations || [];
 
   return (
     <div className="space-y-6">
@@ -174,25 +203,64 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                   placeholder="1000"
                 />
               </div>
-              <div className="col-span-2 flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="isColor"
-                    checked={jobData.isColor}
-                    onCheckedChange={(checked) => setJobData({ ...jobData, isColor: checked })}
-                  />
-                  <Label htmlFor="isColor">Color Printing</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="setupRequired"
-                    checked={jobData.setupRequired}
-                    onCheckedChange={(checked) => setJobData({ ...jobData, setupRequired: checked })}
-                  />
-                  <Label htmlFor="setupRequired">Setup Required</Label>
-                </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="machine">Machine (Optional)</Label>
+                <Select value={selectedMachine} onValueChange={handleMachineChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a machine" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {machines.map((machine) => (
+                      <SelectItem key={machine.id} value={machine.id}>
+                        {machine.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="sheetSize">Sheet Size (Optional)</Label>
+                <Select 
+                  value={selectedSheetSize} 
+                  onValueChange={setSelectedSheetSize}
+                  disabled={!selectedMachine}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a sheet size" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {getAvailableSheetSizes().map((sheetSize) => (
+                      <SelectItem key={sheetSize.id} value={sheetSize.id}>
+                        {sheetSize.name} ({sheetSize.width} × {sheetSize.height} mm)
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
+
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="isColor"
+                  checked={jobData.isColor}
+                  onCheckedChange={(checked) => setJobData({ ...jobData, isColor: checked })}
+                />
+                <Label htmlFor="isColor">Color Printing</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="setupRequired"
+                  checked={jobData.setupRequired}
+                  onCheckedChange={(checked) => setJobData({ ...jobData, setupRequired: checked })}
+                />
+                <Label htmlFor="setupRequired">Setup Required</Label>
+              </div>
+            </div>
+
             <div className="flex gap-2">
               <Button type="submit" className="flex items-center gap-2">
                 <Calculator size={16} />
@@ -213,56 +281,94 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
               <FileText size={20} />
               Calculation Results for "{results.job.productName}"
             </CardTitle>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="showOptimalOnly"
+                  checked={showOptimalOnly}
+                  onCheckedChange={setShowOptimalOnly}
+                />
+                <Label htmlFor="showOptimalOnly">Show only top 3 optimal solutions</Label>
+              </div>
+              <span className="text-sm text-gray-600">
+                {results.calculations.length} total options found
+              </span>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
-              {results.calculations.map((result, index) => (
+              {displayResults.map((result, index) => (
                 <div key={index} className={`p-4 border rounded-lg ${index === 0 ? 'border-green-500 bg-green-50' : 'border-gray-200'}`}>
                   {index === 0 && (
                     <div className="mb-3">
-                      <span className="inline-block px-2 py-1 text-xs font-semibold text-green-800 bg-green-200 rounded">
-                        BEST OPTION
+                      <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold text-green-800 bg-green-200 rounded">
+                        <Award size={12} />
+                        RECOMMENDED
                       </span>
                     </div>
                   )}
                   
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                     <div>
-                      <span className="font-medium text-gray-700">Paper:</span>
+                      <span className="font-medium text-gray-700">Machine:</span>
+                      <p className="text-sm">{result.machine.name}</p>
+                      <p className="text-xs text-gray-500">Setup: ${result.machine.setupCost}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Print Sheet:</span>
+                      <p className="text-sm">{result.printSheetSize.name}</p>
+                      <p className="text-xs text-gray-500">
+                        {result.printSheetSize.width} × {result.printSheetSize.height} mm
+                        {result.printSheetSize.duplexSupport && <span className="text-green-600 ml-1">| Duplex</span>}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Raw Paper:</span>
                       <p className="text-sm">{result.paper.name}</p>
                       <p className="text-xs text-gray-500">{result.paper.width} × {result.paper.height} mm, {result.paper.gsm} GSM</p>
                     </div>
                     <div>
-                      <span className="font-medium text-gray-700">Machine:</span>
-                      <p className="text-sm">{result.machine.name}</p>
-                      <p className="text-xs text-gray-500">Max: {result.machine.maxSheetWidth} × {result.machine.maxSheetHeight} mm</p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-gray-700">Products per Sheet:</span>
-                      <p className="text-sm">{result.productsPerSheet}</p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-gray-700">Sheets Needed:</span>
-                      <p className="text-sm">{result.sheetsNeeded}</p>
+                      <span className="font-medium text-gray-700">Efficiency:</span>
+                      <p className="text-sm">{result.productsPerPrintSheet} products/print sheet</p>
+                      <p className="text-xs text-gray-500">{result.printSheetsPerRawSheet} print sheets/raw sheet</p>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                     <div>
+                      <span className="font-medium text-gray-700">Print Sheets:</span>
+                      <p className="text-sm">{result.printSheetsNeeded}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Raw Sheets:</span>
+                      <p className="text-sm">{result.rawSheetsNeeded}</p>
+                    </div>
+                    <div>
                       <span className="font-medium text-gray-700">Paper Weight:</span>
                       <p className="text-sm">{result.paperWeight.toFixed(2)} kg</p>
                     </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Click Cost:</span>
+                      <p className="text-sm">${result.printSheetSize.clickCost}/click</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                     <div>
                       <span className="font-medium text-gray-700">Paper Cost:</span>
                       <p className="text-sm">${result.paperCost.toFixed(2)}</p>
                     </div>
                     <div>
-                      <span className="font-medium text-gray-700">Click Cost:</span>
+                      <span className="font-medium text-gray-700">Total Click Cost:</span>
                       <p className="text-sm">${result.clickCost.toFixed(2)}</p>
                     </div>
                     <div>
                       <span className="font-medium text-gray-700">Setup Cost:</span>
                       <p className="text-sm">${result.setupCost.toFixed(2)}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Efficiency:</span>
+                      <p className="text-sm">{((result.productsPerPrintSheet * result.printSheetsPerRawSheet / result.rawSheetsNeeded) * 100).toFixed(1)}%</p>
                     </div>
                   </div>
 
@@ -278,6 +384,19 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                   </div>
                 </div>
               ))}
+              
+              {showOptimalOnly && results.calculations.length > 3 && (
+                <div className="text-center">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setShowOptimalOnly(false)}
+                    className="flex items-center gap-2"
+                  >
+                    <Settings size={16} />
+                    Show All {results.calculations.length} Options
+                  </Button>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
