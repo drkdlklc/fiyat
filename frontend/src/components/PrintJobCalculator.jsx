@@ -60,7 +60,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
       // Calculate optimal for specific paper type - auto-select best stock sheet size
       const paperType = paperTypes.find(p => p.id === selectedPaperType);
       const machine = selectedMachine ? machines.find(m => m.id === selectedMachine) : null;
-      const printSheetSize = selectedSheetSize && machine ? machine.printSheetSizes.find(s => s.id === selectedSheetSize) : null;
+      const printSheetSize = selectedSheetSize && machine ? machine.printSheetSizes.find(s => s.id === parseInt(selectedSheetSize)) : null;
       
       calculationResults = calculateOptimalForPaperType(job, paperType, machines, machine, printSheetSize);
     } else {
