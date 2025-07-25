@@ -223,7 +223,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
             <div className="grid grid-cols-1 gap-4">
               <div>
                 <Label htmlFor="paperType">Paper Type (Optional - auto-selects optimal stock sheet)</Label>
-                <Select value={selectedPaperType} onValueChange={handlePaperTypeChange}>
+                <Select value={selectedPaperType?.toString()} onValueChange={handlePaperTypeChange}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a paper type (or leave blank for all options)" />
                   </SelectTrigger>
