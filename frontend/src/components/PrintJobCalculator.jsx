@@ -247,7 +247,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="machine">Machine (Optional)</Label>
-                <Select value={selectedMachine} onValueChange={handleMachineChange}>
+                <Select value={selectedMachine?.toString()} onValueChange={handleMachineChange}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a machine" />
                   </SelectTrigger>
