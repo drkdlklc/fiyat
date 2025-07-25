@@ -345,6 +345,88 @@ export const findOptimalPrintSheetSize = (job, paperTypes, machines) => {
   return results.sort((a, b) => a.totalCost - b.totalCost);
 };
 
+export const calculateOptimalForPaperType = (job, paperType, machines, selectedMachine = null, selectedPrintSheetSize = null) => {
+  const results = [];
+  
+  const machinesToEvaluate = selectedMachine ? [selectedMachine] : machines;
+  
+  for (const machine of machinesToEvaluate) {
+    const printSheetSizesToEvaluate = selectedPrintSheetSize ? [selectedPrintSheetSize] : machine.printSheetSizes;
+    
+    for (const printSheetSize of printSheetSizesToEvaluate) {
+      for (const stockSheetSize of paperType.stockSheetSizes) {
+        // Check if print sheet size fits within the stock sheet size
+        if (printSheetSize.width > stockSheetSize.width || printSheetSize.height > stockSheetSize.height) {
+          continue;
+        }
+        
+        const margins = {
+          top: job.marginTop,
+          right: job.marginRight,
+          bottom: job.marginBottom,
+          left: job.marginLeft
+        };
+        
+        const productsPerPrintSheet = calculateProductsPerSheet(
+          printSheetSize.width, printSheetSize.height, job.finalWidth, job.finalHeight, margins
+        );
+        
+        if (productsPerPrintSheet <= 0) continue;
+        
+        const printSheetsNeeded = calculateSheetsNeeded(job.quantity, productsPerPrintSheet);
+        
+        // Calculate how many print sheets fit per stock sheet
+        const printSheetsPerStockSheet = Math.floor(stockSheetSize.width / printSheetSize.width) * 
+                                       Math.floor(stockSheetSize.height / printSheetSize.height);
+        
+        if (printSheetsPerStockSheet <= 0) continue;
+        
+        const stockSheetsNeeded = Math.ceil(printSheetsNeeded / printSheetsPerStockSheet);
+        
+        const paperWeight = calculatePaperWeight(stockSheetSize.width, stockSheetSize.height, paperType.gsm, stockSheetsNeeded);
+        const paperCost = calculatePaperCost(paperWeight, paperType.pricePerTon);
+        const clickCost = printSheetsNeeded * printSheetSize.clickCost;
+        const setupCost = job.setupRequired ? machine.setupCost : 0;
+        const totalCost = paperCost + clickCost + setupCost;
+        const costPerUnit = totalCost / job.quantity;
+        
+        // Calculate efficiency metrics
+        const stockArea = (stockSheetSize.width * stockSheetSize.height) / 1000000; // m²
+        const productArea = (job.finalWidth * job.finalHeight) / 1000000; // m²
+        const wastePercentage = ((stockArea - (productArea * productsPerPrintSheet * printSheetsPerStockSheet)) / stockArea) * 100;
+        
+        results.push({
+          machine,
+          printSheetSize,
+          paperType,
+          stockSheetSize,
+          productsPerPrintSheet,
+          printSheetsNeeded,
+          printSheetsPerStockSheet,
+          stockSheetsNeeded,
+          paperWeight,
+          paperCost,
+          clickCost,
+          setupCost,
+          totalCost,
+          costPerUnit,
+          stockArea,
+          productArea,
+          wastePercentage
+        });
+      }
+    }
+  }
+  
+  // Sort by total cost first, then by waste percentage (lower is better)
+  return results.sort((a, b) => {
+    if (Math.abs(a.totalCost - b.totalCost) < 0.01) {
+      return a.wastePercentage - b.wastePercentage;
+    }
+    return a.totalCost - b.totalCost;
+  });
+};
+
 export const findBestPaperAndMachine = (job, paperTypes, machines) => {
   return findOptimalPrintSheetSize(job, paperTypes, machines);
 };

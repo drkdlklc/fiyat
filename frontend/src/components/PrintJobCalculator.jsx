@@ -5,9 +5,9 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Checkbox } from './ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Calculator, FileText, Award, Settings } from 'lucide-react';
+import { Calculator, FileText, Award, Settings, CheckCircle } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
-import { findOptimalPrintSheetSize, calculateSpecificSheetSize } from '../data/mockData';
+import { findOptimalPrintSheetSize, calculateOptimalForPaperType } from '../data/mockData';
 
 const PrintJobCalculator = ({ paperTypes, machines }) => {
   const [jobData, setJobData] = useState({
@@ -22,6 +22,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
     isColor: false,
     setupRequired: true
   });
+  const [selectedPaperType, setSelectedPaperType] = useState(null);
   const [selectedMachine, setSelectedMachine] = useState(null);
   const [selectedSheetSize, setSelectedSheetSize] = useState(null);
   const [results, setResults] = useState(null);
@@ -55,13 +56,15 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
 
     let calculationResults;
     
-    if (selectedMachine && selectedSheetSize) {
-      // Calculate for specific machine and sheet size
-      const machine = machines.find(m => m.id === selectedMachine);
-      const sheetSize = machine.printSheetSizes.find(s => s.id === selectedSheetSize);
-      calculationResults = calculateSpecificSheetSize(job, paperTypes, machine, sheetSize);
+    if (selectedPaperType) {
+      // Calculate optimal for specific paper type - auto-select best stock sheet size
+      const paperType = paperTypes.find(p => p.id === selectedPaperType);
+      const machine = selectedMachine ? machines.find(m => m.id === selectedMachine) : null;
+      const printSheetSize = selectedSheetSize && machine ? machine.printSheetSizes.find(s => s.id === selectedSheetSize) : null;
+      
+      calculationResults = calculateOptimalForPaperType(job, paperType, machines, machine, printSheetSize);
     } else {
-      // Find optimal combinations
+      // Find optimal combinations across all paper types
       calculationResults = findOptimalPrintSheetSize(job, paperTypes, machines);
     }
     
@@ -74,10 +77,17 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
       return;
     }
 
-    setResults({ job, calculations: calculationResults });
+    setResults({ 
+      job, 
+      calculations: calculationResults, 
+      selectedPaperType: selectedPaperType ? paperTypes.find(p => p.id === selectedPaperType) : null
+    });
+    
     toast({
       title: "Success",
-      description: "Job calculation completed successfully"
+      description: selectedPaperType ? 
+        `Job calculated for ${paperTypes.find(p => p.id === selectedPaperType).name} with optimal stock sheet selection` :
+        "Job calculation completed successfully across all paper types"
     });
   };
 
@@ -94,6 +104,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
       isColor: false,
       setupRequired: true
     });
+    setSelectedPaperType(null);
     setSelectedMachine(null);
     setSelectedSheetSize(null);
     setResults(null);
@@ -102,6 +113,10 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
   const handleMachineChange = (machineId) => {
     setSelectedMachine(machineId);
     setSelectedSheetSize(null); // Reset sheet size when machine changes
+  };
+
+  const handlePaperTypeChange = (paperTypeId) => {
+    setSelectedPaperType(paperTypeId);
   };
 
   const getAvailableSheetSizes = () => {
@@ -205,6 +220,30 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
               </div>
             </div>
 
+            <div className="grid grid-cols-1 gap-4">
+              <div>
+                <Label htmlFor="paperType">Paper Type (Optional - auto-selects optimal stock sheet)</Label>
+                <Select value={selectedPaperType} onValueChange={handlePaperTypeChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a paper type (or leave blank for all options)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {paperTypes.map((paperType) => (
+                      <SelectItem key={paperType.id} value={paperType.id}>
+                        {paperType.name} ({paperType.gsm} GSM)
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {selectedPaperType && (
+                  <p className="text-sm text-green-600 mt-1 flex items-center gap-1">
+                    <CheckCircle size={14} />
+                    System will automatically select the most cost-efficient stock sheet size
+                  </p>
+                )}
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="machine">Machine (Optional)</Label>
@@ -222,7 +261,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="sheetSize">Sheet Size (Optional)</Label>
+                <Label htmlFor="sheetSize">Print Sheet Size (Optional)</Label>
                 <Select 
                   value={selectedSheetSize} 
                   onValueChange={setSelectedSheetSize}
@@ -293,6 +332,11 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
               <span className="text-sm text-gray-600">
                 {results.calculations.length} total options found
               </span>
+              {results.selectedPaperType && (
+                <span className="text-sm text-blue-600 font-medium">
+                  Paper Type: {results.selectedPaperType.name}
+                </span>
+              )}
             </div>
           </CardHeader>
           <CardContent>
@@ -303,7 +347,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                     <div className="mb-3">
                       <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold text-green-800 bg-green-200 rounded">
                         <Award size={12} />
-                        RECOMMENDED
+                        {results.selectedPaperType ? 'OPTIMAL STOCK SHEET' : 'RECOMMENDED'}
                       </span>
                     </div>
                   )}
@@ -316,8 +360,14 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                     </div>
                     <div>
                       <span className="font-medium text-gray-700">Stock Sheet:</span>
-                      <p className="text-sm">{result.stockSheetSize.name}</p>
+                      <p className="text-sm font-semibold text-blue-600">{result.stockSheetSize.name}</p>
                       <p className="text-xs text-gray-500">{result.stockSheetSize.width} × {result.stockSheetSize.height} mm</p>
+                      {results.selectedPaperType && index === 0 && (
+                        <p className="text-xs text-green-600 flex items-center gap-1">
+                          <CheckCircle size={12} />
+                          Auto-selected
+                        </p>
+                      )}
                     </div>
                     <div>
                       <span className="font-medium text-gray-700">Machine:</span>
@@ -390,6 +440,21 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                       <p className="text-sm">{((result.printSheetSize.width * result.printSheetSize.height) / 1000000).toFixed(3)} m²</p>
                     </div>
                   </div>
+
+                  {result.wastePercentage !== undefined && (
+                    <div className="grid grid-cols-2 gap-4 mb-4 p-3 bg-gray-100 rounded">
+                      <div>
+                        <span className="font-medium text-gray-700">Paper Waste:</span>
+                        <p className="text-sm">{result.wastePercentage.toFixed(1)}%</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">Optimization Reason:</span>
+                        <p className="text-sm text-green-600">
+                          {results.selectedPaperType ? 'Lowest cost + minimal waste' : 'Best overall cost efficiency'}
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                     <div>
