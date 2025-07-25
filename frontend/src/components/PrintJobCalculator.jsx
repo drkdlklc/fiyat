@@ -86,7 +86,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
     toast({
       title: "Success",
       description: selectedPaperType ? 
-        `Job calculated for ${paperTypes.find(p => p.id === selectedPaperType).name} with optimal stock sheet selection` :
+        `Job calculated for ${paperTypes.find(p => p.id === selectedPaperType)?.name || 'selected paper type'} with optimal stock sheet selection` :
         "Job calculation completed successfully across all paper types"
     });
   };
