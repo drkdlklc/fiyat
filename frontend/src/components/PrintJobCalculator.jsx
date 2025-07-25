@@ -253,7 +253,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                   </SelectTrigger>
                   <SelectContent>
                     {machines.map((machine) => (
-                      <SelectItem key={machine.id} value={machine.id}>
+                      <SelectItem key={machine.id} value={machine.id.toString()}>
                         {machine.name}
                       </SelectItem>
                     ))}
