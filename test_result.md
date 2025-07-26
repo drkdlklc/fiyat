@@ -202,5 +202,7 @@ agent_communication:
     message: "Starting implementation of multi-part printing feature for both Normal and Booklet modes. Will add toggles for different paper types and machines, with dynamic UI sections for each part and updated calculation logic."
   - agent: "main"
     message: "Successfully implemented complete multi-part printing feature with UI toggles, dynamic sections, calculation logic, and results display. Feature is working in both Normal and Booklet modes with limit of 3 parts per configuration."
+  - agent: "main"
+    message: "Updated multi-part configuration to use unified approach - merged separate paper type and machine toggles into single section where each part specifies both paper type AND machine together. This provides better UX and clearer paper-machine pairing in results display."
   - agent: "testing"
     message: "Backend API testing completed. All core endpoints (/, /status GET/POST) working correctly. Database connectivity verified. Backend service running properly via supervisor. No calculation endpoints found as expected for frontend-focused feature. Backend is healthy and ready for future integration. Created backend_test.py for comprehensive API testing."
