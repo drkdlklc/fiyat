@@ -974,7 +974,10 @@ export const calculateSpecificSheetSize = (job, paperTypes, machine, printSheetS
         setupCost,
         totalCost,
         costPerUnit,
-        clickMultiplier
+        clickMultiplier,
+        bindingEdge: job.bindingEdge,
+        effectiveWidth,
+        effectiveHeight
       });
     }
   }
