@@ -87,7 +87,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
     }
     
     if (jobData.isBookletMode && jobData.useMultiPartInnerConfiguration) {
-      const totalInnerPages = Math.max(0, parseInt(jobData.totalPages) - 4); // Subtract 4 cover pages (1 sheet = 4 pages)
+      const totalInnerPages = Math.max(0, parseInt(jobData.totalPages) - 4); // Subtract 4 cover pages (1 cover = 4 pages)
       const totalMultiPartInnerPages = multiPartInnerConfigurations.reduce((sum, config) => {
         const pageCount = parseInt(config.pageCount) || 0;
         return sum + pageCount;
