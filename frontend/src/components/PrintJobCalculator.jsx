@@ -20,7 +20,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
     marginLeft: '3',
     quantity: '',
     isDoubleSided: false,
-    setupRequired: true,
+    setupRequired: false,
     isBookletMode: false,
     coverSetupRequired: false,
     totalPages: '',
