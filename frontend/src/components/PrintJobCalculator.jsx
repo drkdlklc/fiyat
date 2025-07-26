@@ -7,7 +7,7 @@ import { Checkbox } from './ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Calculator, FileText, Award, Settings, CheckCircle } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
-import { findOptimalPrintSheetSize, calculateOptimalForPaperType } from '../data/mockData';
+import { findOptimalPrintSheetSize, calculateOptimalForPaperType, calculateCoverCost } from '../data/mockData';
 
 const PrintJobCalculator = ({ paperTypes, machines }) => {
   const [jobData, setJobData] = useState({
