@@ -388,13 +388,21 @@ export const findOptimalPrintSheetSize = (job, paperTypes, machines) => {
           
           const printSheetsNeeded = calculateSheetsNeeded(job.quantity, productsPerPrintSheet);
           
+          // For booklet with cover, adjust the calculation for inner pages
+          let actualPrintSheetsNeeded = printSheetsNeeded;
+          if (job.hasCover && job.totalPages) {
+            const innerPages = Math.max(0, job.totalPages - 2); // Subtract cover pages
+            const innerSheetsPerBooklet = Math.ceil(innerPages / (job.isDoubleSided ? 2 : 1));
+            actualPrintSheetsNeeded = job.quantity * innerSheetsPerBooklet;
+          }
+          
           // Calculate how many print sheets fit per stock sheet
           const printSheetsPerStockSheet = Math.floor(stockSheetSize.width / printSheetSize.width) * 
                                          Math.floor(stockSheetSize.height / printSheetSize.height);
           
           if (printSheetsPerStockSheet <= 0) continue;
           
-          const stockSheetsNeeded = Math.ceil(printSheetsNeeded / printSheetsPerStockSheet);
+          const stockSheetsNeeded = Math.ceil(actualPrintSheetsNeeded / printSheetsPerStockSheet);
           
           const paperWeight = calculatePaperWeight(stockSheetSize.width, stockSheetSize.height, paperType.gsm, stockSheetsNeeded);
           const paperCost = calculatePaperCost(paperWeight, paperType.pricePerTon);
