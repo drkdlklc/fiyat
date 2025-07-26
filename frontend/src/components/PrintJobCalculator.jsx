@@ -59,6 +59,16 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     
+    // Validate required fields
+    if (!jobData.productName || !jobData.finalWidth || !jobData.finalHeight || !jobData.quantity) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
     // Validate multi-part configurations
     if (jobData.useMultiPartConfiguration) {
       const totalMultiPartPages = multiPartConfigurations.reduce((sum, config) => {
