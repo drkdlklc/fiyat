@@ -690,8 +690,10 @@ export const calculateMultiPartInnerPagesCost = (job, multiPartConfigs, paperTyp
 
     if (!paperType && !machine) continue;
 
-    // For booklet mode, calculate total pages for this part across all booklets
-    const totalPagesForPart = isBookletMode ? job.quantity * pageCount : pageCount;
+    // For booklet mode inner pages: 1 sheet = 2 pages
+    // Calculate total sheets needed for this part
+    const sheetsNeededPerBooklet = Math.ceil(pageCount / 2);
+    const totalSheetsForPart = isBookletMode ? job.quantity * sheetsNeededPerBooklet : sheetsNeededPerBooklet;
 
     let bestOption = null;
     let lowestCost = Infinity;
@@ -714,13 +716,14 @@ export const calculateMultiPartInnerPagesCost = (job, multiPartConfigs, paperTyp
               left: job.marginLeft
             };
 
-            const pagesPerPrintSheet = calculateProductsPerSheet(
+            // Calculate how many sheets can fit per print sheet
+            const sheetsPerPrintSheet = calculateProductsPerSheet(
               printSheetSize.width, printSheetSize.height, job.finalWidth, job.finalHeight, margins
             );
 
-            if (pagesPerPrintSheet <= 0) continue;
+            if (sheetsPerPrintSheet <= 0) continue;
 
-            const printSheetsNeeded = Math.ceil(totalPagesForPart / pagesPerPrintSheet);
+            const printSheetsNeeded = Math.ceil(totalSheetsForPart / sheetsPerPrintSheet);
             const printSheetsPerStockSheet = Math.floor(stockSheetSize.width / printSheetSize.width) * 
                                            Math.floor(stockSheetSize.height / printSheetSize.height);
 
@@ -742,7 +745,7 @@ export const calculateMultiPartInnerPagesCost = (job, multiPartConfigs, paperTyp
                 machine: m,
                 printSheetSize,
                 stockSheetSize,
-                pagesPerPrintSheet,
+                sheetsPerPrintSheet,
                 printSheetsNeeded,
                 printSheetsPerStockSheet,
                 stockSheetsNeeded,
@@ -752,7 +755,8 @@ export const calculateMultiPartInnerPagesCost = (job, multiPartConfigs, paperTyp
                 setupCost,
                 totalCost,
                 partPageCount: pageCount,
-                totalPagesForPart,
+                sheetsNeededPerBooklet,
+                totalSheetsForPart,
                 partNumber: results.length + 1,
                 isMultiPart: true,
                 clickMultiplier
