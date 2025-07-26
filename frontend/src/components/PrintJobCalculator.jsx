@@ -54,7 +54,8 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
       marginLeft: parseFloat(jobData.marginLeft),
       quantity: parseInt(jobData.quantity),
       isDoubleSided: jobData.isDoubleSided,
-      setupRequired: jobData.setupRequired
+      setupRequired: jobData.setupRequired,
+      hasCover: jobData.hasCover
     };
 
     let calculationResults;
