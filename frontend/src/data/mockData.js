@@ -331,21 +331,8 @@ export const calculateCoverCost = (job, coverPaperType, coverMachine) => {
       const printSheetsNeeded = Math.ceil(coverSheetsNeeded / coverSheetsPerPrintSheet);
       
       // Calculate how many print sheets fit per stock sheet
-      // For booklet covers, apply folding logic to print sheet arrangement
-      let effectivePrintWidth = printSheetSize.width;
-      let effectivePrintHeight = printSheetSize.height;
-      
-      // Booklet cover folding logic: halve the binding edge dimension for arrangement
-      if (job.bindingEdge === 'short') {
-        // Short edge binding: halve the width for arrangement calculation
-        effectivePrintWidth = printSheetSize.width / 2;
-      } else {
-        // Long edge binding: halve the height for arrangement calculation  
-        effectivePrintHeight = printSheetSize.height / 2;
-      }
-      
-      const printSheetsPerStockSheet = Math.floor(stockSheetSize.width / effectivePrintWidth) * 
-                                     Math.floor(stockSheetSize.height / effectivePrintHeight);
+      const printSheetsPerStockSheet = Math.floor(stockSheetSize.width / printSheetSize.width) * 
+                                     Math.floor(stockSheetSize.height / printSheetSize.height);
       
       if (printSheetsPerStockSheet <= 0) continue;
       
