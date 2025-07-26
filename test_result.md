@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "The program is currently calculating the 'Stock Sheets Needed' as double the required amount. One cover yields 4 pages"
+user_problem_statement: "1 sheet = 4 pages update the program around this"
 
 backend:
   - task: "Updated '1 sheet = 4 pages' calculation system verification"
