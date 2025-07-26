@@ -126,6 +126,14 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
     setSelectedPaperType(paperTypeId ? parseInt(paperTypeId) : null);
   };
 
+  const handleCoverPaperTypeChange = (paperTypeId) => {
+    setSelectedCoverPaperType(paperTypeId ? parseInt(paperTypeId) : null);
+  };
+
+  const handleCoverMachineChange = (machineId) => {
+    setSelectedCoverMachine(machineId ? parseInt(machineId) : null);
+  };
+
   const getAvailableSheetSizes = () => {
     if (!selectedMachine) return [];
     const machine = machines.find(m => m.id === selectedMachine);
