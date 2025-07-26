@@ -191,7 +191,9 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
 
             {jobData.hasCover && (
               <div className="p-4 border rounded-lg bg-blue-50">
-                <h3 className="font-semibold text-lg mb-3 text-blue-800">Cover Configuration</h3>
+                <h3 className="font-semibold text-lg mb-3 text-blue-800">
+                  Cover Configuration - Booklet Mode
+                </h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="coverPaperType">Cover Paper Type</Label>
@@ -223,9 +225,27 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                       </SelectContent>
                     </Select>
                   </div>
+                  <div>
+                    <Label htmlFor="totalPages">Total Pages (including cover) *</Label>
+                    <Input
+                      id="totalPages"
+                      type="number"
+                      value={jobData.totalPages}
+                      onChange={(e) => setJobData({ ...jobData, totalPages: e.target.value })}
+                      placeholder="e.g., 16, 20, 24"
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2 mt-6">
+                    <Checkbox
+                      id="coverSetupRequired"
+                      checked={jobData.coverSetupRequired}
+                      onCheckedChange={(checked) => setJobData({ ...jobData, coverSetupRequired: checked })}
+                    />
+                    <Label htmlFor="coverSetupRequired">Cover Setup Required</Label>
+                  </div>
                 </div>
                 <p className="text-sm text-blue-600 mt-2">
-                  Cover will be printed separately using the selected paper type and machine.
+                  <strong>Booklet detected:</strong> Cover will be printed separately. Total pages should include cover pages.
                 </p>
               </div>
             )}
