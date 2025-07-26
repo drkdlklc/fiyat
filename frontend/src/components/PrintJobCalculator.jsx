@@ -580,13 +580,16 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                   <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                     <div>
                       <span className="font-bold text-lg text-gray-800">
-                        {results.job.hasCover ? 'Body Cost:' : 'Total Cost:'}
+                        {results.job.hasCover ? 'Inner Pages Cost:' : 'Total Cost:'}
                       </span>
                       <p className="text-xl font-bold text-green-600">${result.totalCost.toFixed(2)}</p>
+                      {results.job.hasCover && result.innerPages > 0 && (
+                        <p className="text-sm text-gray-600">For {result.innerPages} inner pages</p>
+                      )}
                     </div>
                     <div>
                       <span className="font-bold text-lg text-gray-800">
-                        {results.job.hasCover ? 'Body Cost per Unit:' : 'Cost per Unit:'}
+                        {results.job.hasCover ? 'Inner Pages Cost per Unit:' : 'Cost per Unit:'}
                       </span>
                       <p className="text-xl font-bold text-blue-600">${result.costPerUnit.toFixed(4)}</p>
                     </div>
