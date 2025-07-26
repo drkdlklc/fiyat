@@ -538,6 +538,145 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                       </Select>
                     </div>
                   </div>
+
+                  <div className="mt-4 space-y-3">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="useMultipleInnerPaperTypes"
+                        checked={jobData.useMultipleInnerPaperTypes}
+                        onCheckedChange={(checked) => setJobData({ ...jobData, useMultipleInnerPaperTypes: checked })}
+                      />
+                      <Label htmlFor="useMultipleInnerPaperTypes">Use Different Paper Types for Inner Pages</Label>
+                    </div>
+
+                    {jobData.useMultipleInnerPaperTypes && (
+                      <div className="p-3 border rounded-lg bg-blue-50">
+                        <h4 className="font-semibold text-blue-800 mb-2">Inner Paper Type Configuration</h4>
+                        {multiPartInnerPaperTypes.map((part, index) => (
+                          <div key={part.id} className="grid grid-cols-3 gap-3 mb-2">
+                            <div>
+                              <Label>Paper Type {index + 1}</Label>
+                              <Select 
+                                value={part.paperTypeId?.toString() || ''} 
+                                onValueChange={(value) => updateMultiPartInnerPaperType(part.id, 'paperTypeId', value ? parseInt(value) : null)}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select paper" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {paperTypes.map((paperType) => (
+                                    <SelectItem key={paperType.id} value={paperType.id.toString()}>
+                                      {paperType.name} ({paperType.gsm} GSM)
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label>Page Count</Label>
+                              <Input
+                                type="number"
+                                value={part.pageCount}
+                                onChange={(e) => updateMultiPartInnerPaperType(part.id, 'pageCount', e.target.value)}
+                                placeholder="e.g., 10"
+                              />
+                            </div>
+                            <div className="flex items-end gap-1">
+                              {multiPartInnerPaperTypes.length < 3 && (
+                                <Button 
+                                  type="button" 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={addMultiPartInnerPaperType}
+                                >
+                                  <Plus size={14} />
+                                </Button>
+                              )}
+                              {multiPartInnerPaperTypes.length > 1 && (
+                                <Button 
+                                  type="button" 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => removeMultiPartInnerPaperType(part.id)}
+                                >
+                                  <Minus size={14} />
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="useMultipleInnerMachines"
+                        checked={jobData.useMultipleInnerMachines}
+                        onCheckedChange={(checked) => setJobData({ ...jobData, useMultipleInnerMachines: checked })}
+                      />
+                      <Label htmlFor="useMultipleInnerMachines">Use Different Machines for Inner Pages</Label>
+                    </div>
+
+                    {jobData.useMultipleInnerMachines && (
+                      <div className="p-3 border rounded-lg bg-purple-50">
+                        <h4 className="font-semibold text-purple-800 mb-2">Inner Machine Configuration</h4>
+                        {multiPartInnerMachines.map((part, index) => (
+                          <div key={part.id} className="grid grid-cols-3 gap-3 mb-2">
+                            <div>
+                              <Label>Machine {index + 1}</Label>
+                              <Select 
+                                value={part.machineId?.toString() || ''} 
+                                onValueChange={(value) => updateMultiPartInnerMachine(part.id, 'machineId', value ? parseInt(value) : null)}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select machine" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {machines.map((machine) => (
+                                    <SelectItem key={machine.id} value={machine.id.toString()}>
+                                      {machine.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label>Page Count</Label>
+                              <Input
+                                type="number"
+                                value={part.pageCount}
+                                onChange={(e) => updateMultiPartInnerMachine(part.id, 'pageCount', e.target.value)}
+                                placeholder="e.g., 10"
+                              />
+                            </div>
+                            <div className="flex items-end gap-1">
+                              {multiPartInnerMachines.length < 3 && (
+                                <Button 
+                                  type="button" 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={addMultiPartInnerMachine}
+                                >
+                                  <Plus size={14} />
+                                </Button>
+                              )}
+                              {multiPartInnerMachines.length > 1 && (
+                                <Button 
+                                  type="button" 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => removeMultiPartInnerMachine(part.id)}
+                                >
+                                  <Minus size={14} />
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
                   <p className="text-sm text-orange-600 mt-2">
                     Inner pages will be calculated as: {jobData.totalPages ? `(${jobData.totalPages} total - 2 cover = ${Math.max(0, jobData.totalPages - 2)} inner pages) × ${jobData.quantity || 'quantity'} booklets` : '(total pages - 2) × quantity booklets'}
                   </p>
