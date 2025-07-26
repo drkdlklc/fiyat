@@ -248,16 +248,6 @@ const MachineManager = ({ machines, onAddMachine, onUpdateMachine, onDeleteMachi
                         placeholder="450"
                       />
                     </div>
-                    <div className="col-span-2">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="duplexSupport"
-                          checked={sheetSizeForm.duplexSupport}
-                          onCheckedChange={(checked) => setSheetSizeForm({ ...sheetSizeForm, duplexSupport: checked })}
-                        />
-                        <Label htmlFor="duplexSupport">Duplex Support</Label>
-                      </div>
-                    </div>
                   </div>
                   <div className="flex gap-2 mt-3">
                     <Button type="button" size="sm" onClick={handleAddSheetSize}>
