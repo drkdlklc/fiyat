@@ -765,9 +765,9 @@ export const calculateMultiPartInnerPagesCost = (job, multiPartConfigs, paperTyp
 
     if (!paperType && !machine) continue;
 
-    // For booklet mode inner pages: 1 sheet = 2 pages
+    // For booklet mode inner pages: 1 sheet = 4 pages (with doubled dimensions)
     // Calculate total sheets needed for this part
-    const sheetsNeededPerBooklet = Math.ceil(pageCount / 2);
+    const sheetsNeededPerBooklet = Math.ceil(pageCount / 4);
     const totalSheetsForPart = isBookletMode ? job.quantity * sheetsNeededPerBooklet : sheetsNeededPerBooklet;
 
     // Determine the orientation based on binding edge with doubling logic (same as covers)
