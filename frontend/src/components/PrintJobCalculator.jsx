@@ -226,7 +226,8 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
       calculations: calculationResults, 
       selectedPaperType: selectedPaperType ? paperTypes.find(p => p.id === selectedPaperType) : null,
       coverResults,
-      innerPagesResults
+      innerPagesResults,
+      multiPartResults
     });
     
     toast({
