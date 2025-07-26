@@ -483,7 +483,11 @@ export const calculateSpecificSheetSize = (job, paperTypes, machine, printSheetS
       
       const paperWeight = calculatePaperWeight(stockSheetSize.width, stockSheetSize.height, paperType.gsm, stockSheetsNeeded);
       const paperCost = calculatePaperCost(paperWeight, paperType.pricePerTon);
-      const clickCost = printSheetsNeeded * printSheetSize.clickCost;
+      
+      // Calculate click cost based on double-sided printing
+      const clickMultiplier = job.isDoubleSided ? 2 : 1;
+      const clickCost = printSheetsNeeded * printSheetSize.clickCost * clickMultiplier;
+      
       const setupCost = job.setupRequired ? machine.setupCost : 0;
       const totalCost = paperCost + clickCost + setupCost;
       const costPerUnit = totalCost / job.quantity;
@@ -502,7 +506,8 @@ export const calculateSpecificSheetSize = (job, paperTypes, machine, printSheetS
         clickCost,
         setupCost,
         totalCost,
-        costPerUnit
+        costPerUnit,
+        clickMultiplier
       });
     }
   }
