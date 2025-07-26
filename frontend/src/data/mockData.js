@@ -358,7 +358,8 @@ export const calculateCoverCost = (job, coverPaperType, coverMachine) => {
           printSheetSize,
           stockSheetSize,
           coverSheetsPerPrintSheet,
-          printSheetsNeeded,
+          printSheetsNeeded: adjustedPrintSheetsNeeded, // Use adjusted value
+          originalPrintSheetsNeeded: printSheetsNeeded, // Keep original for reference
           printSheetsPerStockSheet,
           stockSheetsNeeded,
           paperWeight,
