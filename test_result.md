@@ -258,12 +258,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Multi-part paper types toggle and UI"
-    - "Multi-part machines toggle and UI"
-    - "Multi-part calculation logic"
-    - "Multi-part results display"
+    - "UI text refinement in booklet mode - Update 'Total Click Cost' to 'Total'"
   stuck_tasks: []
-  test_all: true
+  test_all: false
   test_priority: "high_first"
 
 agent_communication:
