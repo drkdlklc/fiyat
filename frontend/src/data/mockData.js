@@ -284,9 +284,9 @@ export const calculateCoverCost = (job, coverPaperType, coverMachine) => {
   }
 
   // For booklet mode: 
-  // Total covers needed = 1 cover per booklet
-  // Each cover when folded yields 4 pages, but we only need to print 1 cover per booklet
-  const totalCoversNeeded = job.quantity;
+  // Each booklet needs 1 cover sheet
+  // Each cover sheet provides 4 pages when folded
+  const coverSheetsNeeded = job.quantity; // 1 cover sheet per booklet
   
   // Find the best stock sheet size for the cover
   let bestCoverOption = null;
@@ -306,13 +306,14 @@ export const calculateCoverCost = (job, coverPaperType, coverMachine) => {
         left: job.marginLeft
       };
       
-      const coversPerPrintSheet = calculateProductsPerSheet(
+      // Calculate how many cover sheets can fit per print sheet
+      const coverSheetsPerPrintSheet = calculateProductsPerSheet(
         printSheetSize.width, printSheetSize.height, job.finalWidth, job.finalHeight, margins
       );
       
-      if (coversPerPrintSheet <= 0) continue;
+      if (coverSheetsPerPrintSheet <= 0) continue;
       
-      const printSheetsNeeded = Math.ceil(totalCoversNeeded / coversPerPrintSheet);
+      const printSheetsNeeded = Math.ceil(coverSheetsNeeded / coverSheetsPerPrintSheet);
       
       // Calculate how many print sheets fit per stock sheet
       const printSheetsPerStockSheet = Math.floor(stockSheetSize.width / printSheetSize.width) * 
@@ -337,7 +338,7 @@ export const calculateCoverCost = (job, coverPaperType, coverMachine) => {
           machine: coverMachine,
           printSheetSize,
           stockSheetSize,
-          coversPerPrintSheet,
+          coverSheetsPerPrintSheet,
           printSheetsNeeded,
           printSheetsPerStockSheet,
           stockSheetsNeeded,
@@ -347,8 +348,9 @@ export const calculateCoverCost = (job, coverPaperType, coverMachine) => {
           setupCost,
           totalCost,
           totalPages: job.totalPages,
-          innerPages: Math.max(0, job.totalPages - 2),
-          totalCoverPages: totalCoversNeeded * 4, // Each cover yields 4 pages when folded
+          coverSheetsNeeded,
+          totalCoverPages: coverSheetsNeeded * 4, // Each cover sheet provides 4 pages
+          bookletQuantity: job.quantity
           bookletQuantity: job.quantity
         };
       }
