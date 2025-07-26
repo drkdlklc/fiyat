@@ -378,6 +378,12 @@ export const calculateInnerPagesCost = (job, innerPaperType, innerMachine) => {
   
   if (totalInnerSheetsNeeded <= 0) return null;
   
+  // Determine the orientation based on binding edge
+  // Short edge binding: portrait orientation (normal width x height)
+  // Long edge binding: landscape orientation (height x width)
+  const effectiveWidth = job.bindingEdge === 'short' ? job.finalWidth : job.finalHeight;
+  const effectiveHeight = job.bindingEdge === 'short' ? job.finalHeight : job.finalWidth;
+  
   // Find the best stock sheet size for inner pages
   let bestInnerOption = null;
   let lowestCost = Infinity;
@@ -396,9 +402,9 @@ export const calculateInnerPagesCost = (job, innerPaperType, innerMachine) => {
         left: job.marginLeft
       };
       
-      // Calculate how many inner sheets can fit per print sheet
+      // Calculate how many inner sheets can fit per print sheet using effective dimensions
       const innerSheetsPerPrintSheet = calculateProductsPerSheet(
-        printSheetSize.width, printSheetSize.height, job.finalWidth, job.finalHeight, margins
+        printSheetSize.width, printSheetSize.height, effectiveWidth, effectiveHeight, margins
       );
       
       if (innerSheetsPerPrintSheet <= 0) continue;
@@ -444,7 +450,10 @@ export const calculateInnerPagesCost = (job, innerPaperType, innerMachine) => {
           totalInnerSheetsNeeded,
           totalInnerPages: totalInnerSheetsNeeded * 2, // Each inner sheet provides 2 pages
           bookletQuantity: job.quantity,
-          clickMultiplier
+          clickMultiplier,
+          bindingEdge: job.bindingEdge,
+          effectiveWidth,
+          effectiveHeight
         };
       }
     }
