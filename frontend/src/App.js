@@ -11,46 +11,193 @@ import { Calculator, FileText, Settings, Printer, RefreshCw } from 'lucide-react
 import './App.css';
 
 function App() {
-  const [paperTypes, setPaperTypes] = useState(mockPaperTypes);
-  const [machines, setMachines] = useState(mockMachines);
+  const [paperTypes, setPaperTypes] = useState([]);
+  const [machines, setMachines] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  // Initialize data on component mount
+  useEffect(() => {
+    initializeData();
+  }, []);
+
+  const initializeData = async () => {
+    try {
+      setLoading(true);
+      
+      // Initialize default data if needed
+      await apiService.initializeData();
+      
+      // Fetch paper types and machines
+      await Promise.all([
+        loadPaperTypes(),
+        loadMachines()
+      ]);
+      
+      setLoading(false);
+    } catch (error) {
+      console.error('Error initializing data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to initialize data. Please check your connection.",
+        variant: "destructive"
+      });
+      setLoading(false);
+    }
+  };
+
+  const loadPaperTypes = async () => {
+    try {
+      const types = await apiService.getPaperTypes();
+      setPaperTypes(types);
+    } catch (error) {
+      console.error('Error loading paper types:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load paper types.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const loadMachines = async () => {
+    try {
+      const machineList = await apiService.getMachines();
+      setMachines(machineList);
+    } catch (error) {
+      console.error('Error loading machines:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load machines.",
+        variant: "destructive"
+      });
+    }
+  };
 
   // Paper type management
-  const handleAddPaperType = (paperData) => {
-    const newPaper = {
-      id: Date.now(),
-      ...paperData
-    };
-    setPaperTypes([...paperTypes, newPaper]);
+  const handleAddPaperType = async (paperData) => {
+    try {
+      const newPaper = await apiService.createPaperType(paperData);
+      setPaperTypes([...paperTypes, newPaper]);
+      toast({
+        title: "Success",
+        description: "Paper type added successfully.",
+      });
+    } catch (error) {
+      console.error('Error adding paper type:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add paper type.",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleUpdatePaperType = (id, paperData) => {
-    setPaperTypes(paperTypes.map(paper => 
-      paper.id === id ? { ...paper, ...paperData } : paper
-    ));
+  const handleUpdatePaperType = async (id, paperData) => {
+    try {
+      const updatedPaper = await apiService.updatePaperType(id, paperData);
+      setPaperTypes(paperTypes.map(paper => 
+        paper.id === id ? updatedPaper : paper
+      ));
+      toast({
+        title: "Success",
+        description: "Paper type updated successfully.",
+      });
+    } catch (error) {
+      console.error('Error updating paper type:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update paper type.",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleDeletePaperType = (id) => {
-    setPaperTypes(paperTypes.filter(paper => paper.id !== id));
+  const handleDeletePaperType = async (id) => {
+    try {
+      await apiService.deletePaperType(id);
+      setPaperTypes(paperTypes.filter(paper => paper.id !== id));
+      toast({
+        title: "Success",
+        description: "Paper type deleted successfully.",
+      });
+    } catch (error) {
+      console.error('Error deleting paper type:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete paper type.",
+        variant: "destructive"
+      });
+    }
   };
 
   // Machine management
-  const handleAddMachine = (machineData) => {
-    const newMachine = {
-      id: Date.now(),
-      ...machineData
-    };
-    setMachines([...machines, newMachine]);
+  const handleAddMachine = async (machineData) => {
+    try {
+      const newMachine = await apiService.createMachine(machineData);
+      setMachines([...machines, newMachine]);
+      toast({
+        title: "Success",
+        description: "Machine added successfully.",
+      });
+    } catch (error) {
+      console.error('Error adding machine:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add machine.",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleUpdateMachine = (id, machineData) => {
-    setMachines(machines.map(machine => 
-      machine.id === id ? { ...machine, ...machineData } : machine
-    ));
+  const handleUpdateMachine = async (id, machineData) => {
+    try {
+      const updatedMachine = await apiService.updateMachine(id, machineData);
+      setMachines(machines.map(machine => 
+        machine.id === id ? updatedMachine : machine
+      ));
+      toast({
+        title: "Success",
+        description: "Machine updated successfully.",
+      });
+    } catch (error) {
+      console.error('Error updating machine:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update machine.",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleDeleteMachine = (id) => {
-    setMachines(machines.filter(machine => machine.id !== id));
+  const handleDeleteMachine = async (id) => {
+    try {
+      await apiService.deleteMachine(id);
+      setMachines(machines.filter(machine => machine.id !== id));
+      toast({
+        title: "Success",
+        description: "Machine deleted successfully.",
+      });
+    } catch (error) {
+      console.error('Error deleting machine:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete machine.",
+        variant: "destructive"
+      });
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <RefreshCw className="h-12 w-12 text-blue-600 animate-spin mx-auto mb-4" />
+          <p className="text-lg text-gray-600">Loading printing calculator...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <BrowserRouter>
