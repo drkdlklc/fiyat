@@ -544,14 +544,38 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
 
                   <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                     <div>
-                      <span className="font-bold text-lg text-gray-800">Body Cost:</span>
+                      <span className="font-bold text-lg text-gray-800">
+                        {results.job.hasCover ? 'Body Cost:' : 'Total Cost:'}
+                      </span>
                       <p className="text-xl font-bold text-green-600">${result.totalCost.toFixed(2)}</p>
                     </div>
                     <div>
-                      <span className="font-bold text-lg text-gray-800">Body Cost per Unit:</span>
+                      <span className="font-bold text-lg text-gray-800">
+                        {results.job.hasCover ? 'Body Cost per Unit:' : 'Cost per Unit:'}
+                      </span>
                       <p className="text-xl font-bold text-blue-600">${result.costPerUnit.toFixed(4)}</p>
                     </div>
                   </div>
+
+                  {results.job.hasCover && results.coverResults && (
+                    <div className="mt-4 p-3 bg-blue-50 rounded border-t">
+                      <h4 className="font-semibold text-blue-800 mb-2">Cover Cost: ${results.coverResults.totalCost.toFixed(2)}</h4>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <span className="font-bold text-lg text-gray-800">Total Job Cost:</span>
+                          <p className="text-xl font-bold text-green-600">
+                            ${(result.totalCost + results.coverResults.totalCost).toFixed(2)}
+                          </p>
+                        </div>
+                        <div>
+                          <span className="font-bold text-lg text-gray-800">Total Cost per Unit:</span>
+                          <p className="text-xl font-bold text-blue-600">
+                            ${((result.totalCost + results.coverResults.totalCost) / results.job.quantity).toFixed(4)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
 
