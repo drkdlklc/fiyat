@@ -356,7 +356,10 @@ export const calculateCoverCost = (job, coverPaperType, coverMachine) => {
           totalPages: job.totalPages,
           coverSheetsNeeded,
           totalCoverPages: coverSheetsNeeded * 4, // Each cover sheet provides 4 pages
-          bookletQuantity: job.quantity
+          bookletQuantity: job.quantity,
+          bindingEdge: job.bindingEdge,
+          effectiveWidth,
+          effectiveHeight
         };
       }
     }
