@@ -20,7 +20,8 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
     marginLeft: '3',
     quantity: '',
     isDoubleSided: false,
-    setupRequired: true
+    setupRequired: true,
+    hasCover: false
   });
   const [selectedPaperType, setSelectedPaperType] = useState(null);
   const [selectedMachine, setSelectedMachine] = useState(null);
