@@ -101,3 +101,87 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "In both Normal and Booklet modes, inner pages may not all be printed on the same machine or the same paper type. There should be options to indicate that different paper types or different machines will be used. When these options are selected, additional fields should appear to choose the machine and paper type for each part. Next to each selection, there should be an input to specify how many pages will be printed using that specific machine and paper combination. The total price should be calculated accordingly based on these values. Also, the result summary screen must be updated to reflect these details."
+
+backend:
+  - task: "Multi-part printing backend integration"
+    implemented: false
+    working: "NA"
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Backend integration not required for this frontend-focused feature"
+
+frontend:
+  - task: "Multi-part paper types toggle and UI"
+    implemented: false
+    working: false
+    file: "frontend/src/components/PrintJobCalculator.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "Need to implement toggle for different paper types with dynamic sections"
+
+  - task: "Multi-part machines toggle and UI"
+    implemented: false
+    working: false
+    file: "frontend/src/components/PrintJobCalculator.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "Need to implement toggle for different machines with dynamic sections"
+
+  - task: "Multi-part calculation logic"
+    implemented: false
+    working: false
+    file: "frontend/src/data/mockData.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "Need to implement calculation logic for multi-part configurations"
+
+  - task: "Multi-part results display"
+    implemented: false
+    working: false
+    file: "frontend/src/components/PrintJobCalculator.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "Need to update results display to show multi-part breakdown"
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 0
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Multi-part paper types toggle and UI"
+    - "Multi-part machines toggle and UI"
+    - "Multi-part calculation logic"
+    - "Multi-part results display"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Starting implementation of multi-part printing feature for both Normal and Booklet modes. Will add toggles for different paper types and machines, with dynamic UI sections for each part and updated calculation logic."
