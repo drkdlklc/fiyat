@@ -963,7 +963,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
               <div className="space-y-6">
                 {results.coverResults && (
                   <div className="p-4 border rounded-lg bg-green-50">
-                    <h3 className="text-lg font-semibold text-green-800 mb-4">Cover Cost (1 sheet = 4 pages)</h3>
+                    <h3 className="text-lg font-semibold text-green-800 mb-4">Cover Cost (1 cover = 4 pages)</h3>
                     
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                       <div>
