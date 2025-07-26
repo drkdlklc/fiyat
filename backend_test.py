@@ -420,7 +420,7 @@ mockDataContent = mockDataContent.replace(/export {[^}]*};?/g, '');
 // Evaluate the code
 eval(mockDataContent);
 
-// Test parameters from the review request
+// Test parameters from the review request: 2 booklets, 8 pages per booklet
 const testJob = {
   productName: "Test Booklet",
   finalWidth: 100,
@@ -429,12 +429,12 @@ const testJob = {
   marginRight: 3,
   marginBottom: 3,
   marginLeft: 3,
-  quantity: 10, // 10 booklets
+  quantity: 2, // 2 booklets
   isDoubleSided: true,
   setupRequired: false,
   isBookletMode: true,
   coverSetupRequired: false,
-  totalPages: 16 // 16 pages per booklet
+  totalPages: 8 // 8 pages per booklet
 };
 
 // Mock paper types and machines
@@ -469,21 +469,43 @@ const innerResult = calculateInnerPagesCost(testJob, testPaperTypes[0], testMach
 if (innerResult) {
   console.log('INNER_CALCULATION_SUCCESS');
   console.log('Inner Pages Per Booklet:', innerResult.innerPagesPerBooklet);
+  console.log('Inner Sheets Per Booklet:', innerResult.innerSheetsPerBooklet);
+  console.log('Total Inner Sheets Needed:', innerResult.totalInnerSheetsNeeded);
   console.log('Total Inner Pages:', innerResult.totalInnerPages);
   console.log('Booklet Quantity:', innerResult.bookletQuantity);
-  console.log('Pages Per Print Sheet:', innerResult.pagesPerPrintSheet);
+  console.log('Pages Per Print Sheet:', innerResult.innerSheetsPerPrintSheet);
   console.log('Print Sheets Needed:', innerResult.printSheetsNeeded);
   console.log('Stock Sheets Needed:', innerResult.stockSheetsNeeded);
   console.log('Total Cost:', innerResult.totalCost.toFixed(2));
   
-  // Verify inner pages calculation: (total pages - 2 cover pages) * quantity
-  const expectedInnerPagesPerBooklet = Math.max(0, testJob.totalPages - 2); // 16 - 2 = 14
-  const expectedTotalInnerPages = testJob.quantity * expectedInnerPagesPerBooklet; // 10 * 14 = 140
+  // Expected results for 2 booklets, 8 pages per booklet:
+  // - Cover pages per booklet = 4 (from 1 cover sheet)
+  // - Inner pages per booklet = 8 - 4 = 4
+  // - Inner sheets per booklet = 4 / 4 = 1 (1 sheet = 4 pages)
+  // - Total inner sheets needed = 2 booklets * 1 sheet = 2 sheets
+  // - Total inner pages = 2 sheets * 4 pages = 8 pages
+  
+  const expectedInnerPagesPerBooklet = 4; // 8 total - 4 cover = 4 inner
+  const expectedInnerSheetsPerBooklet = 1; // 4 inner pages / 4 pages per sheet = 1 sheet
+  const expectedTotalInnerSheetsNeeded = 2; // 2 booklets * 1 sheet = 2 sheets
+  const expectedTotalInnerPages = 8; // 2 sheets * 4 pages = 8 pages
   
   if (innerResult.innerPagesPerBooklet === expectedInnerPagesPerBooklet) {
     console.log('INNER_PAGES_PER_BOOKLET_CORRECT: Expected', expectedInnerPagesPerBooklet, 'got', innerResult.innerPagesPerBooklet);
   } else {
     console.log('INNER_PAGES_PER_BOOKLET_ERROR: Expected', expectedInnerPagesPerBooklet, 'got', innerResult.innerPagesPerBooklet);
+  }
+  
+  if (innerResult.innerSheetsPerBooklet === expectedInnerSheetsPerBooklet) {
+    console.log('INNER_SHEETS_PER_BOOKLET_CORRECT: Expected', expectedInnerSheetsPerBooklet, 'got', innerResult.innerSheetsPerBooklet);
+  } else {
+    console.log('INNER_SHEETS_PER_BOOKLET_ERROR: Expected', expectedInnerSheetsPerBooklet, 'got', innerResult.innerSheetsPerBooklet);
+  }
+  
+  if (innerResult.totalInnerSheetsNeeded === expectedTotalInnerSheetsNeeded) {
+    console.log('TOTAL_INNER_SHEETS_CORRECT: Expected', expectedTotalInnerSheetsNeeded, 'got', innerResult.totalInnerSheetsNeeded);
+  } else {
+    console.log('TOTAL_INNER_SHEETS_ERROR: Expected', expectedTotalInnerSheetsNeeded, 'got', innerResult.totalInnerSheetsNeeded);
   }
   
   if (innerResult.totalInnerPages === expectedTotalInnerPages) {
