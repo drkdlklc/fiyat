@@ -349,13 +349,13 @@ export const calculateCoverCost = (job, coverPaperType, coverMachine) => {
       
       if (printSheetsPerStockSheet <= 0) continue;
       
-      const stockSheetsNeeded = Math.ceil(adjustedPrintSheetsNeeded / printSheetsPerStockSheet);
+      const stockSheetsNeeded = Math.ceil(printSheetsNeeded / printSheetsPerStockSheet);
       
       const paperWeight = calculatePaperWeight(stockSheetSize.width, stockSheetSize.height, coverPaperType.gsm, stockSheetsNeeded);
       const paperCost = calculatePaperCost(paperWeight, coverPaperType.pricePerTon);
       
       // Cover is typically double-sided, so we'll assume 2x click cost
-      const clickCost = adjustedPrintSheetsNeeded * printSheetSize.clickCost * 2;
+      const clickCost = printSheetsNeeded * printSheetSize.clickCost * 2;
       const setupCost = job.coverSetupRequired ? coverMachine.setupCost : 0;
       const totalCost = paperCost + clickCost + setupCost;
       
