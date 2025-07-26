@@ -59,13 +59,38 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    if (!jobData.productName || !jobData.finalWidth || !jobData.finalHeight || !jobData.quantity) {
-      toast({
-        title: "Error",
-        description: "Please fill in all required fields",
-        variant: "destructive"
-      });
-      return;
+    // Validate multi-part configurations
+    if (jobData.useMultiPartConfiguration) {
+      const totalMultiPartPages = multiPartConfigurations.reduce((sum, config) => {
+        const pageCount = parseInt(config.pageCount) || 0;
+        return sum + pageCount;
+      }, 0);
+      
+      if (totalMultiPartPages !== parseInt(jobData.quantity)) {
+        toast({
+          title: "Validation Error",
+          description: `Total pages in multi-part configuration (${totalMultiPartPages}) must equal the quantity (${jobData.quantity})`,
+          variant: "destructive"
+        });
+        return;
+      }
+    }
+    
+    if (jobData.isBookletMode && jobData.useMultiPartInnerConfiguration) {
+      const totalInnerPages = parseInt(jobData.totalPages) - 2; // Subtract cover pages
+      const totalMultiPartInnerPages = multiPartInnerConfigurations.reduce((sum, config) => {
+        const pageCount = parseInt(config.pageCount) || 0;
+        return sum + pageCount;
+      }, 0);
+      
+      if (totalMultiPartInnerPages !== totalInnerPages) {
+        toast({
+          title: "Validation Error",
+          description: `Total pages in inner multi-part configuration (${totalMultiPartInnerPages}) must equal the inner pages (${totalInnerPages})`,
+          variant: "destructive"
+        });
+        return;
+      }
     }
 
     if (jobData.isBookletMode && !jobData.totalPages) {
