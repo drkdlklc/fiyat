@@ -34,8 +34,7 @@ const MachineManager = ({ machines, onAddMachine, onUpdateMachine, onDeleteMachi
       name: '',
       width: '',
       height: '',
-      clickCost: '',
-      duplexSupport: false
+      clickCost: ''
     });
     setIsAdding(false);
     setEditingId(null);
