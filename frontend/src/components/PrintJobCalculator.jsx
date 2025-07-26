@@ -703,27 +703,29 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
 
             {!jobData.isBookletMode && (
               <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <Label htmlFor="paperType">Paper Type (Optional - auto-selects optimal stock sheet)</Label>
-                  <Select value={selectedPaperType?.toString()} onValueChange={handlePaperTypeChange}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a paper type (or leave blank for all options)" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {paperTypes.map((paperType) => (
-                        <SelectItem key={paperType.id} value={paperType.id.toString()}>
-                          {paperType.name} ({paperType.gsm} GSM)
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {selectedPaperType && (
-                    <p className="text-sm text-green-600 mt-1 flex items-center gap-1">
-                      <CheckCircle size={14} />
-                      System will automatically select the most cost-efficient stock sheet size
-                    </p>
-                  )}
-                </div>
+                {!jobData.useMultiPartConfiguration && (
+                  <div>
+                    <Label htmlFor="paperType">Paper Type (Optional - auto-selects optimal stock sheet)</Label>
+                    <Select value={selectedPaperType?.toString()} onValueChange={handlePaperTypeChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a paper type (or leave blank for all options)" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {paperTypes.map((paperType) => (
+                          <SelectItem key={paperType.id} value={paperType.id.toString()}>
+                            {paperType.name} ({paperType.gsm} GSM)
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {selectedPaperType && (
+                      <p className="text-sm text-green-600 mt-1 flex items-center gap-1">
+                        <CheckCircle size={14} />
+                        System will automatically select the most cost-efficient stock sheet size
+                      </p>
+                    )}
+                  </div>
+                )}
 
                 <div className="flex items-center space-x-2">
                   <Checkbox
