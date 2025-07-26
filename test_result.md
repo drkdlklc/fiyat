@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "When I create or delete a new machine or paper type, the changes should be saved persistently. After restarting the program, the added or removed items should not be lost."
+user_problem_statement: "The 'Setup Required' option should be unselected by default. When the 'Use different paper' option is enabled, the default machine and paper selection section should be hidden. Also, if the total number of pages entered for the different machine/paper combinations does not match the total number of main pages, an error should be shown."
 
 backend:
   - task: "Backend API endpoints for persistent storage"
