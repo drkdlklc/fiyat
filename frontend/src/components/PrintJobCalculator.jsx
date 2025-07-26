@@ -207,6 +207,98 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
     setSelectedInnerMachine(machineId ? parseInt(machineId) : null);
   };
 
+  // Multi-part paper type handlers
+  const addMultiPartPaperType = () => {
+    if (multiPartPaperTypes.length < 3) {
+      setMultiPartPaperTypes([...multiPartPaperTypes, { 
+        id: Date.now(), 
+        paperTypeId: null, 
+        pageCount: '' 
+      }]);
+    }
+  };
+
+  const removeMultiPartPaperType = (id) => {
+    if (multiPartPaperTypes.length > 1) {
+      setMultiPartPaperTypes(multiPartPaperTypes.filter(item => item.id !== id));
+    }
+  };
+
+  const updateMultiPartPaperType = (id, field, value) => {
+    setMultiPartPaperTypes(multiPartPaperTypes.map(item => 
+      item.id === id ? { ...item, [field]: value } : item
+    ));
+  };
+
+  // Multi-part machine handlers
+  const addMultiPartMachine = () => {
+    if (multiPartMachines.length < 3) {
+      setMultiPartMachines([...multiPartMachines, { 
+        id: Date.now(), 
+        machineId: null, 
+        pageCount: '' 
+      }]);
+    }
+  };
+
+  const removeMultiPartMachine = (id) => {
+    if (multiPartMachines.length > 1) {
+      setMultiPartMachines(multiPartMachines.filter(item => item.id !== id));
+    }
+  };
+
+  const updateMultiPartMachine = (id, field, value) => {
+    setMultiPartMachines(multiPartMachines.map(item => 
+      item.id === id ? { ...item, [field]: value } : item
+    ));
+  };
+
+  // Multi-part inner paper type handlers
+  const addMultiPartInnerPaperType = () => {
+    if (multiPartInnerPaperTypes.length < 3) {
+      setMultiPartInnerPaperTypes([...multiPartInnerPaperTypes, { 
+        id: Date.now(), 
+        paperTypeId: null, 
+        pageCount: '' 
+      }]);
+    }
+  };
+
+  const removeMultiPartInnerPaperType = (id) => {
+    if (multiPartInnerPaperTypes.length > 1) {
+      setMultiPartInnerPaperTypes(multiPartInnerPaperTypes.filter(item => item.id !== id));
+    }
+  };
+
+  const updateMultiPartInnerPaperType = (id, field, value) => {
+    setMultiPartInnerPaperTypes(multiPartInnerPaperTypes.map(item => 
+      item.id === id ? { ...item, [field]: value } : item
+    ));
+  };
+
+  // Multi-part inner machine handlers
+  const addMultiPartInnerMachine = () => {
+    if (multiPartInnerMachines.length < 3) {
+      setMultiPartInnerMachines([...multiPartInnerMachines, { 
+        id: Date.now(), 
+        machineId: null, 
+        pageCount: '' 
+      }]);
+    }
+  };
+
+  const removeMultiPartInnerMachine = (id) => {
+    if (multiPartInnerMachines.length > 1) {
+      setMultiPartInnerMachines(multiPartInnerMachines.filter(item => item.id !== id));
+    }
+  };
+
+  const updateMultiPartInnerMachine = (id, field, value) => {
+    setMultiPartInnerMachines(multiPartInnerMachines.map(item => 
+      item.id === id ? { ...item, [field]: value } : item
+    ));
+  };
+
   const getAvailableSheetSizes = () => {
     if (!selectedMachine) return [];
     const machine = machines.find(m => m.id === selectedMachine);
