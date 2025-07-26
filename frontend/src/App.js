@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
 import { Toaster } from './components/ui/toaster';
+import { useToast } from './hooks/use-toast';
 import PaperTypeManager from './components/PaperTypeManager';
 import MachineManager from './components/MachineManager';
 import PrintJobCalculator from './components/PrintJobCalculator';
-import { mockPaperTypes, mockMachines } from './data/mockData';
-import { Calculator, FileText, Settings, Printer } from 'lucide-react';
+import { apiService } from './services/api';
+import { Calculator, FileText, Settings, Printer, RefreshCw } from 'lucide-react';
 import './App.css';
 
 function App() {
