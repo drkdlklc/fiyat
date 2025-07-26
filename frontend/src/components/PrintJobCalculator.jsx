@@ -1246,17 +1246,12 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                         
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
                           <div>
-                            <span className="font-medium text-gray-700">Paper Type:</span>
-                            <p className="text-sm">{part.paperType.name}</p>
-                            <p className="text-xs text-gray-500">{part.paperType.gsm} GSM</p>
+                            <span className="font-medium text-gray-700">Paper & Machine Pairing:</span>
+                            <p className="text-sm font-semibold text-blue-600">{part.paperType.name} + {part.machine.name}</p>
+                            <p className="text-xs text-gray-500">{part.paperType.gsm} GSM | Setup: ${part.machine.setupCost}</p>
                           </div>
                           <div>
-                            <span className="font-medium text-gray-700">Machine:</span>
-                            <p className="text-sm">{part.machine.name}</p>
-                            <p className="text-xs text-gray-500">Setup: ${part.machine.setupCost}</p>
-                          </div>
-                          <div>
-                            <span className="font-medium text-gray-700">Print Sheet:</span>
+                            <span className="font-medium text-gray-700">Optimal Print Sheet:</span>
                             <p className="text-sm">{part.printSheetSize.name}</p>
                             <p className="text-xs text-gray-500">{part.printSheetSize.width} × {part.printSheetSize.height} mm</p>
                           </div>
@@ -1265,13 +1260,13 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                             <p className="text-sm">{part.stockSheetSize.name}</p>
                             <p className="text-xs text-gray-500">{part.stockSheetSize.width} × {part.stockSheetSize.height} mm</p>
                           </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
                           <div>
                             <span className="font-medium text-gray-700">Products per Print Sheet:</span>
                             <p className="text-sm">{part.productsPerPrintSheet}</p>
                           </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
                           <div>
                             <span className="font-medium text-gray-700">Print Sheets Needed:</span>
                             <p className="text-sm">{part.printSheetsNeeded}</p>
@@ -1286,6 +1281,10 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                             {part.clickMultiplier > 1 && (
                               <p className="text-xs text-blue-600">Double-sided (2x)</p>
                             )}
+                          </div>
+                          <div>
+                            <span className="font-medium text-gray-700">Setup Cost:</span>
+                            <p className="text-sm">${part.setupCost.toFixed(2)}</p>
                           </div>
                         </div>
 
