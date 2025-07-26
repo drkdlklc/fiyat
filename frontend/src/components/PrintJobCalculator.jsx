@@ -74,20 +74,39 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
     };
 
     let calculationResults;
+    let coverResults = null;
+    let innerPagesResults = null;
     
-    if (selectedPaperType) {
-      // Calculate optimal for specific paper type - auto-select best stock sheet size
-      const paperType = paperTypes.find(p => p.id === selectedPaperType);
-      const machine = selectedMachine ? machines.find(m => m.id === selectedMachine) : null;
-      const printSheetSize = selectedSheetSize && machine ? machine.printSheetSizes.find(s => s.id === parseInt(selectedSheetSize)) : null;
+    if (job.isBookletMode) {
+      // Booklet mode - calculate cover and inner pages separately
+      if (selectedCoverPaperType && selectedCoverMachine) {
+        const coverPaperType = paperTypes.find(p => p.id === selectedCoverPaperType);
+        const coverMachine = machines.find(m => m.id === selectedCoverMachine);
+        coverResults = calculateCoverCost(job, coverPaperType, coverMachine);
+      }
       
-      calculationResults = calculateOptimalForPaperType(job, paperType, machines, machine, printSheetSize);
+      if (selectedInnerPaperType && selectedInnerMachine) {
+        const innerPaperType = paperTypes.find(p => p.id === selectedInnerPaperType);
+        const innerMachine = machines.find(m => m.id === selectedInnerMachine);
+        innerPagesResults = calculateInnerPagesCost(job, innerPaperType, innerMachine);
+      }
+      
+      // For booklet mode, we don't use the normal calculation results
+      calculationResults = [];
     } else {
-      // Find optimal combinations across all paper types
-      calculationResults = findOptimalPrintSheetSize(job, paperTypes, machines);
+      // Normal mode - original calculation logic
+      if (selectedPaperType) {
+        const paperType = paperTypes.find(p => p.id === selectedPaperType);
+        const machine = selectedMachine ? machines.find(m => m.id === selectedMachine) : null;
+        const printSheetSize = selectedSheetSize && machine ? machine.printSheetSizes.find(s => s.id === parseInt(selectedSheetSize)) : null;
+        
+        calculationResults = calculateOptimalForPaperType(job, paperType, machines, machine, printSheetSize);
+      } else {
+        calculationResults = findOptimalPrintSheetSize(job, paperTypes, machines);
+      }
     }
     
-    if (calculationResults.length === 0) {
+    if (!job.isBookletMode && calculationResults.length === 0) {
       toast({
         title: "Error",
         description: "No suitable paper type, machine, and sheet size combination found for this job",
@@ -96,19 +115,21 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
       return;
     }
 
-    // Calculate cover costs if cover is needed
-    let coverResults = null;
-    if (job.hasCover && selectedCoverPaperType && selectedCoverMachine) {
-      const coverPaperType = paperTypes.find(p => p.id === selectedCoverPaperType);
-      const coverMachine = machines.find(m => m.id === selectedCoverMachine);
-      coverResults = calculateCoverCost(job, coverPaperType, coverMachine);
+    if (job.isBookletMode && !coverResults && !innerPagesResults) {
+      toast({
+        title: "Error",
+        description: "Please select paper types and machines for both cover and inner pages",
+        variant: "destructive"
+      });
+      return;
     }
 
     setResults({ 
       job, 
       calculations: calculationResults, 
       selectedPaperType: selectedPaperType ? paperTypes.find(p => p.id === selectedPaperType) : null,
-      coverResults
+      coverResults,
+      innerPagesResults
     });
     
     toast({
