@@ -1062,7 +1062,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
 
                 {results.innerPagesResults && !results.multiPartResults && (
                   <div className="p-4 border rounded-lg bg-orange-50">
-                    <h3 className="text-lg font-semibold text-orange-800 mb-4">Inner Pages Cost Breakdown</h3>
+                    <h3 className="text-lg font-semibold text-orange-800 mb-4">Inner Pages Cost (1 sheet = 4 pages)</h3>
                     
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                       <div>
@@ -1094,16 +1094,18 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                         <p className="text-xs text-gray-500">({results.innerPagesResults.bookletQuantity} booklets × {results.innerPagesResults.innerPagesPerBooklet} pages)</p>
                       </div>
                       <div>
-                        <span className="font-medium text-gray-700">Pages per Print Sheet:</span>
-                        <p className="text-sm">{results.innerPagesResults.pagesPerPrintSheet}</p>
+                        <span className="font-medium text-gray-700">Sheets per Booklet:</span>
+                        <p className="text-sm">{results.innerPagesResults.innerSheetsPerBooklet}</p>
+                        <p className="text-xs text-gray-500">{results.innerPagesResults.innerPagesPerBooklet} pages</p>
                       </div>
                       <div>
                         <span className="font-medium text-gray-700">Print Sheets per Stock Sheet:</span>
                         <p className="text-sm">{results.innerPagesResults.printSheetsPerStockSheet}</p>
                       </div>
                       <div>
-                        <span className="font-medium text-gray-700">Print Sheets Needed:</span>
-                        <p className="text-sm">{results.innerPagesResults.printSheetsNeeded}</p>
+                        <span className="font-medium text-gray-700">Total Inner Sheets:</span>
+                        <p className="text-sm">{results.innerPagesResults.totalInnerSheetsNeeded}</p>
+                        <p className="text-xs text-gray-500">{results.innerPagesResults.totalInnerPages} pages</p>
                       </div>
                     </div>
 
