@@ -675,6 +675,76 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                     </SelectContent>
                   </Select>
                 </div>
+
+                <div className="col-span-2">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="useMultipleMachines"
+                      checked={jobData.useMultipleMachines}
+                      onCheckedChange={(checked) => setJobData({ ...jobData, useMultipleMachines: checked })}
+                    />
+                    <Label htmlFor="useMultipleMachines">Use Different Machines for Different Parts</Label>
+                  </div>
+
+                  {jobData.useMultipleMachines && (
+                    <div className="p-4 border rounded-lg bg-purple-50 mt-3">
+                      <h4 className="font-semibold text-purple-800 mb-3">Machine Configuration by Parts</h4>
+                      {multiPartMachines.map((part, index) => (
+                        <div key={part.id} className="grid grid-cols-3 gap-4 mb-3">
+                          <div>
+                            <Label>Machine for Part {index + 1}</Label>
+                            <Select 
+                              value={part.machineId?.toString() || ''} 
+                              onValueChange={(value) => updateMultiPartMachine(part.id, 'machineId', value ? parseInt(value) : null)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select machine" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {machines.map((machine) => (
+                                  <SelectItem key={machine.id} value={machine.id.toString()}>
+                                    {machine.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label>Page Count</Label>
+                            <Input
+                              type="number"
+                              value={part.pageCount}
+                              onChange={(e) => updateMultiPartMachine(part.id, 'pageCount', e.target.value)}
+                              placeholder="e.g., 100"
+                            />
+                          </div>
+                          <div className="flex items-end gap-2">
+                            {multiPartMachines.length < 3 && (
+                              <Button 
+                                type="button" 
+                                variant="outline" 
+                                size="sm"
+                                onClick={addMultiPartMachine}
+                              >
+                                <Plus size={16} />
+                              </Button>
+                            )}
+                            {multiPartMachines.length > 1 && (
+                              <Button 
+                                type="button" 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => removeMultiPartMachine(part.id)}
+                              >
+                                <Minus size={16} />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
