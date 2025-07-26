@@ -238,6 +238,18 @@ frontend:
         agent: "main"
         comment: "Successfully implemented multi-part results display with detailed breakdown for each part"
 
+  - task: "UI text refinement in booklet mode - Update 'Total Click Cost' to 'Total'"
+    implemented: false
+    working: false
+    file: "frontend/src/components/PrintJobCalculator.jsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "Need to update 'Total Click Cost' to 'Total' in booklet mode Inner Pages Cost section display"
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
