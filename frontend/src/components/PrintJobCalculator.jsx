@@ -594,16 +594,23 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
 
                   {results.job.hasCover && results.coverResults && (
                     <div className="mt-4 p-3 bg-blue-50 rounded border-t">
-                      <h4 className="font-semibold text-blue-800 mb-2">Cover Cost: ${results.coverResults.totalCost.toFixed(2)}</h4>
+                      <h4 className="font-semibold text-blue-800 mb-2">
+                        Cover Cost: ${results.coverResults.totalCost.toFixed(2)}
+                        {results.coverResults.totalPages && (
+                          <span className="text-sm ml-2">
+                            (Total: {results.coverResults.totalPages} pages, Inner: {results.coverResults.innerPages} pages)
+                          </span>
+                        )}
+                      </h4>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <span className="font-bold text-lg text-gray-800">Total Job Cost:</span>
+                          <span className="font-bold text-lg text-gray-800">Total Booklet Cost:</span>
                           <p className="text-xl font-bold text-green-600">
                             ${(result.totalCost + results.coverResults.totalCost).toFixed(2)}
                           </p>
                         </div>
                         <div>
-                          <span className="font-bold text-lg text-gray-800">Total Cost per Unit:</span>
+                          <span className="font-bold text-lg text-gray-800">Cost per Booklet:</span>
                           <p className="text-xl font-bold text-blue-600">
                             ${((result.totalCost + results.coverResults.totalCost) / results.job.quantity).toFixed(4)}
                           </p>
