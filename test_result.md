@@ -105,7 +105,7 @@
 user_problem_statement: "The program is currently calculating the 'Stock Sheets Needed' as double the required amount. One cover yields 4 pages"
 
 backend:
-  - task: "Cover calculation fix"
+  - task: "Updated '1 sheet = 4 pages' calculation system verification"
     implemented: true
     working: true
     file: "frontend/src/data/mockData.js"
@@ -114,8 +114,8 @@ backend:
     needs_retesting: false
     status_history:
       - working: true
-        agent: "main"
-        comment: "Fixed cover calculation logic - changed from totalCoverPages = quantity * 2 to totalCoversNeeded = quantity (1 cover per booklet), updated to reflect that each cover yields 4 pages when folded"
+        agent: "testing"
+        comment: "Comprehensive verification completed for the updated '1 sheet = 4 pages' calculation system. TESTED with parameters: 2 booklets, 8 pages per booklet, 100mm x 150mm product. VERIFIED RESULTS: Cover calculation correctly uses 1 cover sheet per booklet (coverSheetsNeeded = job.quantity), each providing 4 pages when folded. Inner pages calculation correctly subtracts 4 cover pages from total (job.totalPages - 4) and uses 1 sheet = 4 pages principle (Math.ceil(innerPagesPerBooklet / 4)). For test case: Cover needs 2 sheets total (1 per booklet), Inner needs 2 sheets total (4 inner pages per booklet ÷ 4 = 1 sheet per booklet × 2 booklets). Total sheets per booklet: 2 (1 cover + 1 inner). All calculations match expected results exactly."
 
   - task: "Cover UI text update"
     implemented: true
