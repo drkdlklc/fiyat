@@ -562,24 +562,97 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                 {results.coverResults && (
                   <div className="p-4 border rounded-lg bg-green-50">
                     <h3 className="text-lg font-semibold text-green-800 mb-4">Cover Cost Breakdown</h3>
+                    
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                       <div>
                         <span className="font-medium text-gray-700">Cover Paper:</span>
                         <p className="text-sm">{results.coverResults.paperType.name}</p>
-                        <p className="text-xs text-gray-500">{results.coverResults.paperType.gsm} GSM</p>
+                        <p className="text-xs text-gray-500">{results.coverResults.paperType.gsm} GSM | ${results.coverResults.paperType.pricePerTon}/ton</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">Cover Stock Sheet:</span>
+                        <p className="text-sm font-semibold text-blue-600">{results.coverResults.stockSheetSize.name}</p>
+                        <p className="text-xs text-gray-500">{results.coverResults.stockSheetSize.width} × {results.coverResults.stockSheetSize.height} mm</p>
                       </div>
                       <div>
                         <span className="font-medium text-gray-700">Cover Machine:</span>
                         <p className="text-sm">{results.coverResults.machine.name}</p>
+                        <p className="text-xs text-gray-500">Setup: ${results.coverResults.machine.setupCost}</p>
                       </div>
+                      <div>
+                        <span className="font-medium text-gray-700">Cover Print Sheet:</span>
+                        <p className="text-sm">{results.coverResults.printSheetSize.name}</p>
+                        <p className="text-xs text-gray-500">{results.coverResults.printSheetSize.width} × {results.coverResults.printSheetSize.height} mm</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                       <div>
                         <span className="font-medium text-gray-700">Total Cover Pages:</span>
                         <p className="text-sm">{results.coverResults.totalCoverPages}</p>
                         <p className="text-xs text-gray-500">({results.coverResults.bookletQuantity} booklets × 2 pages)</p>
                       </div>
                       <div>
-                        <span className="font-medium text-gray-700">Cover Cost:</span>
-                        <p className="text-sm font-bold text-green-600">${results.coverResults.totalCost.toFixed(2)}</p>
+                        <span className="font-medium text-gray-700">Covers per Print Sheet:</span>
+                        <p className="text-sm">{results.coverResults.coversPerPrintSheet}</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">Print Sheets per Stock Sheet:</span>
+                        <p className="text-sm">{results.coverResults.printSheetsPerStockSheet}</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">Print Sheets Needed:</span>
+                        <p className="text-sm">{results.coverResults.printSheetsNeeded}</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                      <div>
+                        <span className="font-medium text-gray-700">Stock Sheets Needed:</span>
+                        <p className="text-sm">{results.coverResults.stockSheetsNeeded}</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">Paper Weight:</span>
+                        <p className="text-sm">{results.coverResults.paperWeight.toFixed(2)} kg</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">Paper Cost:</span>
+                        <p className="text-sm">${results.coverResults.paperCost.toFixed(2)}</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">Click Cost:</span>
+                        <p className="text-sm">${results.coverResults.clickCost.toFixed(2)}</p>
+                        <p className="text-xs text-gray-500">Double-sided (2x)</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                      <div>
+                        <span className="font-medium text-gray-700">Setup Cost:</span>
+                        <p className="text-sm">${results.coverResults.setupCost.toFixed(2)}</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">Stock Area:</span>
+                        <p className="text-sm">{((results.coverResults.stockSheetSize.width * results.coverResults.stockSheetSize.height) / 1000000).toFixed(3)} m²</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">Print Area:</span>
+                        <p className="text-sm">{((results.coverResults.printSheetSize.width * results.coverResults.printSheetSize.height) / 1000000).toFixed(3)} m²</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">Stock Efficiency:</span>
+                        <p className="text-sm">{((results.coverResults.coversPerPrintSheet * results.coverResults.printSheetsPerStockSheet / results.coverResults.stockSheetsNeeded) * 100).toFixed(1)}%</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                      <div>
+                        <span className="font-bold text-lg text-gray-800">Total Cover Cost:</span>
+                        <p className="text-xl font-bold text-green-600">${results.coverResults.totalCost.toFixed(2)}</p>
+                      </div>
+                      <div>
+                        <span className="font-bold text-lg text-gray-800">Cover Cost per Booklet:</span>
+                        <p className="text-xl font-bold text-blue-600">${(results.coverResults.totalCost / results.coverResults.bookletQuantity).toFixed(4)}</p>
                       </div>
                     </div>
                   </div>
@@ -588,24 +661,101 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                 {results.innerPagesResults && (
                   <div className="p-4 border rounded-lg bg-orange-50">
                     <h3 className="text-lg font-semibold text-orange-800 mb-4">Inner Pages Cost Breakdown</h3>
+                    
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                       <div>
                         <span className="font-medium text-gray-700">Inner Paper:</span>
                         <p className="text-sm">{results.innerPagesResults.paperType.name}</p>
-                        <p className="text-xs text-gray-500">{results.innerPagesResults.paperType.gsm} GSM</p>
+                        <p className="text-xs text-gray-500">{results.innerPagesResults.paperType.gsm} GSM | ${results.innerPagesResults.paperType.pricePerTon}/ton</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">Inner Stock Sheet:</span>
+                        <p className="text-sm font-semibold text-blue-600">{results.innerPagesResults.stockSheetSize.name}</p>
+                        <p className="text-xs text-gray-500">{results.innerPagesResults.stockSheetSize.width} × {results.innerPagesResults.stockSheetSize.height} mm</p>
                       </div>
                       <div>
                         <span className="font-medium text-gray-700">Inner Machine:</span>
                         <p className="text-sm">{results.innerPagesResults.machine.name}</p>
+                        <p className="text-xs text-gray-500">Setup: ${results.innerPagesResults.machine.setupCost}</p>
                       </div>
+                      <div>
+                        <span className="font-medium text-gray-700">Inner Print Sheet:</span>
+                        <p className="text-sm">{results.innerPagesResults.printSheetSize.name}</p>
+                        <p className="text-xs text-gray-500">{results.innerPagesResults.printSheetSize.width} × {results.innerPagesResults.printSheetSize.height} mm</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                       <div>
                         <span className="font-medium text-gray-700">Total Inner Pages:</span>
                         <p className="text-sm">{results.innerPagesResults.totalInnerPages}</p>
                         <p className="text-xs text-gray-500">({results.innerPagesResults.bookletQuantity} booklets × {results.innerPagesResults.innerPagesPerBooklet} pages)</p>
                       </div>
                       <div>
-                        <span className="font-medium text-gray-700">Inner Pages Cost:</span>
-                        <p className="text-sm font-bold text-orange-600">${results.innerPagesResults.totalCost.toFixed(2)}</p>
+                        <span className="font-medium text-gray-700">Pages per Print Sheet:</span>
+                        <p className="text-sm">{results.innerPagesResults.pagesPerPrintSheet}</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">Print Sheets per Stock Sheet:</span>
+                        <p className="text-sm">{results.innerPagesResults.printSheetsPerStockSheet}</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">Print Sheets Needed:</span>
+                        <p className="text-sm">{results.innerPagesResults.printSheetsNeeded}</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                      <div>
+                        <span className="font-medium text-gray-700">Stock Sheets Needed:</span>
+                        <p className="text-sm">{results.innerPagesResults.stockSheetsNeeded}</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">Paper Weight:</span>
+                        <p className="text-sm">{results.innerPagesResults.paperWeight.toFixed(2)} kg</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">Paper Cost:</span>
+                        <p className="text-sm">${results.innerPagesResults.paperCost.toFixed(2)}</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">Click Cost:</span>
+                        <p className="text-sm">
+                          ${results.innerPagesResults.printSheetSize.clickCost}/click
+                          {results.innerPagesResults.clickMultiplier > 1 && (
+                            <span className="text-blue-600 ml-1">× {results.innerPagesResults.clickMultiplier} (Double-sided)</span>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                      <div>
+                        <span className="font-medium text-gray-700">Total Click Cost:</span>
+                        <p className="text-sm">${results.innerPagesResults.clickCost.toFixed(2)}</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">Setup Cost:</span>
+                        <p className="text-sm">${results.innerPagesResults.setupCost.toFixed(2)}</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">Stock Area:</span>
+                        <p className="text-sm">{((results.innerPagesResults.stockSheetSize.width * results.innerPagesResults.stockSheetSize.height) / 1000000).toFixed(3)} m²</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">Print Area:</span>
+                        <p className="text-sm">{((results.innerPagesResults.printSheetSize.width * results.innerPagesResults.printSheetSize.height) / 1000000).toFixed(3)} m²</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                      <div>
+                        <span className="font-bold text-lg text-gray-800">Total Inner Pages Cost:</span>
+                        <p className="text-xl font-bold text-orange-600">${results.innerPagesResults.totalCost.toFixed(2)}</p>
+                      </div>
+                      <div>
+                        <span className="font-bold text-lg text-gray-800">Inner Pages Cost per Booklet:</span>
+                        <p className="text-xl font-bold text-blue-600">${(results.innerPagesResults.totalCost / results.innerPagesResults.bookletQuantity).toFixed(4)}</p>
                       </div>
                     </div>
                   </div>
@@ -613,8 +763,28 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
 
                 {results.coverResults && results.innerPagesResults && (
                   <div className="p-4 border-2 border-blue-500 rounded-lg bg-blue-50">
-                    <h3 className="text-lg font-semibold text-blue-800 mb-4">Total Booklet Cost</h3>
-                    <div className="grid grid-cols-2 gap-4">
+                    <h3 className="text-lg font-semibold text-blue-800 mb-4">Total Booklet Cost Summary</h3>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                      <div>
+                        <span className="font-medium text-gray-700">Number of Booklets:</span>
+                        <p className="text-sm">{results.job.quantity}</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">Pages per Booklet:</span>
+                        <p className="text-sm">{results.job.totalPages}</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">Cover Cost:</span>
+                        <p className="text-sm">${results.coverResults.totalCost.toFixed(2)}</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">Inner Pages Cost:</span>
+                        <p className="text-sm">${results.innerPagesResults.totalCost.toFixed(2)}</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                       <div>
                         <span className="font-bold text-xl text-gray-800">Total Cost:</span>
                         <p className="text-2xl font-bold text-blue-600">
