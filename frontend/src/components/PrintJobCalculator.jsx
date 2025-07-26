@@ -332,6 +332,9 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
               <span className="text-sm text-gray-600">
                 {results.calculations.length} total options found
               </span>
+              <span className="text-sm text-blue-600 font-medium">
+                {results.job.isDoubleSided ? 'Double-sided' : 'Single-sided'} printing
+              </span>
               {results.selectedPaperType && (
                 <span className="text-sm text-blue-600 font-medium">
                   Paper Type: {results.selectedPaperType.name}
