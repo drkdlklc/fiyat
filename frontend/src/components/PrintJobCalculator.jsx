@@ -92,6 +92,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
     let calculationResults;
     let coverResults = null;
     let innerPagesResults = null;
+    let multiPartResults = null;
     
     if (job.isBookletMode) {
       // Booklet mode - calculate cover and inner pages separately
@@ -101,7 +102,46 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
         coverResults = calculateCoverCost(job, coverPaperType, coverMachine);
       }
       
-      if (selectedInnerPaperType && selectedInnerMachine) {
+      // Handle multi-part inner pages
+      if (jobData.useMultipleInnerPaperTypes || jobData.useMultipleInnerMachines) {
+        const configs = [];
+        
+        // Merge paper type and machine configurations
+        if (jobData.useMultipleInnerPaperTypes && jobData.useMultipleInnerMachines) {
+          // Both paper types and machines are multi-part
+          const maxLength = Math.max(multiPartInnerPaperTypes.length, multiPartInnerMachines.length);
+          for (let i = 0; i < maxLength; i++) {
+            const paperConfig = multiPartInnerPaperTypes[i] || {};
+            const machineConfig = multiPartInnerMachines[i] || {};
+            configs.push({
+              paperTypeId: paperConfig.paperTypeId,
+              machineId: machineConfig.machineId,
+              pageCount: paperConfig.pageCount || machineConfig.pageCount || ''
+            });
+          }
+        } else if (jobData.useMultipleInnerPaperTypes) {
+          // Only paper types are multi-part
+          multiPartInnerPaperTypes.forEach(config => {
+            configs.push({
+              paperTypeId: config.paperTypeId,
+              machineId: selectedInnerMachine,
+              pageCount: config.pageCount
+            });
+          });
+        } else if (jobData.useMultipleInnerMachines) {
+          // Only machines are multi-part
+          multiPartInnerMachines.forEach(config => {
+            configs.push({
+              paperTypeId: selectedInnerPaperType,
+              machineId: config.machineId,
+              pageCount: config.pageCount
+            });
+          });
+        }
+        
+        multiPartResults = calculateMultiPartInnerPagesCost(job, configs, paperTypes, machines, true);
+      } else if (selectedInnerPaperType && selectedInnerMachine) {
+        // Single inner paper type and machine
         const innerPaperType = paperTypes.find(p => p.id === selectedInnerPaperType);
         const innerMachine = machines.find(m => m.id === selectedInnerMachine);
         innerPagesResults = calculateInnerPagesCost(job, innerPaperType, innerMachine);
@@ -110,15 +150,56 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
       // For booklet mode, we don't use the normal calculation results
       calculationResults = [];
     } else {
-      // Normal mode - original calculation logic
-      if (selectedPaperType) {
-        const paperType = paperTypes.find(p => p.id === selectedPaperType);
-        const machine = selectedMachine ? machines.find(m => m.id === selectedMachine) : null;
-        const printSheetSize = selectedSheetSize && machine ? machine.printSheetSizes.find(s => s.id === parseInt(selectedSheetSize)) : null;
+      // Normal mode - handle multi-part configurations
+      if (jobData.useMultiplePaperTypes || jobData.useMultipleMachines) {
+        const configs = [];
         
-        calculationResults = calculateOptimalForPaperType(job, paperType, machines, machine, printSheetSize);
+        // Merge paper type and machine configurations
+        if (jobData.useMultiplePaperTypes && jobData.useMultipleMachines) {
+          // Both paper types and machines are multi-part
+          const maxLength = Math.max(multiPartPaperTypes.length, multiPartMachines.length);
+          for (let i = 0; i < maxLength; i++) {
+            const paperConfig = multiPartPaperTypes[i] || {};
+            const machineConfig = multiPartMachines[i] || {};
+            configs.push({
+              paperTypeId: paperConfig.paperTypeId,
+              machineId: machineConfig.machineId,
+              pageCount: paperConfig.pageCount || machineConfig.pageCount || ''
+            });
+          }
+        } else if (jobData.useMultiplePaperTypes) {
+          // Only paper types are multi-part
+          multiPartPaperTypes.forEach(config => {
+            configs.push({
+              paperTypeId: config.paperTypeId,
+              machineId: selectedMachine,
+              pageCount: config.pageCount
+            });
+          });
+        } else if (jobData.useMultipleMachines) {
+          // Only machines are multi-part
+          multiPartMachines.forEach(config => {
+            configs.push({
+              paperTypeId: selectedPaperType,
+              machineId: config.machineId,
+              pageCount: config.pageCount
+            });
+          });
+        }
+        
+        multiPartResults = calculateMultiPartCost(job, configs, paperTypes, machines);
+        calculationResults = multiPartResults.results;
       } else {
-        calculationResults = findOptimalPrintSheetSize(job, paperTypes, machines);
+        // Single configuration - original calculation logic
+        if (selectedPaperType) {
+          const paperType = paperTypes.find(p => p.id === selectedPaperType);
+          const machine = selectedMachine ? machines.find(m => m.id === selectedMachine) : null;
+          const printSheetSize = selectedSheetSize && machine ? machine.printSheetSizes.find(s => s.id === parseInt(selectedSheetSize)) : null;
+          
+          calculationResults = calculateOptimalForPaperType(job, paperType, machines, machine, printSheetSize);
+        } else {
+          calculationResults = findOptimalPrintSheetSize(job, paperTypes, machines);
+        }
       }
     }
     
