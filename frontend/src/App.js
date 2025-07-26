@@ -287,8 +287,7 @@ function App() {
                 Printing Cost Calculator - Professional printing estimation tool with advanced calculations
               </p>
               <p className="mt-2">
-                <strong>Note:</strong> This is a frontend demo with mock data. Backend integration enables 
-                persistent storage and advanced features.
+                <strong>Note:</strong> Data is now persistently stored in the database and will be preserved across restarts.
               </p>
             </div>
           </div>
