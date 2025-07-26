@@ -1133,7 +1133,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                   </div>
                 )}
 
-                {results.innerPagesResults && (
+                {results.innerPagesResults && !results.multiPartResults && (
                   <div className="p-4 border rounded-lg bg-orange-50">
                     <h3 className="text-lg font-semibold text-orange-800 mb-4">Inner Pages Cost Breakdown</h3>
                     
