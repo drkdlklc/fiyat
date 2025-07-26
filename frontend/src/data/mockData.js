@@ -409,7 +409,7 @@ export const findOptimalPrintSheetSize = (job, paperTypes, machines) => {
           
           // Calculate click cost based on double-sided printing
           const clickMultiplier = job.isDoubleSided ? 2 : 1;
-          const clickCost = printSheetsNeeded * printSheetSize.clickCost * clickMultiplier;
+          const clickCost = actualPrintSheetsNeeded * printSheetSize.clickCost * clickMultiplier;
           
           const setupCost = job.setupRequired ? machine.setupCost : 0;
           const totalCost = paperCost + clickCost + setupCost;
