@@ -46,6 +46,15 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
       return;
     }
 
+    if (jobData.hasCover && !jobData.totalPages) {
+      toast({
+        title: "Error",
+        description: "Please enter the total number of pages for the booklet",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const job = {
       productName: jobData.productName,
       finalWidth: parseFloat(jobData.finalWidth),
