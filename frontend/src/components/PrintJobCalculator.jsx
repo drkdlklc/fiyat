@@ -1431,137 +1431,138 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                   </div>
                 ) : (
                   displayResults.map((result, index) => (
-                  <div key={index} className={`p-4 border rounded-lg ${index === 0 ? 'border-green-500 bg-green-50' : 'border-gray-200'}`}>
-                    {index === 0 && (
-                      <div className="mb-3">
-                        <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold text-green-800 bg-green-200 rounded">
-                          <Award size={12} />
-                          {results.selectedPaperType ? 'OPTIMAL STOCK SHEET' : 'RECOMMENDED'}
-                        </span>
-                      </div>
-                    )}
-                    
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                      <div>
-                        <span className="font-medium text-gray-700">Paper Type:</span>
-                        <p className="text-sm">{result.paperType.name}</p>
-                        <p className="text-xs text-gray-500">{result.paperType.gsm} GSM | ${result.paperType.pricePerTon}/ton</p>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700">Stock Sheet:</span>
-                        <p className="text-sm font-semibold text-blue-600">{result.stockSheetSize.name}</p>
-                        <p className="text-xs text-gray-500">{result.stockSheetSize.width} × {result.stockSheetSize.height} mm</p>
-                        {results.selectedPaperType && index === 0 && (
-                          <p className="text-xs text-green-600 flex items-center gap-1">
-                            <CheckCircle size={12} />
-                            Auto-selected
-                          </p>
-                        )}
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700">Machine:</span>
-                        <p className="text-sm">{result.machine.name}</p>
-                        <p className="text-xs text-gray-500">Setup: ${result.machine.setupCost}</p>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700">Print Sheet:</span>
-                        <p className="text-sm">{result.printSheetSize.name}</p>
-                        <p className="text-xs text-gray-500">
-                          {result.printSheetSize.width} × {result.printSheetSize.height} mm
-                          {result.printSheetSize.duplexSupport && <span className="text-green-600 ml-1">| Duplex</span>}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                      <div>
-                        <span className="font-medium text-gray-700">Products per Print Sheet:</span>
-                        <p className="text-sm">{result.productsPerPrintSheet}</p>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700">Print Sheets per Stock Sheet:</span>
-                        <p className="text-sm">{result.printSheetsPerStockSheet}</p>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700">Print Sheets Needed:</span>
-                        <p className="text-sm">{result.printSheetsNeeded}</p>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700">Stock Sheets Needed:</span>
-                        <p className="text-sm">{result.stockSheetsNeeded}</p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                      <div>
-                        <span className="font-medium text-gray-700">Paper Weight:</span>
-                        <p className="text-sm">{result.paperWeight.toFixed(2)} kg</p>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700">Paper Cost:</span>
-                        <p className="text-sm">${result.paperCost.toFixed(2)}</p>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700">Click Cost:</span>
-                        <p className="text-sm">
-                          ${result.printSheetSize.clickCost}/click
-                          {result.clickMultiplier > 1 && (
-                            <span className="text-blue-600 ml-1">× {result.clickMultiplier} (Double-sided)</span>
+                    <div key={index} className={`p-4 border rounded-lg ${index === 0 ? 'border-green-500 bg-green-50' : 'border-gray-200'}`}>
+                      {index === 0 && (
+                        <div className="mb-3">
+                          <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold text-green-800 bg-green-200 rounded">
+                            <Award size={12} />
+                            {results.selectedPaperType ? 'OPTIMAL STOCK SHEET' : 'RECOMMENDED'}
+                          </span>
+                        </div>
+                      )}
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                        <div>
+                          <span className="font-medium text-gray-700">Paper Type:</span>
+                          <p className="text-sm">{result.paperType.name}</p>
+                          <p className="text-xs text-gray-500">{result.paperType.gsm} GSM | ${result.paperType.pricePerTon}/ton</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Stock Sheet:</span>
+                          <p className="text-sm font-semibold text-blue-600">{result.stockSheetSize.name}</p>
+                          <p className="text-xs text-gray-500">{result.stockSheetSize.width} × {result.stockSheetSize.height} mm</p>
+                          {results.selectedPaperType && index === 0 && (
+                            <p className="text-xs text-green-600 flex items-center gap-1">
+                              <CheckCircle size={12} />
+                              Auto-selected
+                            </p>
                           )}
-                        </p>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700">Total Click Cost:</span>
-                        <p className="text-sm">${result.clickCost.toFixed(2)}</p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                      <div>
-                        <span className="font-medium text-gray-700">Setup Cost:</span>
-                        <p className="text-sm">${result.setupCost.toFixed(2)}</p>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700">Stock Efficiency:</span>
-                        <p className="text-sm">{((result.productsPerPrintSheet * result.printSheetsPerStockSheet / result.stockSheetsNeeded) * 100).toFixed(1)}%</p>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700">Stock Area:</span>
-                        <p className="text-sm">{((result.stockSheetSize.width * result.stockSheetSize.height) / 1000000).toFixed(3)} m²</p>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700">Print Area:</span>
-                        <p className="text-sm">{((result.printSheetSize.width * result.printSheetSize.height) / 1000000).toFixed(3)} m²</p>
-                      </div>
-                    </div>
-
-                    {result.wastePercentage !== undefined && (
-                      <div className="grid grid-cols-2 gap-4 mb-4 p-3 bg-gray-100 rounded">
-                        <div>
-                          <span className="font-medium text-gray-700">Paper Waste:</span>
-                          <p className="text-sm">{result.wastePercentage.toFixed(1)}%</p>
                         </div>
                         <div>
-                          <span className="font-medium text-gray-700">Optimization Reason:</span>
-                          <p className="text-sm text-green-600">
-                            {results.selectedPaperType ? 'Lowest cost + minimal waste' : 'Best overall cost efficiency'}
+                          <span className="font-medium text-gray-700">Machine:</span>
+                          <p className="text-sm">{result.machine.name}</p>
+                          <p className="text-xs text-gray-500">Setup: ${result.machine.setupCost}</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Print Sheet:</span>
+                          <p className="text-sm">{result.printSheetSize.name}</p>
+                          <p className="text-xs text-gray-500">
+                            {result.printSheetSize.width} × {result.printSheetSize.height} mm
+                            {result.printSheetSize.duplexSupport && <span className="text-green-600 ml-1">| Duplex</span>}
                           </p>
                         </div>
                       </div>
-                    )}
 
-                    <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-                      <div>
-                        <span className="font-bold text-lg text-gray-800">Total Cost:</span>
-                        <p className="text-xl font-bold text-green-600">${result.totalCost.toFixed(2)}</p>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                        <div>
+                          <span className="font-medium text-gray-700">Products per Print Sheet:</span>
+                          <p className="text-sm">{result.productsPerPrintSheet}</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Print Sheets per Stock Sheet:</span>
+                          <p className="text-sm">{result.printSheetsPerStockSheet}</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Print Sheets Needed:</span>
+                          <p className="text-sm">{result.printSheetsNeeded}</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Stock Sheets Needed:</span>
+                          <p className="text-sm">{result.stockSheetsNeeded}</p>
+                        </div>
                       </div>
-                      <div>
-                        <span className="font-bold text-lg text-gray-800">Cost per Unit:</span>
-                        <p className="text-xl font-bold text-blue-600">${result.costPerUnit.toFixed(4)}</p>
+
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                        <div>
+                          <span className="font-medium text-gray-700">Paper Weight:</span>
+                          <p className="text-sm">{result.paperWeight.toFixed(2)} kg</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Paper Cost:</span>
+                          <p className="text-sm">${result.paperCost.toFixed(2)}</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Click Cost:</span>
+                          <p className="text-sm">
+                            ${result.printSheetSize.clickCost}/click
+                            {result.clickMultiplier > 1 && (
+                              <span className="text-blue-600 ml-1">× {result.clickMultiplier} (Double-sided)</span>
+                            )}
+                          </p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Total Click Cost:</span>
+                          <p className="text-sm">${result.clickCost.toFixed(2)}</p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                        <div>
+                          <span className="font-medium text-gray-700">Setup Cost:</span>
+                          <p className="text-sm">${result.setupCost.toFixed(2)}</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Stock Efficiency:</span>
+                          <p className="text-sm">{((result.productsPerPrintSheet * result.printSheetsPerStockSheet / result.stockSheetsNeeded) * 100).toFixed(1)}%</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Stock Area:</span>
+                          <p className="text-sm">{((result.stockSheetSize.width * result.stockSheetSize.height) / 1000000).toFixed(3)} m²</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Print Area:</span>
+                          <p className="text-sm">{((result.printSheetSize.width * result.printSheetSize.height) / 1000000).toFixed(3)} m²</p>
+                        </div>
+                      </div>
+
+                      {result.wastePercentage !== undefined && (
+                        <div className="grid grid-cols-2 gap-4 mb-4 p-3 bg-gray-100 rounded">
+                          <div>
+                            <span className="font-medium text-gray-700">Paper Waste:</span>
+                            <p className="text-sm">{result.wastePercentage.toFixed(1)}%</p>
+                          </div>
+                          <div>
+                            <span className="font-medium text-gray-700">Optimization Reason:</span>
+                            <p className="text-sm text-green-600">
+                              {results.selectedPaperType ? 'Lowest cost + minimal waste' : 'Best overall cost efficiency'}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                        <div>
+                          <span className="font-bold text-lg text-gray-800">Total Cost:</span>
+                          <p className="text-xl font-bold text-green-600">${result.totalCost.toFixed(2)}</p>
+                        </div>
+                        <div>
+                          <span className="font-bold text-lg text-gray-800">Cost per Unit:</span>
+                          <p className="text-xl font-bold text-blue-600">${result.costPerUnit.toFixed(4)}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}}
                 
                 {showOptimalOnly && results.calculations.length > 3 && (
                   <div className="text-center">
