@@ -1104,9 +1104,34 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                         <p className="text-xs text-gray-500">Setup: ${results.innerPagesResults.machine.setupCost}</p>
                       </div>
                       <div>
+                        <span className="font-medium text-gray-700">Binding Edge:</span>
+                        <p className="text-sm">{results.innerPagesResults.bindingEdge === 'short' ? 'Short Edge' : 'Long Edge'}</p>
+                        <p className="text-xs text-gray-500">
+                          {results.innerPagesResults.bindingEdge === 'short' ? 'Portrait orientation' : 'Landscape orientation'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                      <div>
+                        <span className="font-medium text-gray-700">Effective Size:</span>
+                        <p className="text-sm">{results.innerPagesResults.effectiveWidth} × {results.innerPagesResults.effectiveHeight} mm</p>
+                        <p className="text-xs text-gray-500">After binding orientation</p>
+                      </div>
+                      <div>
                         <span className="font-medium text-gray-700">Inner Print Sheet:</span>
                         <p className="text-sm">{results.innerPagesResults.printSheetSize.name}</p>
                         <p className="text-xs text-gray-500">{results.innerPagesResults.printSheetSize.width} × {results.innerPagesResults.printSheetSize.height} mm</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">Sheets per Print Sheet:</span>
+                        <p className="text-sm">{results.innerPagesResults.innerSheetsPerPrintSheet}</p>
+                        <p className="text-xs text-gray-500">Based on {results.innerPagesResults.bindingEdge} edge binding</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">Print Sheets Needed:</span>
+                        <p className="text-sm">{results.innerPagesResults.printSheetsNeeded}</p>
+                        <p className="text-xs text-gray-500">For all booklets</p>
                       </div>
                     </div>
 
