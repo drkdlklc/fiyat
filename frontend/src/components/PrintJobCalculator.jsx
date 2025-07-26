@@ -68,7 +68,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
       quantity: parseInt(jobData.quantity),
       isDoubleSided: jobData.isDoubleSided,
       setupRequired: jobData.setupRequired,
-      hasCover: jobData.hasCover,
+      isBookletMode: jobData.isBookletMode,
       coverSetupRequired: jobData.coverSetupRequired,
       totalPages: jobData.totalPages ? parseInt(jobData.totalPages) : 0
     };
