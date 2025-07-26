@@ -19,8 +19,7 @@ const MachineManager = ({ machines, onAddMachine, onUpdateMachine, onDeleteMachi
     name: '',
     width: '',
     height: '',
-    clickCost: '',
-    duplexSupport: false
+    clickCost: ''
   });
   const [isAddingSheetSize, setIsAddingSheetSize] = useState(false);
   const { toast } = useToast();
