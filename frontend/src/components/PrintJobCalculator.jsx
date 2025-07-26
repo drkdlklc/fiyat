@@ -464,15 +464,36 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                   Booklet Configuration
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="totalPages">Total Pages *</Label>
-                    <Input
-                      id="totalPages"
-                      type="number"
-                      value={jobData.totalPages}
-                      onChange={(e) => setJobData({ ...jobData, totalPages: e.target.value })}
-                      placeholder="e.g., 16, 20, 24"
-                    />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="totalPages">Total Pages (including cover)</Label>
+                      <Input
+                        id="totalPages"
+                        type="number"
+                        value={jobData.totalPages}
+                        onChange={(e) => setJobData({ ...jobData, totalPages: e.target.value })}
+                        placeholder="e.g., 16, 20, 24"
+                        min="4"
+                        step="4"
+                      />
+                      <p className="text-sm text-gray-500 mt-1">Must be multiple of 4 for proper booklet layout</p>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="bindingEdge">Binding Edge</Label>
+                      <Select value={jobData.bindingEdge} onValueChange={(value) => setJobData({ ...jobData, bindingEdge: value })}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select binding edge" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="short">Short Edge Binding</SelectItem>
+                          <SelectItem value="long">Long Edge Binding</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-sm text-gray-500 mt-1">
+                        {jobData.bindingEdge === 'short' ? 'Portrait orientation binding' : 'Landscape orientation binding'}
+                      </p>
+                    </div>
                   </div>
                   <div className="flex items-center space-x-2 mt-6">
                     <Checkbox
