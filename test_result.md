@@ -253,6 +253,18 @@ frontend:
         agent: "main"
         comment: "Successfully updated 'Total Click Cost' to 'Total' at line 1186 in the booklet mode Inner Pages Cost section. Only the booklet mode display was modified, normal mode display remains unchanged as intended."
 
+  - task: "Update cover calculation to use binding edge in booklet mode"
+    implemented: false
+    working: false
+    file: "frontend/src/data/mockData.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "Currently, only inner pages calculation uses binding edge (short/long) selection. Cover calculation needs to be updated to also use the same binding edge logic for consistent booklet printing calculations."
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
