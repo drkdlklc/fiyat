@@ -268,6 +268,18 @@ frontend:
         agent: "main"
         comment: "Successfully updated calculateCoverCost function to use binding edge logic with effectiveWidth and effectiveHeight calculations. Added bindingEdge, effectiveWidth, and effectiveHeight to the cover results. Updated cover display UI to show binding edge and effective size information consistently with inner pages display."
 
+  - task: "Fix booklet cover calculation - implement doubling and halving logic"
+    implemented: false
+    working: false
+    file: "frontend/src/data/mockData.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "Issue found: For 150x150 booklet cover, program calculates 4 Print Sheets per Stock Sheet but should be 6. Need to implement: binding edge dimension doubling + divide total sheets by 2 for booklet cover folding mechanics."
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
