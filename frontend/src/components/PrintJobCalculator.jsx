@@ -46,6 +46,12 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
   const [multiPartInnerMachines, setMultiPartInnerMachines] = useState([
     { id: 1, machineId: null, pageCount: '' }
   ]);
+  const [multiPartConfigurations, setMultiPartConfigurations] = useState([
+    { id: 1, paperTypeId: null, machineId: null, pageCount: '' }
+  ]);
+  const [multiPartInnerConfigurations, setMultiPartInnerConfigurations] = useState([
+    { id: 1, paperTypeId: null, machineId: null, pageCount: '' }
+  ]);
   const [results, setResults] = useState(null);
   const [showOptimalOnly, setShowOptimalOnly] = useState(true);
   const { toast } = useToast();
