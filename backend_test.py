@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Backend API Testing Suite for Printing Cost Calculator
-Tests basic API connectivity, health checks, and existing endpoints
+Tests basic API connectivity, health checks, existing endpoints, and cover calculation logic
 """
 
 import requests
@@ -10,6 +10,7 @@ import sys
 import os
 from datetime import datetime
 import time
+import subprocess
 
 # Load environment variables to get the backend URL
 def load_frontend_env():
