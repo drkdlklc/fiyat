@@ -1562,7 +1562,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                       </div>
                     </div>
                   ))
-                )}}
+                )}
                 
                 {showOptimalOnly && results.calculations.length > 3 && (
                   <div className="text-center">
