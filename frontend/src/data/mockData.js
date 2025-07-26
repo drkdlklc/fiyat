@@ -337,11 +337,11 @@ export const calculateCoverCost = (job, coverPaperType, coverMachine) => {
       
       // Booklet cover folding logic: halve the binding edge dimension for arrangement
       if (job.bindingEdge === 'short') {
-        // Short edge binding: halve the height for arrangement calculation
-        effectivePrintHeight = printSheetSize.height / 2;
-      } else {
-        // Long edge binding: halve the width for arrangement calculation  
+        // Short edge binding: halve the width for arrangement calculation
         effectivePrintWidth = printSheetSize.width / 2;
+      } else {
+        // Long edge binding: halve the height for arrangement calculation  
+        effectivePrintHeight = printSheetSize.height / 2;
       }
       
       const printSheetsPerStockSheet = Math.floor(stockSheetSize.width / effectivePrintWidth) * 
