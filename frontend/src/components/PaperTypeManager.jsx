@@ -134,11 +134,13 @@ const PaperTypeManager = ({ paperTypes, onAddPaperType, onUpdatePaperType, onDel
   };
 
   const handleDelete = (id) => {
-    onDeletePaperType(id);
-    toast({
-      title: "Success",
-      description: "Paper type deleted successfully"
-    });
+    if (window.confirm('Are you sure you want to delete this paper type?')) {
+      onDeletePaperType(id);
+      toast({
+        title: "Success",
+        description: "Paper type deleted successfully"
+      });
+    }
   };
 
   return (
