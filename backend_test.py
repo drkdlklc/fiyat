@@ -563,10 +563,21 @@ if (innerResult) {
         self.test_status_get_endpoint()
         self.test_status_post_endpoint()
         
+        # Data endpoints tests
+        self.test_initialize_data_endpoint()
+        self.test_paper_types_endpoint()
+        self.test_machines_endpoint()
+        
         # Advanced functionality tests
         self.test_database_connectivity()
         self.test_cors_headers()
         self.test_invalid_endpoints()
+        
+        # Cover calculation logic tests (frontend logic testing)
+        print("🧮 Testing Cover Calculation Logic")
+        print()
+        self.test_cover_calculation_logic()
+        self.test_inner_pages_calculation_logic()
         
         # Print summary
         print("=" * 60)
