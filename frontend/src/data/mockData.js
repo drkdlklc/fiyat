@@ -330,10 +330,6 @@ export const calculateCoverCost = (job, coverPaperType, coverMachine) => {
       
       const printSheetsNeeded = Math.ceil(coverSheetsNeeded / coverSheetsPerPrintSheet);
       
-      // Booklet cover special calculation: divide total required sheets by 2
-      // This is because the doubled dimension allows for more efficient cover layout
-      const adjustedPrintSheetsNeeded = Math.ceil(printSheetsNeeded / 2);
-      
       // Calculate how many print sheets fit per stock sheet
       // For booklet covers, apply folding logic to print sheet arrangement
       let effectivePrintWidth = printSheetSize.width;
