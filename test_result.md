@@ -281,7 +281,7 @@ frontend:
         comment: "Issue found: For 150x150 booklet cover, program calculates 4 Print Sheets per Stock Sheet but should be 6. Need to implement: binding edge dimension doubling + divide total sheets by 2 for booklet cover folding mechanics."
       - working: true
         agent: "main"
-        comment: "Implemented booklet cover folding logic: 1) Binding edge dimension is doubled (effectiveHeight *= 2 for short edge, effectiveWidth *= 2 for long edge), 2) Total print sheets needed divided by 2 (adjustedPrintSheetsNeeded), 3) Updated all subsequent calculations to use adjusted values. This should fix 150x150 case to show 6 instead of 4 print sheets per stock sheet."
+        comment: "Fixed incorrect halving logic: Removed 'divide by 2' from printSheetsNeeded and stockSheetsNeeded calculations. The doubling/halving should only apply to how print sheets arrange on stock sheets (effectivePrintWidth/Height), not to the actual quantity of sheets needed. Print Sheets Needed should now show 34 instead of 17, Stock Sheets Needed should show 9 instead of 5."
 
 metadata:
   created_by: "main_agent"
