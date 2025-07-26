@@ -467,9 +467,12 @@ export const calculateInnerPagesCost = (job, innerPaperType, innerMachine) => {
       
       const printSheetsNeeded = Math.ceil(totalInnerSheetsNeeded / innerSheetsPerPrintSheet);
       
-      // Calculate how many print sheets fit per stock sheet
-      const printSheetsPerStockSheet = Math.floor(stockSheetSize.width / printSheetSize.width) * 
-                                     Math.floor(stockSheetSize.height / printSheetSize.height);
+      // Calculate how many print sheets fit per stock sheet (try both orientations)
+      const orientation1 = Math.floor(stockSheetSize.width / printSheetSize.width) * 
+                           Math.floor(stockSheetSize.height / printSheetSize.height);
+      const orientation2 = Math.floor(stockSheetSize.width / printSheetSize.height) * 
+                           Math.floor(stockSheetSize.height / printSheetSize.width);
+      const printSheetsPerStockSheet = Math.max(orientation1, orientation2);
       
       if (printSheetsPerStockSheet <= 0) continue;
       
