@@ -284,11 +284,11 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
                 <Checkbox
-                  id="isColor"
-                  checked={jobData.isColor}
-                  onCheckedChange={(checked) => setJobData({ ...jobData, isColor: checked })}
+                  id="isDoubleSided"
+                  checked={jobData.isDoubleSided}
+                  onCheckedChange={(checked) => setJobData({ ...jobData, isDoubleSided: checked })}
                 />
-                <Label htmlFor="isColor">Color Printing</Label>
+                <Label htmlFor="isDoubleSided">Double-sided Printing</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <Checkbox
