@@ -1167,7 +1167,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
 
                 {results.multiPartResults && (
                   <div className="p-4 border rounded-lg bg-gradient-to-r from-orange-50 to-purple-50">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">Multi-Part Inner Pages Cost Breakdown</h3>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4">Multi-Part Inner Pages Cost (1 sheet = 2 pages)</h3>
                     
                     {results.multiPartResults.results.map((part, index) => (
                       <div key={index} className="mb-4 p-3 border rounded-lg bg-white">
