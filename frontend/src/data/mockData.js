@@ -283,9 +283,14 @@ export const calculateCoverCost = (job, coverPaperType, coverMachine) => {
     return null;
   }
 
-  // For cover, we typically print 2 covers per product (front and back)
-  // But we'll calculate based on the job quantity
-  const coverQuantity = job.quantity; // Each product needs 1 cover
+  // For booklet with cover, we need to calculate:
+  // 1. Cover cost (front and back cover)
+  // 2. Inner pages cost (total pages - cover pages)
+  
+  const coverQuantity = job.quantity; // Each booklet needs 1 cover
+  const totalPages = job.totalPages || 0;
+  const innerPages = Math.max(0, totalPages - 2); // Subtract front and back cover
+  const innerSheetsNeeded = Math.ceil(innerPages / (job.isDoubleSided ? 2 : 1));
   
   // Find the best stock sheet size for the cover
   let bestCoverOption = null;
@@ -326,7 +331,7 @@ export const calculateCoverCost = (job, coverPaperType, coverMachine) => {
       
       // Cover is typically double-sided, so we'll assume 2x click cost
       const clickCost = printSheetsNeeded * printSheetSize.clickCost * 2;
-      const setupCost = coverMachine.setupCost;
+      const setupCost = job.coverSetupRequired ? coverMachine.setupCost : 0;
       const totalCost = paperCost + clickCost + setupCost;
       
       if (totalCost < lowestCost) {
@@ -344,7 +349,10 @@ export const calculateCoverCost = (job, coverPaperType, coverMachine) => {
           paperCost,
           clickCost,
           setupCost,
-          totalCost
+          totalCost,
+          totalPages,
+          innerPages,
+          innerSheetsNeeded
         };
       }
     }
