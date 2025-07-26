@@ -630,8 +630,21 @@ export const calculateOptimalForPaperType = (job, paperType, machines, selectedM
           left: job.marginLeft
         };
         
+        // Use the same binding edge logic as booklet mode for consistency
+        let effectiveWidth, effectiveHeight;
+        
+        if (job.bindingEdge === 'short') {
+          // Short edge binding: double the height (short edge)
+          effectiveWidth = job.finalWidth;
+          effectiveHeight = job.finalHeight * 2; // Double the binding edge dimension
+        } else {
+          // Long edge binding: double the width (long edge)
+          effectiveWidth = job.finalHeight; // Use height as width
+          effectiveHeight = job.finalWidth * 2; // Double the width, use as height
+        }
+        
         const productsPerPrintSheet = calculateProductsPerSheet(
-          printSheetSize.width, printSheetSize.height, job.finalWidth, job.finalHeight, margins
+          printSheetSize.width, printSheetSize.height, effectiveWidth, effectiveHeight, margins
         );
         
         if (productsPerPrintSheet <= 0) continue;
