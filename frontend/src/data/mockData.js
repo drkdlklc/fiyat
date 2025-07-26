@@ -421,7 +421,7 @@ export const findOptimalPrintSheetSize = (job, paperTypes, machines) => {
             paperType,
             stockSheetSize,
             productsPerPrintSheet,
-            printSheetsNeeded,
+            printSheetsNeeded: actualPrintSheetsNeeded,
             printSheetsPerStockSheet,
             stockSheetsNeeded,
             paperWeight,
@@ -430,7 +430,10 @@ export const findOptimalPrintSheetSize = (job, paperTypes, machines) => {
             setupCost,
             totalCost,
             costPerUnit,
-            clickMultiplier
+            clickMultiplier,
+            isBooklet: job.hasCover,
+            totalPages: job.totalPages || 0,
+            innerPages: job.hasCover ? Math.max(0, (job.totalPages || 0) - 2) : 0
           });
         }
       }
