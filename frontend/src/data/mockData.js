@@ -757,11 +757,20 @@ export const calculateMultiPartInnerPagesCost = (job, multiPartConfigs, paperTyp
     const sheetsNeededPerBooklet = Math.ceil(pageCount / 2);
     const totalSheetsForPart = isBookletMode ? job.quantity * sheetsNeededPerBooklet : sheetsNeededPerBooklet;
 
-    // Determine the orientation based on binding edge
-    // Short edge binding: portrait orientation (normal width x height)
-    // Long edge binding: landscape orientation (height x width)
-    const effectiveWidth = job.bindingEdge === 'short' ? job.finalWidth : job.finalHeight;
-    const effectiveHeight = job.bindingEdge === 'short' ? job.finalHeight : job.finalWidth;
+    // Determine the orientation based on binding edge with doubling logic (same as covers)
+    // Short edge binding: double the height (short edge)
+    // Long edge binding: double the width (long edge)
+    let effectiveWidth, effectiveHeight;
+    
+    if (job.bindingEdge === 'short') {
+      // Short edge binding: double the height (short edge)
+      effectiveWidth = job.finalWidth;
+      effectiveHeight = job.finalHeight * 2; // Double the binding edge dimension
+    } else {
+      // Long edge binding: double the width (long edge)
+      effectiveWidth = job.finalHeight; // Use height as width
+      effectiveHeight = job.finalWidth * 2; // Double the width, use as height
+    }
 
     let bestOption = null;
     let lowestCost = Infinity;
