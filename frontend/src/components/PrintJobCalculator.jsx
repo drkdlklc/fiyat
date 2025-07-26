@@ -844,23 +844,23 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
 
                 <div className="flex items-center space-x-2">
                   <Checkbox
-                    id="useMultiplePaperTypes"
-                    checked={jobData.useMultiplePaperTypes}
-                    onCheckedChange={(checked) => setJobData({ ...jobData, useMultiplePaperTypes: checked })}
+                    id="useMultiPartConfiguration"
+                    checked={jobData.useMultiPartConfiguration}
+                    onCheckedChange={(checked) => setJobData({ ...jobData, useMultiPartConfiguration: checked })}
                   />
-                  <Label htmlFor="useMultiplePaperTypes">Use Different Paper Types for Different Parts</Label>
+                  <Label htmlFor="useMultiPartConfiguration">Use Different Paper Types & Machines for Different Parts</Label>
                 </div>
 
-                {jobData.useMultiplePaperTypes && (
-                  <div className="p-4 border rounded-lg bg-blue-50">
-                    <h4 className="font-semibold text-blue-800 mb-3">Paper Type Configuration by Parts</h4>
-                    {multiPartPaperTypes.map((part, index) => (
-                      <div key={part.id} className="grid grid-cols-3 gap-4 mb-3">
+                {jobData.useMultiPartConfiguration && (
+                  <div className="p-4 border rounded-lg bg-gradient-to-r from-blue-50 to-purple-50">
+                    <h4 className="font-semibold text-blue-800 mb-3">Multi-Part Configuration</h4>
+                    {multiPartConfigurations.map((part, index) => (
+                      <div key={part.id} className="grid grid-cols-4 gap-4 mb-3">
                         <div>
                           <Label>Paper Type for Part {index + 1}</Label>
                           <Select 
                             value={part.paperTypeId?.toString() || ''} 
-                            onValueChange={(value) => updateMultiPartPaperType(part.id, 'paperTypeId', value ? parseInt(value) : null)}
+                            onValueChange={(value) => updateMultiPartConfiguration(part.id, 'paperTypeId', value ? parseInt(value) : null)}
                           >
                             <SelectTrigger>
                               <SelectValue placeholder="Select paper type" />
@@ -875,31 +875,49 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                           </Select>
                         </div>
                         <div>
+                          <Label>Machine for Part {index + 1}</Label>
+                          <Select 
+                            value={part.machineId?.toString() || ''} 
+                            onValueChange={(value) => updateMultiPartConfiguration(part.id, 'machineId', value ? parseInt(value) : null)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select machine" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {machines.map((machine) => (
+                                <SelectItem key={machine.id} value={machine.id.toString()}>
+                                  {machine.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
                           <Label>Page Count</Label>
                           <Input
                             type="number"
                             value={part.pageCount}
-                            onChange={(e) => updateMultiPartPaperType(part.id, 'pageCount', e.target.value)}
+                            onChange={(e) => updateMultiPartConfiguration(part.id, 'pageCount', e.target.value)}
                             placeholder="e.g., 100"
                           />
                         </div>
                         <div className="flex items-end gap-2">
-                          {multiPartPaperTypes.length < 3 && (
+                          {multiPartConfigurations.length < 3 && (
                             <Button 
                               type="button" 
                               variant="outline" 
                               size="sm"
-                              onClick={addMultiPartPaperType}
+                              onClick={addMultiPartConfiguration}
                             >
                               <Plus size={16} />
                             </Button>
                           )}
-                          {multiPartPaperTypes.length > 1 && (
+                          {multiPartConfigurations.length > 1 && (
                             <Button 
                               type="button" 
                               variant="outline" 
                               size="sm"
-                              onClick={() => removeMultiPartPaperType(part.id)}
+                              onClick={() => removeMultiPartConfiguration(part.id)}
                             >
                               <Minus size={16} />
                             </Button>
@@ -907,6 +925,9 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                         </div>
                       </div>
                     ))}
+                    <p className="text-sm text-blue-600 mt-2">
+                      Each part can have a different paper type and machine combination. The system will optimize the sheet size selection for each pairing.
+                    </p>
                   </div>
                 )}
               </div>
