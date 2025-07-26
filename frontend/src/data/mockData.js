@@ -704,6 +704,12 @@ export const calculateMultiPartInnerPagesCost = (job, multiPartConfigs, paperTyp
     const sheetsNeededPerBooklet = Math.ceil(pageCount / 2);
     const totalSheetsForPart = isBookletMode ? job.quantity * sheetsNeededPerBooklet : sheetsNeededPerBooklet;
 
+    // Determine the orientation based on binding edge
+    // Short edge binding: portrait orientation (normal width x height)
+    // Long edge binding: landscape orientation (height x width)
+    const effectiveWidth = job.bindingEdge === 'short' ? job.finalWidth : job.finalHeight;
+    const effectiveHeight = job.bindingEdge === 'short' ? job.finalHeight : job.finalWidth;
+
     let bestOption = null;
     let lowestCost = Infinity;
 
@@ -725,9 +731,9 @@ export const calculateMultiPartInnerPagesCost = (job, multiPartConfigs, paperTyp
               left: job.marginLeft
             };
 
-            // Calculate how many sheets can fit per print sheet
+            // Calculate how many sheets can fit per print sheet using effective dimensions
             const sheetsPerPrintSheet = calculateProductsPerSheet(
-              printSheetSize.width, printSheetSize.height, job.finalWidth, job.finalHeight, margins
+              printSheetSize.width, printSheetSize.height, effectiveWidth, effectiveHeight, margins
             );
 
             if (sheetsPerPrintSheet <= 0) continue;
@@ -768,7 +774,10 @@ export const calculateMultiPartInnerPagesCost = (job, multiPartConfigs, paperTyp
                 totalSheetsForPart,
                 partNumber: results.length + 1,
                 isMultiPart: true,
-                clickMultiplier
+                clickMultiplier,
+                bindingEdge: job.bindingEdge,
+                effectiveWidth,
+                effectiveHeight
               };
             }
           }
