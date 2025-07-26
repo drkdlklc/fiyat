@@ -102,10 +102,22 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "The 'Setup Required' option should be unselected by default. When the 'Use different paper' option is enabled, the default machine and paper selection section should be hidden. Also, if the total number of pages entered for the different machine/paper combinations does not match the total number of main pages, an error should be shown."
+user_problem_statement: "The program is currently calculating the 'Stock Sheets Needed' as double the required amount. One cover yields 4 pages"
 
 backend:
-  - task: "Setup Required default state change"
+  - task: "Cover calculation fix"
+    implemented: true
+    working: true
+    file: "frontend/src/data/mockData.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Fixed cover calculation logic - changed from totalCoverPages = quantity * 2 to totalCoversNeeded = quantity (1 cover per booklet), updated to reflect that each cover yields 4 pages when folded"
+
+  - task: "Cover UI text update"
     implemented: true
     working: true
     file: "frontend/src/components/PrintJobCalculator.jsx"
@@ -115,31 +127,7 @@ backend:
     status_history:
       - working: true
         agent: "main"
-        comment: "Successfully changed Setup Required option to be unchecked by default"
-
-  - task: "Hide default sections when multi-part is enabled"
-    implemented: true
-    working: true
-    file: "frontend/src/components/PrintJobCalculator.jsx"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: true
-        agent: "main"
-        comment: "Successfully implemented conditional hiding of default paper type and machine selection sections when multi-part configuration is enabled"
-
-  - task: "Page count validation for multi-part configurations"
-    implemented: true
-    working: true
-    file: "frontend/src/components/PrintJobCalculator.jsx"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: true
-        agent: "main"
-        comment: "Successfully implemented validation to ensure total pages in multi-part configurations match main page counts with clear error messages"
+        comment: "Updated cover configuration text to correctly state 'Each booklet needs 1 cover (4 pages when folded)'"
 
   - task: "Backend API endpoints for persistent storage"
     implemented: true
