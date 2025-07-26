@@ -107,43 +107,8 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
       }
       
       // Handle multi-part inner pages
-      if (jobData.useMultipleInnerPaperTypes || jobData.useMultipleInnerMachines) {
-        const configs = [];
-        
-        // Merge paper type and machine configurations
-        if (jobData.useMultipleInnerPaperTypes && jobData.useMultipleInnerMachines) {
-          // Both paper types and machines are multi-part
-          const maxLength = Math.max(multiPartInnerPaperTypes.length, multiPartInnerMachines.length);
-          for (let i = 0; i < maxLength; i++) {
-            const paperConfig = multiPartInnerPaperTypes[i] || {};
-            const machineConfig = multiPartInnerMachines[i] || {};
-            configs.push({
-              paperTypeId: paperConfig.paperTypeId,
-              machineId: machineConfig.machineId,
-              pageCount: paperConfig.pageCount || machineConfig.pageCount || ''
-            });
-          }
-        } else if (jobData.useMultipleInnerPaperTypes) {
-          // Only paper types are multi-part
-          multiPartInnerPaperTypes.forEach(config => {
-            configs.push({
-              paperTypeId: config.paperTypeId,
-              machineId: selectedInnerMachine,
-              pageCount: config.pageCount
-            });
-          });
-        } else if (jobData.useMultipleInnerMachines) {
-          // Only machines are multi-part
-          multiPartInnerMachines.forEach(config => {
-            configs.push({
-              paperTypeId: selectedInnerPaperType,
-              machineId: config.machineId,
-              pageCount: config.pageCount
-            });
-          });
-        }
-        
-        multiPartResults = calculateMultiPartInnerPagesCost(job, configs, paperTypes, machines, true);
+      if (jobData.useMultiPartInnerConfiguration) {
+        multiPartResults = calculateMultiPartInnerPagesCost(job, multiPartInnerConfigurations, paperTypes, machines, true);
       } else if (selectedInnerPaperType && selectedInnerMachine) {
         // Single inner paper type and machine
         const innerPaperType = paperTypes.find(p => p.id === selectedInnerPaperType);
