@@ -547,7 +547,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
               </span>
               <span className="text-sm text-blue-600 font-medium">
                 {results.job.isDoubleSided ? 'Double-sided' : 'Single-sided'} printing
-                {results.job.hasCover && ` | Booklet (${results.job.totalPages} pages)`}
+                {results.job.isBookletMode && ` | Booklet (${results.job.totalPages} pages, ${results.job.quantity} booklets)`}
               </span>
               {results.selectedPaperType && (
                 <span className="text-sm text-blue-600 font-medium">
