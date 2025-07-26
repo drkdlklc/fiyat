@@ -1466,6 +1466,18 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
 
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                         <div>
+                          <span className="font-medium text-gray-700">Binding Edge:</span>
+                          <p className="text-sm">{result.bindingEdge === 'short' ? 'Short Edge' : 'Long Edge'}</p>
+                          <p className="text-xs text-gray-500">
+                            {result.bindingEdge === 'short' ? 'Portrait orientation' : 'Landscape orientation'}
+                          </p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Effective Size:</span>
+                          <p className="text-sm">{result.effectiveWidth} × {result.effectiveHeight} mm</p>
+                          <p className="text-xs text-gray-500">After binding orientation</p>
+                        </div>
+                        <div>
                           <span className="font-medium text-gray-700">Products per Print Sheet:</span>
                           <p className="text-sm">{result.productsPerPrintSheet}</p>
                         </div>
