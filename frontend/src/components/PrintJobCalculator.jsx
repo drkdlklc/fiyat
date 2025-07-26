@@ -1005,13 +1005,25 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                         <p className="text-xs text-gray-500">Setup: ${results.coverResults.machine.setupCost}</p>
                       </div>
                       <div>
-                        <span className="font-medium text-gray-700">Cover Print Sheet:</span>
-                        <p className="text-sm">{results.coverResults.printSheetSize.name}</p>
-                        <p className="text-xs text-gray-500">{results.coverResults.printSheetSize.width} × {results.coverResults.printSheetSize.height} mm</p>
+                        <span className="font-medium text-gray-700">Binding Edge:</span>
+                        <p className="text-sm">{results.coverResults.bindingEdge === 'short' ? 'Short Edge' : 'Long Edge'}</p>
+                        <p className="text-xs text-gray-500">
+                          {results.coverResults.bindingEdge === 'short' ? 'Portrait orientation' : 'Landscape orientation'}
+                        </p>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                      <div>
+                        <span className="font-medium text-gray-700">Effective Size:</span>
+                        <p className="text-sm">{results.coverResults.effectiveWidth} × {results.coverResults.effectiveHeight} mm</p>
+                        <p className="text-xs text-gray-500">After binding orientation</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">Cover Print Sheet:</span>
+                        <p className="text-sm">{results.coverResults.printSheetSize.name}</p>
+                        <p className="text-xs text-gray-500">{results.coverResults.printSheetSize.width} × {results.coverResults.printSheetSize.height} mm</p>
+                      </div>
                       <div>
                         <span className="font-medium text-gray-700">Total Cover Pages:</span>
                         <p className="text-sm">{results.coverResults.totalCoverPages}</p>
