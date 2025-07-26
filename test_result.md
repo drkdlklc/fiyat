@@ -276,7 +276,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "UI text refinement in booklet mode - Update 'Total Click Cost' to 'Total'"
+    - "Update cover calculation to use binding edge in booklet mode"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
