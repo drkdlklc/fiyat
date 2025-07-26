@@ -144,6 +144,30 @@ frontend:
         agent: "main"
         comment: "Successfully integrated frontend with backend API for persistent data management"
 
+  - task: "UI text updates for 1 sheet = 4 pages"
+    implemented: true
+    working: true
+    file: "frontend/src/components/PrintJobCalculator.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Updated cover and inner pages configuration text to reflect 1 sheet = 4 pages principle, updated validation logic, and modified results display"
+
+  - task: "Results display updates for sheet-based calculations"
+    implemented: true
+    working: true
+    file: "frontend/src/components/PrintJobCalculator.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Updated cover and inner pages results display to show sheet-based calculations with clear indication of 1 sheet = 4 pages relationship"
+
   - task: "Multi-part paper types toggle and UI"
     implemented: true
     working: true
