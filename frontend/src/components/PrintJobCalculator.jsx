@@ -1236,6 +1236,74 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                   </div>
                 )}
 
+                {results.multiPartResults && (
+                  <div className="p-4 border rounded-lg bg-gradient-to-r from-orange-50 to-purple-50">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4">Multi-Part Inner Pages Cost Breakdown</h3>
+                    
+                    {results.multiPartResults.results.map((part, index) => (
+                      <div key={index} className="mb-4 p-3 border rounded-lg bg-white">
+                        <h4 className="font-semibold text-gray-700 mb-3">Part {part.partNumber} - {part.partPageCount} pages</h4>
+                        
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
+                          <div>
+                            <span className="font-medium text-gray-700">Paper Type:</span>
+                            <p className="text-sm">{part.paperType.name}</p>
+                            <p className="text-xs text-gray-500">{part.paperType.gsm} GSM</p>
+                          </div>
+                          <div>
+                            <span className="font-medium text-gray-700">Machine:</span>
+                            <p className="text-sm">{part.machine.name}</p>
+                            <p className="text-xs text-gray-500">Setup: ${part.machine.setupCost}</p>
+                          </div>
+                          <div>
+                            <span className="font-medium text-gray-700">Pages per Print Sheet:</span>
+                            <p className="text-sm">{part.pagesPerPrintSheet}</p>
+                          </div>
+                          <div>
+                            <span className="font-medium text-gray-700">Print Sheets Needed:</span>
+                            <p className="text-sm">{part.printSheetsNeeded}</p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
+                          <div>
+                            <span className="font-medium text-gray-700">Paper Cost:</span>
+                            <p className="text-sm">${part.paperCost.toFixed(2)}</p>
+                          </div>
+                          <div>
+                            <span className="font-medium text-gray-700">Click Cost:</span>
+                            <p className="text-sm">${part.clickCost.toFixed(2)}</p>
+                            {part.clickMultiplier > 1 && (
+                              <p className="text-xs text-blue-600">Double-sided (2x)</p>
+                            )}
+                          </div>
+                          <div>
+                            <span className="font-medium text-gray-700">Setup Cost:</span>
+                            <p className="text-sm">${part.setupCost.toFixed(2)}</p>
+                          </div>
+                          <div>
+                            <span className="font-medium text-gray-700">Part Total:</span>
+                            <p className="text-sm font-bold text-green-600">${part.totalCost.toFixed(2)}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+
+                    <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                      <div>
+                        <span className="font-bold text-lg text-gray-800">Total Multi-Part Cost:</span>
+                        <p className="text-xl font-bold text-orange-600">${results.multiPartResults.totalCost.toFixed(2)}</p>
+                      </div>
+                      <div>
+                        <span className="font-bold text-lg text-gray-800">Multi-Part Cost per {results.job.isBookletMode ? 'Booklet' : 'Unit'}:</span>
+                        <p className="text-xl font-bold text-blue-600">
+                          ${(results.multiPartResults.totalCost / results.job.quantity).toFixed(4)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {results.coverResults && results.innerPagesResults && (
                   <div className="p-4 border-2 border-blue-500 rounded-lg bg-blue-50">
                     <h3 className="text-lg font-semibold text-blue-800 mb-4">Total Booklet Cost Summary</h3>
