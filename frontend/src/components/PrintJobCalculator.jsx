@@ -1185,12 +1185,14 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                             <p className="text-xs text-gray-500">{part.printSheetSize.width} × {part.printSheetSize.height} mm</p>
                           </div>
                           <div>
-                            <span className="font-medium text-gray-700">Pages per Print Sheet:</span>
-                            <p className="text-sm">{part.pagesPerPrintSheet}</p>
+                            <span className="font-medium text-gray-700">Sheets per Print Sheet:</span>
+                            <p className="text-sm">{part.sheetsPerPrintSheet}</p>
+                            <p className="text-xs text-gray-500">{part.partPageCount} pages → {part.sheetsNeededPerBooklet} sheets</p>
                           </div>
                           <div>
                             <span className="font-medium text-gray-700">Print Sheets Needed:</span>
                             <p className="text-sm">{part.printSheetsNeeded}</p>
+                            <p className="text-xs text-gray-500">{part.totalSheetsForPart} total sheets</p>
                           </div>
                         </div>
 
