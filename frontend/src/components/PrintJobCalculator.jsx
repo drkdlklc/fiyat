@@ -48,7 +48,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
       return;
     }
 
-    if (jobData.hasCover && !jobData.totalPages) {
+    if (jobData.isBookletMode && !jobData.totalPages) {
       toast({
         title: "Error",
         description: "Please enter the total number of pages for the booklet",
