@@ -126,7 +126,8 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
       setupRequired: jobData.setupRequired,
       isBookletMode: jobData.isBookletMode,
       coverSetupRequired: jobData.coverSetupRequired,
-      totalPages: jobData.totalPages ? parseInt(jobData.totalPages) : 0
+      totalPages: jobData.totalPages ? parseInt(jobData.totalPages) : 0,
+      bindingEdge: jobData.bindingEdge // Add missing binding edge
     };
 
     let calculationResults;
