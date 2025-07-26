@@ -364,14 +364,14 @@ export const calculateInnerPagesCost = (job, innerPaperType, innerMachine) => {
     return null;
   }
 
-  // For booklet mode with 1 sheet = 4 pages:
+  // For booklet mode with 1 sheet = 2 pages (front and back):
   // Total pages per booklet = job.totalPages
-  // Cover pages per booklet = 4 (from 1 cover sheet)
+  // Cover pages per booklet = 4 (from 1 cover sheet that provides 4 pages when folded)
   // Inner pages per booklet = total pages - cover pages
   const innerPagesPerBooklet = Math.max(0, job.totalPages - 4);
   
-  // Calculate inner sheets needed per booklet (1 sheet = 4 pages)
-  const innerSheetsPerBooklet = Math.ceil(innerPagesPerBooklet / 4);
+  // Calculate inner sheets needed per booklet (1 sheet = 2 pages for inner pages)
+  const innerSheetsPerBooklet = Math.ceil(innerPagesPerBooklet / 2);
   
   // Total inner sheets needed for all booklets
   const totalInnerSheetsNeeded = job.quantity * innerSheetsPerBooklet;
@@ -442,7 +442,7 @@ export const calculateInnerPagesCost = (job, innerPaperType, innerMachine) => {
           innerPagesPerBooklet,
           innerSheetsPerBooklet,
           totalInnerSheetsNeeded,
-          totalInnerPages: totalInnerSheetsNeeded * 4, // Each sheet provides 4 pages
+          totalInnerPages: totalInnerSheetsNeeded * 2, // Each inner sheet provides 2 pages
           bookletQuantity: job.quantity,
           clickMultiplier
         };
