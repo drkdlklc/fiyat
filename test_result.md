@@ -117,8 +117,6 @@ backend:
         agent: "main"
         comment: "Successfully updated entire calculation system to reflect 1 sheet = 4 pages principle for both cover and inner pages in booklet mode"
 
-
-
   - task: "Backend API endpoints for persistent storage"
     implemented: true
     working: true
