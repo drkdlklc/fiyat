@@ -696,7 +696,10 @@ export const calculateOptimalForPaperType = (job, paperType, machines, selectedM
           stockArea,
           productArea,
           wastePercentage,
-          clickMultiplier
+          clickMultiplier,
+          bindingEdge: job.bindingEdge,
+          effectiveWidth,
+          effectiveHeight
         });
       }
     }
