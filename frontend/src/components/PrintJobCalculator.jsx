@@ -106,11 +106,14 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
       marginLeft: '3',
       quantity: '',
       isDoubleSided: false,
-      setupRequired: true
+      setupRequired: true,
+      hasCover: false
     });
     setSelectedPaperType(null);
     setSelectedMachine(null);
     setSelectedSheetSize(null);
+    setSelectedCoverPaperType(null);
+    setSelectedCoverMachine(null);
     setResults(null);
   };
 
