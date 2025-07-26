@@ -235,7 +235,7 @@ export const mockPrintJobs = [
     marginBottom: 3,
     marginLeft: 3,
     quantity: 1000,
-    isColor: true,
+    isDoubleSided: false,
     setupRequired: true
   },
   {
@@ -248,7 +248,7 @@ export const mockPrintJobs = [
     marginBottom: 5,
     marginLeft: 5,
     quantity: 500,
-    isColor: true,
+    isDoubleSided: true,
     setupRequired: true
   }
 ];
