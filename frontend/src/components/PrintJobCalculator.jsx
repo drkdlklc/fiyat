@@ -414,7 +414,12 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                     </div>
                     <div>
                       <span className="font-medium text-gray-700">Click Cost:</span>
-                      <p className="text-sm">${result.printSheetSize.clickCost}/click</p>
+                      <p className="text-sm">
+                        ${result.printSheetSize.clickCost}/click
+                        {result.clickMultiplier > 1 && (
+                          <span className="text-blue-600 ml-1">× {result.clickMultiplier} (Double-sided)</span>
+                        )}
+                      </p>
                     </div>
                     <div>
                       <span className="font-medium text-gray-700">Total Click Cost:</span>
