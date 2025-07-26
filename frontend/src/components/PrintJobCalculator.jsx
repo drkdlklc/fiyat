@@ -170,7 +170,11 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
       setupRequired: true,
       isBookletMode: false,
       coverSetupRequired: false,
-      totalPages: ''
+      totalPages: '',
+      useMultiplePaperTypes: false,
+      useMultipleInnerPaperTypes: false,
+      useMultipleMachines: false,
+      useMultipleInnerMachines: false
     });
     setSelectedPaperType(null);
     setSelectedMachine(null);
@@ -179,6 +183,10 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
     setSelectedInnerMachine(null);
     setSelectedCoverPaperType(null);
     setSelectedCoverMachine(null);
+    setMultiPartPaperTypes([{ id: 1, paperTypeId: null, pageCount: '' }]);
+    setMultiPartMachines([{ id: 1, machineId: null, pageCount: '' }]);
+    setMultiPartInnerPaperTypes([{ id: 1, paperTypeId: null, pageCount: '' }]);
+    setMultiPartInnerMachines([{ id: 1, machineId: null, pageCount: '' }]);
     setResults(null);
   };
 
