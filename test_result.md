@@ -142,7 +142,7 @@ frontend:
         agent: "main"
         comment: "Successfully integrated frontend with backend API for persistent data management"
 
-  - task: "UI text updates for 1 sheet = 4 pages"
+  - task: "UI text updates for corrected sheet calculations"
     implemented: true
     working: true
     file: "frontend/src/components/PrintJobCalculator.jsx"
@@ -152,9 +152,21 @@ frontend:
     status_history:
       - working: true
         agent: "main"
-        comment: "Updated cover and inner pages configuration text to reflect 1 sheet = 4 pages principle, updated validation logic, and modified results display"
+        comment: "Updated all UI text to reflect corrected principles: 1 cover = 4 pages, 1 inner sheet = 2 pages. Updated validation logic and results display headers."
 
-  - task: "Results display updates for sheet-based calculations"
+  - task: "Multi-part calculation updates"
+    implemented: true
+    working: true
+    file: "frontend/src/data/mockData.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Updated calculateMultiPartInnerPagesCost function to properly handle sheet-based calculations for inner pages (1 sheet = 2 pages) and updated results display."
+
+  - task: "Results display corrections"
     implemented: true
     working: true
     file: "frontend/src/components/PrintJobCalculator.jsx"
@@ -164,7 +176,7 @@ frontend:
     status_history:
       - working: true
         agent: "main"
-        comment: "Updated cover and inner pages results display to show sheet-based calculations with clear indication of 1 sheet = 4 pages relationship"
+        comment: "Updated cover and inner pages results display to show correct sheet calculations and clear labeling of 1 cover = 4 pages, 1 inner sheet = 2 pages."
 
   - task: "Multi-part paper types toggle and UI"
     implemented: true
