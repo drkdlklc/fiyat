@@ -1348,7 +1348,89 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
               </div>
             ) : (
               <div className="space-y-6">
-                {displayResults.map((result, index) => (
+                {results.multiPartResults && results.multiPartResults.results.length > 0 ? (
+                  <div className="p-4 border rounded-lg bg-gradient-to-r from-blue-50 to-purple-50">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4">Multi-Part Configuration Cost Breakdown</h3>
+                    
+                    {results.multiPartResults.results.map((part, index) => (
+                      <div key={index} className="mb-4 p-3 border rounded-lg bg-white">
+                        <h4 className="font-semibold text-gray-700 mb-3">
+                          Part {part.partNumber} - {part.partPageCount} pages
+                        </h4>
+                        
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
+                          <div>
+                            <span className="font-medium text-gray-700">Paper Type:</span>
+                            <p className="text-sm">{part.paperType.name}</p>
+                            <p className="text-xs text-gray-500">{part.paperType.gsm} GSM</p>
+                          </div>
+                          <div>
+                            <span className="font-medium text-gray-700">Machine:</span>
+                            <p className="text-sm">{part.machine.name}</p>
+                            <p className="text-xs text-gray-500">Setup: ${part.machine.setupCost}</p>
+                          </div>
+                          <div>
+                            <span className="font-medium text-gray-700">Print Sheet:</span>
+                            <p className="text-sm">{part.printSheetSize.name}</p>
+                            <p className="text-xs text-gray-500">{part.printSheetSize.width} × {part.printSheetSize.height} mm</p>
+                          </div>
+                          <div>
+                            <span className="font-medium text-gray-700">Stock Sheet:</span>
+                            <p className="text-sm">{part.stockSheetSize.name}</p>
+                            <p className="text-xs text-gray-500">{part.stockSheetSize.width} × {part.stockSheetSize.height} mm</p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
+                          <div>
+                            <span className="font-medium text-gray-700">Products per Print Sheet:</span>
+                            <p className="text-sm">{part.productsPerPrintSheet}</p>
+                          </div>
+                          <div>
+                            <span className="font-medium text-gray-700">Print Sheets Needed:</span>
+                            <p className="text-sm">{part.printSheetsNeeded}</p>
+                          </div>
+                          <div>
+                            <span className="font-medium text-gray-700">Paper Cost:</span>
+                            <p className="text-sm">${part.paperCost.toFixed(2)}</p>
+                          </div>
+                          <div>
+                            <span className="font-medium text-gray-700">Click Cost:</span>
+                            <p className="text-sm">${part.clickCost.toFixed(2)}</p>
+                            {part.clickMultiplier > 1 && (
+                              <p className="text-xs text-blue-600">Double-sided (2x)</p>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 pt-3 border-t">
+                          <div>
+                            <span className="font-bold text-lg text-gray-800">Part Total:</span>
+                            <p className="text-xl font-bold text-green-600">${part.totalCost.toFixed(2)}</p>
+                          </div>
+                          <div>
+                            <span className="font-bold text-lg text-gray-800">Part Cost per Unit:</span>
+                            <p className="text-xl font-bold text-blue-600">${(part.totalCost / part.partPageCount).toFixed(4)}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+
+                    <div className="grid grid-cols-2 gap-4 pt-4 border-t bg-gray-50 p-4 rounded-lg">
+                      <div>
+                        <span className="font-bold text-xl text-gray-800">Total Multi-Part Cost:</span>
+                        <p className="text-2xl font-bold text-purple-600">${results.multiPartResults.totalCost.toFixed(2)}</p>
+                      </div>
+                      <div>
+                        <span className="font-bold text-xl text-gray-800">Average Cost per Unit:</span>
+                        <p className="text-2xl font-bold text-blue-600">
+                          ${(results.multiPartResults.totalCost / results.job.quantity).toFixed(4)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  displayResults.map((result, index) => (
                   <div key={index} className={`p-4 border rounded-lg ${index === 0 ? 'border-green-500 bg-green-50' : 'border-gray-200'}`}>
                     {index === 0 && (
                       <div className="mb-3">
