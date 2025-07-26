@@ -189,6 +189,25 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="p-4 border rounded-lg bg-gray-50">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="isBookletMode"
+                  checked={jobData.isBookletMode}
+                  onCheckedChange={(checked) => setJobData({ ...jobData, isBookletMode: checked })}
+                />
+                <Label htmlFor="isBookletMode" className="font-semibold">
+                  Booklet Mode
+                </Label>
+              </div>
+              <p className="text-sm text-gray-600 mt-1">
+                {jobData.isBookletMode 
+                  ? "Calculate costs for multi-page booklets with covers" 
+                  : "Calculate costs for single-page or simple print jobs"
+                }
+              </p>
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
                 <Label htmlFor="productName">Product Name *</Label>
@@ -201,53 +220,14 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
               </div>
             </div>
 
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="hasCover"
-                checked={jobData.hasCover}
-                onCheckedChange={(checked) => setJobData({ ...jobData, hasCover: checked })}
-              />
-              <Label htmlFor="hasCover">Has Cover</Label>
-            </div>
-
-            {jobData.hasCover && (
+            {jobData.isBookletMode && (
               <div className="p-4 border rounded-lg bg-blue-50">
                 <h3 className="font-semibold text-lg mb-3 text-blue-800">
-                  Cover Configuration - Booklet Mode
+                  Booklet Configuration
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="coverPaperType">Cover Paper Type</Label>
-                    <Select value={selectedCoverPaperType?.toString()} onValueChange={handleCoverPaperTypeChange}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select cover paper type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {paperTypes.map((paperType) => (
-                          <SelectItem key={paperType.id} value={paperType.id.toString()}>
-                            {paperType.name} ({paperType.gsm} GSM)
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="coverMachine">Cover Printing Machine</Label>
-                    <Select value={selectedCoverMachine?.toString()} onValueChange={handleCoverMachineChange}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select cover machine" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {machines.map((machine) => (
-                          <SelectItem key={machine.id} value={machine.id.toString()}>
-                            {machine.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="totalPages">Total Pages (including cover) *</Label>
+                    <Label htmlFor="totalPages">Total Pages *</Label>
                     <Input
                       id="totalPages"
                       type="number"
@@ -266,7 +246,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                   </div>
                 </div>
                 <p className="text-sm text-blue-600 mt-2">
-                  <strong>Booklet detected:</strong> Cover will be printed separately. Total pages should include cover pages.
+                  <strong>Booklet Mode:</strong> Quantity will be treated as number of booklets. Cover and inner pages calculated separately.
                 </p>
               </div>
             )}
