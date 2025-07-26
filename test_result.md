@@ -306,3 +306,5 @@ agent_communication:
     message: "Starting UI text refinement task: Updating 'Total Click Cost' to 'Total' in booklet mode display section for Inner Pages Cost section. This is a simple text label change to improve UI clarity in the booklet mode results display."
   - agent: "testing"
     message: "Backend stability verification completed after UI text change. VERIFIED: All backend API endpoints working correctly (/, /status GET/POST, /paper-types, /machines, /initialize-data). Backend service running properly via supervisor. Database connectivity confirmed. No backend functionality affected by frontend text label change from 'Total Click Cost' to 'Total' in booklet mode. System is stable and ready for continued operation."
+  - agent: "main"
+    message: "Implemented binding edge consistency fix for booklet mode: Updated calculateCoverCost function to use same binding edge logic as inner pages calculation. Both cover and inner pages now use effectiveWidth/effectiveHeight based on binding edge selection (short=portrait, long=landscape). Added binding edge and effective size display to cover results UI for consistency with inner pages display."
