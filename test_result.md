@@ -102,25 +102,34 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "In both Normal and Booklet modes, inner pages may not all be printed on the same machine or the same paper type. There should be options to indicate that different paper types or different machines will be used. When these options are selected, additional fields should appear to choose the machine and paper type for each part. Next to each selection, there should be an input to specify how many pages will be printed using that specific machine and paper combination. The total price should be calculated accordingly based on these values. Also, the result summary screen must be updated to reflect these details."
+user_problem_statement: "When I create or delete a new machine or paper type, the changes should be saved persistently. After restarting the program, the added or removed items should not be lost."
 
 backend:
-  - task: "Multi-part printing backend integration"
-    implemented: false
-    working: "NA"
+  - task: "Backend API endpoints for persistent storage"
+    implemented: true
+    working: true
     file: "backend/server.py"
     stuck_count: 0
-    priority: "low"
+    priority: "high"
     needs_retesting: false
     status_history:
-      - working: "NA"
+      - working: true
         agent: "main"
-        comment: "Backend integration not required for this frontend-focused feature"
-      - working: "NA"
-        agent: "testing"
-        comment: "Backend API health verified: ✅ Root endpoint working ✅ Status endpoints (GET/POST) working ✅ Database connectivity confirmed ✅ Service running properly. No calculation endpoints implemented as expected for frontend-focused feature. Minor: CORS OPTIONS method returns 405 but doesn't affect functionality. Backend is healthy and ready for future integration."
+        comment: "Successfully implemented complete CRUD API endpoints for paper types and machines with MongoDB persistence"
 
 frontend:
+  - task: "Frontend API integration for persistent storage"
+    implemented: true
+    working: true
+    file: "frontend/src/App.js, frontend/src/services/api.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Successfully integrated frontend with backend API for persistent data management"
+
   - task: "Multi-part paper types toggle and UI"
     implemented: true
     working: true
