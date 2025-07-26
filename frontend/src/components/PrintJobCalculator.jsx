@@ -244,6 +244,56 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
               </div>
             </div>
 
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="hasCover"
+                checked={jobData.hasCover}
+                onCheckedChange={(checked) => setJobData({ ...jobData, hasCover: checked })}
+              />
+              <Label htmlFor="hasCover">Has Cover</Label>
+            </div>
+
+            {jobData.hasCover && (
+              <div className="p-4 border rounded-lg bg-blue-50">
+                <h3 className="font-semibold text-lg mb-3 text-blue-800">Cover Configuration</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="coverPaperType">Cover Paper Type</Label>
+                    <Select value={selectedCoverPaperType?.toString()} onValueChange={handleCoverPaperTypeChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select cover paper type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {paperTypes.map((paperType) => (
+                          <SelectItem key={paperType.id} value={paperType.id.toString()}>
+                            {paperType.name} ({paperType.gsm} GSM)
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="coverMachine">Cover Printing Machine</Label>
+                    <Select value={selectedCoverMachine?.toString()} onValueChange={handleCoverMachineChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select cover machine" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {machines.map((machine) => (
+                          <SelectItem key={machine.id} value={machine.id.toString()}>
+                            {machine.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <p className="text-sm text-blue-600 mt-2">
+                  Cover will be printed separately using the selected paper type and machine.
+                </p>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 gap-4">
               <div>
                 <Label htmlFor="paperType">Paper Type (Optional - auto-selects optimal stock sheet)</Label>
