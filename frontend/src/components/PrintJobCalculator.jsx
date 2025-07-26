@@ -732,7 +732,9 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                   </div>
 
                   <p className="text-sm text-orange-600 mt-2">
-                    Inner pages will be calculated as: {jobData.totalPages ? `(${jobData.totalPages} total - 2 cover = ${Math.max(0, jobData.totalPages - 2)} inner pages) × ${jobData.quantity || 'quantity'} booklets` : '(total pages - 2) × quantity booklets'}
+                    Inner pages will be calculated as: {jobData.totalPages ? `(${jobData.totalPages} total - 4 cover = ${Math.max(0, jobData.totalPages - 4)} inner pages) × ${jobData.quantity || 'quantity'} booklets` : '(total pages - 4 cover pages) × quantity booklets'}
+                    <br />
+                    <em>Note: 1 sheet = 4 pages when folded</em>
                   </p>
                 </div>
               </>
