@@ -119,52 +119,64 @@ backend:
 
 frontend:
   - task: "Multi-part paper types toggle and UI"
-    implemented: false
-    working: false
+    implemented: true
+    working: true
     file: "frontend/src/components/PrintJobCalculator.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "main"
         comment: "Need to implement toggle for different paper types with dynamic sections"
+      - working: true
+        agent: "main"
+        comment: "Successfully implemented multi-part paper types toggle with dynamic UI sections for both Normal and Booklet modes"
 
   - task: "Multi-part machines toggle and UI"
-    implemented: false
-    working: false
+    implemented: true
+    working: true
     file: "frontend/src/components/PrintJobCalculator.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "main"
         comment: "Need to implement toggle for different machines with dynamic sections"
+      - working: true
+        agent: "main"
+        comment: "Successfully implemented multi-part machines toggle with dynamic UI sections for both Normal and Booklet modes"
 
   - task: "Multi-part calculation logic"
-    implemented: false
-    working: false
+    implemented: true
+    working: true
     file: "frontend/src/data/mockData.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "main"
         comment: "Need to implement calculation logic for multi-part configurations"
+      - working: true
+        agent: "main"
+        comment: "Successfully implemented calculateMultiPartCost and calculateMultiPartInnerPagesCost functions"
 
   - task: "Multi-part results display"
-    implemented: false
-    working: false
+    implemented: true
+    working: true
     file: "frontend/src/components/PrintJobCalculator.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "main"
         comment: "Need to update results display to show multi-part breakdown"
+      - working: true
+        agent: "main"
+        comment: "Successfully implemented multi-part results display with detailed breakdown for each part"
 
 metadata:
   created_by: "main_agent"
