@@ -1183,7 +1183,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                       <div>
-                        <span className="font-medium text-gray-700">Total Click Cost:</span>
+                        <span className="font-medium text-gray-700">Total:</span>
                         <p className="text-sm">${results.innerPagesResults.clickCost.toFixed(2)}</p>
                       </div>
                       <div>
