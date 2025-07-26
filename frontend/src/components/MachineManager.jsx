@@ -139,11 +139,13 @@ const MachineManager = ({ machines, onAddMachine, onUpdateMachine, onDeleteMachi
   };
 
   const handleDelete = (id) => {
-    onDeleteMachine(id);
-    toast({
-      title: "Success",
-      description: "Machine deleted successfully"
-    });
+    if (window.confirm('Are you sure you want to delete this machine?')) {
+      onDeleteMachine(id);
+      toast({
+        title: "Success",
+        description: "Machine deleted successfully"
+      });
+    }
   };
 
   return (
