@@ -676,23 +676,23 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                   <div className="mt-4 space-y-3">
                     <div className="flex items-center space-x-2">
                       <Checkbox
-                        id="useMultipleInnerPaperTypes"
-                        checked={jobData.useMultipleInnerPaperTypes}
-                        onCheckedChange={(checked) => setJobData({ ...jobData, useMultipleInnerPaperTypes: checked })}
+                        id="useMultiPartInnerConfiguration"
+                        checked={jobData.useMultiPartInnerConfiguration}
+                        onCheckedChange={(checked) => setJobData({ ...jobData, useMultiPartInnerConfiguration: checked })}
                       />
-                      <Label htmlFor="useMultipleInnerPaperTypes">Use Different Paper Types for Inner Pages</Label>
+                      <Label htmlFor="useMultiPartInnerConfiguration">Use Different Paper Types & Machines for Inner Pages</Label>
                     </div>
 
-                    {jobData.useMultipleInnerPaperTypes && (
-                      <div className="p-3 border rounded-lg bg-blue-50">
-                        <h4 className="font-semibold text-blue-800 mb-2">Inner Paper Type Configuration</h4>
-                        {multiPartInnerPaperTypes.map((part, index) => (
-                          <div key={part.id} className="grid grid-cols-3 gap-3 mb-2">
+                    {jobData.useMultiPartInnerConfiguration && (
+                      <div className="p-3 border rounded-lg bg-gradient-to-r from-blue-50 to-purple-50">
+                        <h4 className="font-semibold text-blue-800 mb-2">Inner Pages Multi-Part Configuration</h4>
+                        {multiPartInnerConfigurations.map((part, index) => (
+                          <div key={part.id} className="grid grid-cols-4 gap-3 mb-2">
                             <div>
                               <Label>Paper Type {index + 1}</Label>
                               <Select 
                                 value={part.paperTypeId?.toString() || ''} 
-                                onValueChange={(value) => updateMultiPartInnerPaperType(part.id, 'paperTypeId', value ? parseInt(value) : null)}
+                                onValueChange={(value) => updateMultiPartInnerConfiguration(part.id, 'paperTypeId', value ? parseInt(value) : null)}
                               >
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select paper" />
@@ -707,60 +707,10 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                               </Select>
                             </div>
                             <div>
-                              <Label>Page Count</Label>
-                              <Input
-                                type="number"
-                                value={part.pageCount}
-                                onChange={(e) => updateMultiPartInnerPaperType(part.id, 'pageCount', e.target.value)}
-                                placeholder="e.g., 10"
-                              />
-                            </div>
-                            <div className="flex items-end gap-1">
-                              {multiPartInnerPaperTypes.length < 3 && (
-                                <Button 
-                                  type="button" 
-                                  variant="outline" 
-                                  size="sm"
-                                  onClick={addMultiPartInnerPaperType}
-                                >
-                                  <Plus size={14} />
-                                </Button>
-                              )}
-                              {multiPartInnerPaperTypes.length > 1 && (
-                                <Button 
-                                  type="button" 
-                                  variant="outline" 
-                                  size="sm"
-                                  onClick={() => removeMultiPartInnerPaperType(part.id)}
-                                >
-                                  <Minus size={14} />
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="useMultipleInnerMachines"
-                        checked={jobData.useMultipleInnerMachines}
-                        onCheckedChange={(checked) => setJobData({ ...jobData, useMultipleInnerMachines: checked })}
-                      />
-                      <Label htmlFor="useMultipleInnerMachines">Use Different Machines for Inner Pages</Label>
-                    </div>
-
-                    {jobData.useMultipleInnerMachines && (
-                      <div className="p-3 border rounded-lg bg-purple-50">
-                        <h4 className="font-semibold text-purple-800 mb-2">Inner Machine Configuration</h4>
-                        {multiPartInnerMachines.map((part, index) => (
-                          <div key={part.id} className="grid grid-cols-3 gap-3 mb-2">
-                            <div>
                               <Label>Machine {index + 1}</Label>
                               <Select 
                                 value={part.machineId?.toString() || ''} 
-                                onValueChange={(value) => updateMultiPartInnerMachine(part.id, 'machineId', value ? parseInt(value) : null)}
+                                onValueChange={(value) => updateMultiPartInnerConfiguration(part.id, 'machineId', value ? parseInt(value) : null)}
                               >
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select machine" />
@@ -779,27 +729,27 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                               <Input
                                 type="number"
                                 value={part.pageCount}
-                                onChange={(e) => updateMultiPartInnerMachine(part.id, 'pageCount', e.target.value)}
+                                onChange={(e) => updateMultiPartInnerConfiguration(part.id, 'pageCount', e.target.value)}
                                 placeholder="e.g., 10"
                               />
                             </div>
                             <div className="flex items-end gap-1">
-                              {multiPartInnerMachines.length < 3 && (
+                              {multiPartInnerConfigurations.length < 3 && (
                                 <Button 
                                   type="button" 
                                   variant="outline" 
                                   size="sm"
-                                  onClick={addMultiPartInnerMachine}
+                                  onClick={addMultiPartInnerConfiguration}
                                 >
                                   <Plus size={14} />
                                 </Button>
                               )}
-                              {multiPartInnerMachines.length > 1 && (
+                              {multiPartInnerConfigurations.length > 1 && (
                                 <Button 
                                   type="button" 
                                   variant="outline" 
                                   size="sm"
-                                  onClick={() => removeMultiPartInnerMachine(part.id)}
+                                  onClick={() => removeMultiPartInnerConfiguration(part.id)}
                                 >
                                   <Minus size={14} />
                                 </Button>
@@ -807,6 +757,9 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                             </div>
                           </div>
                         ))}
+                        <p className="text-sm text-blue-600 mt-2">
+                          Each part can have a different paper type and machine combination. The system will optimize the sheet size selection for each pairing.
+                        </p>
                       </div>
                     )}
                   </div>
