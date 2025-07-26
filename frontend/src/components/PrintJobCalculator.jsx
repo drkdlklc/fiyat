@@ -989,108 +989,88 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                   <div className="p-4 border rounded-lg bg-green-50">
                     <h3 className="text-lg font-semibold text-green-800 mb-4">Cover Cost (1 cover = 4 pages)</h3>
                     
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                      <div>
-                        <span className="font-medium text-gray-700">Cover Paper:</span>
-                        <p className="text-sm">{results.coverResults.paperType.name}</p>
-                        <p className="text-xs text-gray-500">{results.coverResults.paperType.gsm} GSM | ${results.coverResults.paperType.pricePerTon}/ton</p>
+                    {/* Essential Information Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                      {/* Paper & Materials */}
+                      <div className="space-y-4">
+                        <h4 className="font-semibold text-gray-800 border-b pb-2">Paper & Materials</h4>
+                        <div>
+                          <span className="font-medium text-gray-700">Paper:</span>
+                          <p className="text-sm font-semibold text-blue-600">{results.coverResults.paperType.name}</p>
+                          <p className="text-xs text-gray-500">{results.coverResults.paperType.gsm}g/m² - ${results.coverResults.paperType.pricePerTon}/ton</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Stock Sheet:</span>
+                          <p className="text-sm">{results.coverResults.stockSheetSize.name}</p>
+                          <p className="text-xs text-gray-500">{results.coverResults.stockSheetSize.width} × {results.coverResults.stockSheetSize.height} mm</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Machine:</span>
+                          <p className="text-sm">{results.coverResults.machine.name}</p>
+                        </div>
                       </div>
-                      <div>
-                        <span className="font-medium text-gray-700">Cover Stock Sheet:</span>
-                        <p className="text-sm font-semibold text-blue-600">{results.coverResults.stockSheetSize.name}</p>
-                        <p className="text-xs text-gray-500">{results.coverResults.stockSheetSize.width} × {results.coverResults.stockSheetSize.height} mm</p>
+
+                      {/* Configuration */}
+                      <div className="space-y-4">
+                        <h4 className="font-semibold text-gray-800 border-b pb-2">Configuration</h4>
+                        <div>
+                          <span className="font-medium text-gray-700">Binding Edge:</span>
+                          <p className="text-sm">{results.coverResults.bindingEdge === 'short' ? 'Short Edge' : 'Long Edge'}</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Effective Size:</span>
+                          <p className="text-sm">{results.coverResults.effectiveWidth} × {results.coverResults.effectiveHeight} mm</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Print Sheet:</span>
+                          <p className="text-sm">{results.coverResults.printSheetSize.name}</p>
+                          <p className="text-xs text-gray-500">{results.coverResults.printSheetSize.width} × {results.coverResults.printSheetSize.height} mm</p>
+                        </div>
                       </div>
-                      <div>
-                        <span className="font-medium text-gray-700">Cover Machine:</span>
-                        <p className="text-sm">{results.coverResults.machine.name}</p>
-                        <p className="text-xs text-gray-500">Setup: ${results.coverResults.machine.setupCost}</p>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700">Binding Edge:</span>
-                        <p className="text-sm">{results.coverResults.bindingEdge === 'short' ? 'Short Edge' : 'Long Edge'}</p>
-                        <p className="text-xs text-gray-500">
-                          {results.coverResults.bindingEdge === 'short' ? 'Portrait orientation' : 'Landscape orientation'}
-                        </p>
+
+                      {/* Production Metrics */}
+                      <div className="space-y-4">
+                        <h4 className="font-semibold text-gray-800 border-b pb-2">Production</h4>
+                        <div>
+                          <span className="font-medium text-gray-700">Sheets per Print Sheet:</span>
+                          <p className="text-sm">{results.coverResults.coversPerPrintSheet}</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Print Sheets Needed:</span>
+                          <p className="text-sm">{results.coverResults.printSheetsNeeded}</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Total Inner Pages:</span>
+                          <p className="text-sm">{results.coverResults.totalCoverPages}</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Print Sheets per Stock Sheet:</span>
+                          <p className="text-sm">{results.coverResults.printSheetsPerStockSheet}</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Stock Sheets Needed:</span>
+                          <p className="text-sm">{results.coverResults.stockSheetsNeeded}</p>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                      <div>
-                        <span className="font-medium text-gray-700">Effective Size:</span>
-                        <p className="text-sm">{results.coverResults.effectiveWidth} × {results.coverResults.effectiveHeight} mm</p>
-                        <p className="text-xs text-gray-500">After binding orientation</p>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700">Cover Print Sheet:</span>
-                        <p className="text-sm">{results.coverResults.printSheetSize.name}</p>
-                        <p className="text-xs text-gray-500">{results.coverResults.printSheetSize.width} × {results.coverResults.printSheetSize.height} mm</p>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700">Total Cover Pages:</span>
-                        <p className="text-sm">{results.coverResults.totalCoverPages}</p>
-                        <p className="text-xs text-gray-500">({results.coverResults.bookletQuantity} booklets × 4 pages per cover)</p>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700">Covers per Print Sheet:</span>
-                        <p className="text-sm">{results.coverResults.coversPerPrintSheet}</p>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700">Print Sheets per Stock Sheet:</span>
-                        <p className="text-sm">{results.coverResults.printSheetsPerStockSheet}</p>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700">Print Sheets Needed:</span>
-                        <p className="text-sm">{results.coverResults.printSheetsNeeded}</p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                      <div>
-                        <span className="font-medium text-gray-700">Stock Sheets Needed:</span>
-                        <p className="text-sm">{results.coverResults.stockSheetsNeeded}</p>
-                      </div>
+                    {/* Cost Information */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 bg-gray-50 p-4 rounded-lg">
                       <div>
                         <span className="font-medium text-gray-700">Paper Weight:</span>
-                        <p className="text-sm">{results.coverResults.paperWeight.toFixed(2)} kg</p>
+                        <p className="text-sm font-semibold">{results.coverResults.paperWeight.toFixed(2)} kg</p>
                       </div>
                       <div>
                         <span className="font-medium text-gray-700">Paper Cost:</span>
-                        <p className="text-sm">${results.coverResults.paperCost.toFixed(2)}</p>
+                        <p className="text-sm font-semibold text-green-600">${results.coverResults.paperCost.toFixed(2)}</p>
                       </div>
                       <div>
                         <span className="font-medium text-gray-700">Click Cost:</span>
-                        <p className="text-sm">${results.coverResults.clickCost.toFixed(2)}</p>
-                        <p className="text-xs text-gray-500">Double-sided (2x)</p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                      <div>
-                        <span className="font-medium text-gray-700">Setup Cost:</span>
-                        <p className="text-sm">${results.coverResults.setupCost.toFixed(2)}</p>
+                        <p className="text-sm font-semibold text-blue-600">${results.coverResults.clickCost.toFixed(2)}</p>
                       </div>
                       <div>
-                        <span className="font-medium text-gray-700">Stock Area:</span>
-                        <p className="text-sm">{((results.coverResults.stockSheetSize.width * results.coverResults.stockSheetSize.height) / 1000000).toFixed(3)} m²</p>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700">Print Area:</span>
-                        <p className="text-sm">{((results.coverResults.printSheetSize.width * results.coverResults.printSheetSize.height) / 1000000).toFixed(3)} m²</p>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700">Stock Efficiency:</span>
-                        <p className="text-sm">{((results.coverResults.coversPerPrintSheet * results.coverResults.printSheetsPerStockSheet / results.coverResults.stockSheetsNeeded) * 100).toFixed(1)}%</p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-                      <div>
-                        <span className="font-bold text-lg text-gray-800">Total Cover Cost:</span>
-                        <p className="text-xl font-bold text-green-600">${results.coverResults.totalCost.toFixed(2)}</p>
-                      </div>
-                      <div>
-                        <span className="font-bold text-lg text-gray-800">Cover Cost per Booklet:</span>
-                        <p className="text-xl font-bold text-blue-600">${(results.coverResults.totalCost / results.coverResults.bookletQuantity).toFixed(4)}</p>
+                        <span className="font-medium text-gray-700">Total Cost:</span>
+                        <p className="text-sm font-bold text-gray-900">${results.coverResults.totalCost.toFixed(2)}</p>
                       </div>
                     </div>
                   </div>
