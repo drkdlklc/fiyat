@@ -105,6 +105,183 @@ async def get_status_checks():
     status_checks = await db.status_checks.find().to_list(1000)
     return [StatusCheck(**status_check) for status_check in status_checks]
 
+# Paper Types API Endpoints
+@api_router.get("/paper-types", response_model=List[PaperType])
+async def get_paper_types():
+    paper_types = await db.paper_types.find().to_list(1000)
+    return [PaperType(**paper_type) for paper_type in paper_types]
+
+@api_router.post("/paper-types", response_model=PaperType)
+async def create_paper_type(paper_type: PaperTypeCreate):
+    # Get the next available ID
+    last_paper_type = await db.paper_types.find().sort([("id", -1)]).limit(1).to_list(1)
+    next_id = (last_paper_type[0]["id"] + 1) if last_paper_type else 1
+    
+    paper_type_dict = paper_type.dict()
+    paper_type_dict["id"] = next_id
+    
+    paper_type_obj = PaperType(**paper_type_dict)
+    await db.paper_types.insert_one(paper_type_obj.dict())
+    return paper_type_obj
+
+@api_router.put("/paper-types/{paper_type_id}", response_model=PaperType)
+async def update_paper_type(paper_type_id: int, paper_type_update: PaperTypeUpdate):
+    existing_paper_type = await db.paper_types.find_one({"id": paper_type_id})
+    if not existing_paper_type:
+        raise HTTPException(status_code=404, detail="Paper type not found")
+    
+    update_data = paper_type_update.dict(exclude_unset=True)
+    if update_data:
+        await db.paper_types.update_one({"id": paper_type_id}, {"$set": update_data})
+    
+    updated_paper_type = await db.paper_types.find_one({"id": paper_type_id})
+    return PaperType(**updated_paper_type)
+
+@api_router.delete("/paper-types/{paper_type_id}")
+async def delete_paper_type(paper_type_id: int):
+    result = await db.paper_types.delete_one({"id": paper_type_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Paper type not found")
+    return {"message": "Paper type deleted successfully"}
+
+# Machines API Endpoints
+@api_router.get("/machines", response_model=List[Machine])
+async def get_machines():
+    machines = await db.machines.find().to_list(1000)
+    return [Machine(**machine) for machine in machines]
+
+@api_router.post("/machines", response_model=Machine)
+async def create_machine(machine: MachineCreate):
+    # Get the next available ID
+    last_machine = await db.machines.find().sort([("id", -1)]).limit(1).to_list(1)
+    next_id = (last_machine[0]["id"] + 1) if last_machine else 1
+    
+    machine_dict = machine.dict()
+    machine_dict["id"] = next_id
+    
+    machine_obj = Machine(**machine_dict)
+    await db.machines.insert_one(machine_obj.dict())
+    return machine_obj
+
+@api_router.put("/machines/{machine_id}", response_model=Machine)
+async def update_machine(machine_id: int, machine_update: MachineUpdate):
+    existing_machine = await db.machines.find_one({"id": machine_id})
+    if not existing_machine:
+        raise HTTPException(status_code=404, detail="Machine not found")
+    
+    update_data = machine_update.dict(exclude_unset=True)
+    if update_data:
+        await db.machines.update_one({"id": machine_id}, {"$set": update_data})
+    
+    updated_machine = await db.machines.find_one({"id": machine_id})
+    return Machine(**updated_machine)
+
+@api_router.delete("/machines/{machine_id}")
+async def delete_machine(machine_id: int):
+    result = await db.machines.delete_one({"id": machine_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Machine not found")
+    return {"message": "Machine deleted successfully"}
+
+# Initialize default data endpoint
+@api_router.post("/initialize-data")
+async def initialize_default_data():
+    """Initialize the database with default paper types and machines if they don't exist"""
+    
+    # Check if data already exists
+    existing_paper_types = await db.paper_types.count_documents({})
+    existing_machines = await db.machines.count_documents({})
+    
+    if existing_paper_types == 0:
+        # Initialize default paper types
+        default_paper_types = [
+            {
+                "id": 1,
+                "name": "80g Standard",
+                "gsm": 80,
+                "pricePerTon": 850,
+                "stockSheetSizes": [
+                    {"id": 1, "name": "A4", "width": 210, "height": 297, "unit": "mm"},
+                    {"id": 2, "name": "A3", "width": 297, "height": 420, "unit": "mm"},
+                    {"id": 3, "name": "SRA3", "width": 320, "height": 450, "unit": "mm"}
+                ]
+            },
+            {
+                "id": 2,
+                "name": "120g Premium",
+                "gsm": 120,
+                "pricePerTon": 1200,
+                "stockSheetSizes": [
+                    {"id": 4, "name": "A3", "width": 297, "height": 420, "unit": "mm"},
+                    {"id": 5, "name": "SRA3", "width": 320, "height": 450, "unit": "mm"},
+                    {"id": 6, "name": "B2", "width": 500, "height": 707, "unit": "mm"}
+                ]
+            },
+            {
+                "id": 3,
+                "name": "90g Letter",
+                "gsm": 90,
+                "pricePerTon": 900,
+                "stockSheetSizes": [
+                    {"id": 7, "name": "Letter", "width": 216, "height": 279, "unit": "mm"},
+                    {"id": 8, "name": "Legal", "width": 216, "height": 356, "unit": "mm"},
+                    {"id": 9, "name": "Tabloid", "width": 279, "height": 432, "unit": "mm"}
+                ]
+            },
+            {
+                "id": 4,
+                "name": "100g Coated",
+                "gsm": 100,
+                "pricePerTon": 1000,
+                "stockSheetSizes": [
+                    {"id": 10, "name": "SRA3", "width": 320, "height": 450, "unit": "mm"},
+                    {"id": 11, "name": "A2", "width": 420, "height": 594, "unit": "mm"},
+                    {"id": 12, "name": "B1", "width": 707, "height": 1000, "unit": "mm"}
+                ]
+            }
+        ]
+        
+        await db.paper_types.insert_many(default_paper_types)
+    
+    if existing_machines == 0:
+        # Initialize default machines
+        default_machines = [
+            {
+                "id": 1,
+                "name": "Heidelberg SM 52",
+                "setupCost": 45,
+                "printSheetSizes": [
+                    {"id": 1, "name": "SRA3", "width": 320, "height": 450, "clickCost": 0.08, "duplexSupport": True, "unit": "mm"},
+                    {"id": 2, "name": "A3+", "width": 330, "height": 483, "clickCost": 0.09, "duplexSupport": True, "unit": "mm"},
+                    {"id": 3, "name": "Custom Small", "width": 280, "height": 400, "clickCost": 0.06, "duplexSupport": False, "unit": "mm"}
+                ]
+            },
+            {
+                "id": 2,
+                "name": "Komori L528",
+                "setupCost": 50,
+                "printSheetSizes": [
+                    {"id": 4, "name": "SRA3", "width": 320, "height": 450, "clickCost": 0.07, "duplexSupport": True, "unit": "mm"},
+                    {"id": 5, "name": "A3", "width": 297, "height": 420, "clickCost": 0.065, "duplexSupport": True, "unit": "mm"},
+                    {"id": 6, "name": "Custom Large", "width": 350, "height": 500, "clickCost": 0.085, "duplexSupport": True, "unit": "mm"}
+                ]
+            },
+            {
+                "id": 3,
+                "name": "Digital Press HP",
+                "setupCost": 25,
+                "printSheetSizes": [
+                    {"id": 7, "name": "A3", "width": 297, "height": 420, "clickCost": 0.12, "duplexSupport": True, "unit": "mm"},
+                    {"id": 8, "name": "A4", "width": 210, "height": 297, "clickCost": 0.08, "duplexSupport": True, "unit": "mm"},
+                    {"id": 9, "name": "Letter", "width": 216, "height": 279, "clickCost": 0.085, "duplexSupport": False, "unit": "mm"}
+                ]
+            }
+        ]
+        
+        await db.machines.insert_many(default_machines)
+    
+    return {"message": "Default data initialized successfully"}
+
 # Include the router in the main app
 app.include_router(api_router)
 
