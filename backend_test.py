@@ -279,7 +279,7 @@ mockDataContent = mockDataContent.replace(/export {[^}]*};?/g, '');
 // Evaluate the code
 eval(mockDataContent);
 
-// Test parameters from the review request
+// Test parameters from the review request: 2 booklets, 8 pages per booklet
 const testJob = {
   productName: "Test Booklet",
   finalWidth: 100,
@@ -288,12 +288,12 @@ const testJob = {
   marginRight: 3,
   marginBottom: 3,
   marginLeft: 3,
-  quantity: 10, // 10 booklets
+  quantity: 2, // 2 booklets
   isDoubleSided: true,
   setupRequired: false,
   isBookletMode: true,
   coverSetupRequired: false,
-  totalPages: 16 // 16 pages per booklet
+  totalPages: 8 // 8 pages per booklet
 };
 
 // Mock paper types and machines (using the default data structure)
@@ -327,25 +327,25 @@ const coverResult = calculateCoverCost(testJob, testPaperTypes[0], testMachines[
 
 if (coverResult) {
   console.log('COVER_CALCULATION_SUCCESS');
-  console.log('Total Covers Needed:', coverResult.bookletQuantity);
+  console.log('Cover Sheets Needed:', coverResult.coverSheetsNeeded);
   console.log('Stock Sheets Needed:', coverResult.stockSheetsNeeded);
   console.log('Total Cover Pages:', coverResult.totalCoverPages);
-  console.log('Covers Per Print Sheet:', coverResult.coversPerPrintSheet);
+  console.log('Covers Per Print Sheet:', coverResult.coverSheetsPerPrintSheet);
   console.log('Print Sheets Needed:', coverResult.printSheetsNeeded);
   console.log('Total Cost:', coverResult.totalCost.toFixed(2));
   
-  // Verify the fix: 1 cover per booklet (not 2)
-  const expectedCoversNeeded = testJob.quantity; // Should be 10 (1 per booklet)
-  const actualCoversNeeded = coverResult.bookletQuantity;
+  // Verify the fix: 1 cover sheet per booklet (not 2)
+  const expectedCoverSheetsNeeded = testJob.quantity; // Should be 2 (1 per booklet)
+  const actualCoverSheetsNeeded = coverResult.coverSheetsNeeded;
   
-  if (actualCoversNeeded === expectedCoversNeeded) {
-    console.log('COVER_COUNT_CORRECT: Expected', expectedCoversNeeded, 'got', actualCoversNeeded);
+  if (actualCoverSheetsNeeded === expectedCoverSheetsNeeded) {
+    console.log('COVER_SHEETS_CORRECT: Expected', expectedCoverSheetsNeeded, 'got', actualCoverSheetsNeeded);
   } else {
-    console.log('COVER_COUNT_ERROR: Expected', expectedCoversNeeded, 'got', actualCoversNeeded);
+    console.log('COVER_SHEETS_ERROR: Expected', expectedCoverSheetsNeeded, 'got', actualCoverSheetsNeeded);
   }
   
-  // Verify that total cover pages = covers needed * 4 (each cover yields 4 pages when folded)
-  const expectedTotalCoverPages = expectedCoversNeeded * 4;
+  // Verify that total cover pages = cover sheets needed * 4 (each cover sheet yields 4 pages when folded)
+  const expectedTotalCoverPages = expectedCoverSheetsNeeded * 4;
   const actualTotalCoverPages = coverResult.totalCoverPages;
   
   if (actualTotalCoverPages === expectedTotalCoverPages) {
