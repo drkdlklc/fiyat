@@ -612,8 +612,157 @@ export const calculateOptimalForPaperType = (job, paperType, machines, selectedM
   });
 };
 
-export const findBestPaperAndMachine = (job, paperTypes, machines) => {
-  return findOptimalPrintSheetSize(job, paperTypes, machines);
+export const calculateMultiPartCost = (job, multiPartConfigs, paperTypes, machines, isInnerPages = false) => {
+  const results = [];
+  let totalCost = 0;
+
+  for (const config of multiPartConfigs) {
+    if (!config.paperTypeId && !config.machineId) continue;
+    if (!config.pageCount || parseInt(config.pageCount) <= 0) continue;
+
+    const pageCount = parseInt(config.pageCount);
+    const paperType = config.paperTypeId ? paperTypes.find(p => p.id === config.paperTypeId) : null;
+    const machine = config.machineId ? machines.find(m => m.id === config.machineId) : null;
+
+    if (!paperType && !machine) continue;
+
+    // Create a modified job for this part
+    const partJob = {
+      ...job,
+      quantity: isInnerPages ? job.quantity * pageCount : pageCount
+    };
+
+    let partResults = [];
+    
+    if (paperType && machine) {
+      // Both paper type and machine specified
+      partResults = calculateOptimalForPaperType(partJob, paperType, [machine]);
+    } else if (paperType) {
+      // Only paper type specified
+      partResults = calculateOptimalForPaperType(partJob, paperType, machines);
+    } else if (machine) {
+      // Only machine specified
+      partResults = findOptimalPrintSheetSize(partJob, paperTypes, [machine]);
+    }
+
+    if (partResults.length > 0) {
+      const bestResult = partResults[0];
+      totalCost += bestResult.totalCost;
+      results.push({
+        ...bestResult,
+        partPageCount: pageCount,
+        partNumber: results.length + 1,
+        isMultiPart: true
+      });
+    }
+  }
+
+  return {
+    results,
+    totalCost,
+    totalPartCount: results.length
+  };
+};
+
+export const calculateMultiPartInnerPagesCost = (job, multiPartConfigs, paperTypes, machines, isBookletMode = false) => {
+  const results = [];
+  let totalCost = 0;
+
+  for (const config of multiPartConfigs) {
+    if ((!config.paperTypeId && !config.machineId) || !config.pageCount || parseInt(config.pageCount) <= 0) {
+      continue;
+    }
+
+    const pageCount = parseInt(config.pageCount);
+    const paperType = config.paperTypeId ? paperTypes.find(p => p.id === config.paperTypeId) : null;
+    const machine = config.machineId ? machines.find(m => m.id === config.machineId) : null;
+
+    if (!paperType && !machine) continue;
+
+    // For booklet mode, calculate total pages for this part across all booklets
+    const totalPagesForPart = isBookletMode ? job.quantity * pageCount : pageCount;
+
+    let bestOption = null;
+    let lowestCost = Infinity;
+
+    const paperTypesToCheck = paperType ? [paperType] : paperTypes;
+    const machinesToCheck = machine ? [machine] : machines;
+
+    for (const pt of paperTypesToCheck) {
+      for (const m of machinesToCheck) {
+        for (const stockSheetSize of pt.stockSheetSizes) {
+          for (const printSheetSize of m.printSheetSizes) {
+            if (printSheetSize.width > stockSheetSize.width || printSheetSize.height > stockSheetSize.height) {
+              continue;
+            }
+
+            const margins = {
+              top: job.marginTop,
+              right: job.marginRight,
+              bottom: job.marginBottom,
+              left: job.marginLeft
+            };
+
+            const pagesPerPrintSheet = calculateProductsPerSheet(
+              printSheetSize.width, printSheetSize.height, job.finalWidth, job.finalHeight, margins
+            );
+
+            if (pagesPerPrintSheet <= 0) continue;
+
+            const printSheetsNeeded = Math.ceil(totalPagesForPart / pagesPerPrintSheet);
+            const printSheetsPerStockSheet = Math.floor(stockSheetSize.width / printSheetSize.width) * 
+                                           Math.floor(stockSheetSize.height / printSheetSize.height);
+
+            if (printSheetsPerStockSheet <= 0) continue;
+
+            const stockSheetsNeeded = Math.ceil(printSheetsNeeded / printSheetsPerStockSheet);
+            const paperWeight = calculatePaperWeight(stockSheetSize.width, stockSheetSize.height, pt.gsm, stockSheetsNeeded);
+            const paperCost = calculatePaperCost(paperWeight, pt.pricePerTon);
+
+            const clickMultiplier = job.isDoubleSided ? 2 : 1;
+            const clickCost = printSheetsNeeded * printSheetSize.clickCost * clickMultiplier;
+            const setupCost = job.setupRequired ? m.setupCost : 0;
+            const totalCost = paperCost + clickCost + setupCost;
+
+            if (totalCost < lowestCost) {
+              lowestCost = totalCost;
+              bestOption = {
+                paperType: pt,
+                machine: m,
+                printSheetSize,
+                stockSheetSize,
+                pagesPerPrintSheet,
+                printSheetsNeeded,
+                printSheetsPerStockSheet,
+                stockSheetsNeeded,
+                paperWeight,
+                paperCost,
+                clickCost,
+                setupCost,
+                totalCost,
+                partPageCount: pageCount,
+                totalPagesForPart,
+                partNumber: results.length + 1,
+                isMultiPart: true,
+                clickMultiplier
+              };
+            }
+          }
+        }
+      }
+    }
+
+    if (bestOption) {
+      totalCost += bestOption.totalCost;
+      results.push(bestOption);
+    }
+  }
+
+  return {
+    results,
+    totalCost,
+    totalPartCount: results.length
+  };
 };
 
 // Helper function to get machine print sheet size options
