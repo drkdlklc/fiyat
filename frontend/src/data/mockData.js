@@ -279,18 +279,13 @@ export const calculatePaperCost = (weightKg, pricePerTon) => {
 };
 
 export const calculateCoverCost = (job, coverPaperType, coverMachine) => {
-  if (!job.hasCover || !coverPaperType || !coverMachine) {
+  if (!job.isBookletMode || !coverPaperType || !coverMachine) {
     return null;
   }
 
-  // For booklet with cover, we need to calculate:
-  // 1. Cover cost (front and back cover)
-  // 2. Inner pages cost (total pages - cover pages)
-  
-  const coverQuantity = job.quantity; // Each booklet needs 1 cover
-  const totalPages = job.totalPages || 0;
-  const innerPages = Math.max(0, totalPages - 2); // Subtract front and back cover
-  const innerSheetsNeeded = Math.ceil(innerPages / (job.isDoubleSided ? 2 : 1));
+  // For booklet mode: 
+  // Total cover pages = 2 pages per booklet × number of booklets
+  const totalCoverPages = job.quantity * 2;
   
   // Find the best stock sheet size for the cover
   let bestCoverOption = null;
@@ -316,7 +311,7 @@ export const calculateCoverCost = (job, coverPaperType, coverMachine) => {
       
       if (coversPerPrintSheet <= 0) continue;
       
-      const printSheetsNeeded = calculateSheetsNeeded(coverQuantity, coversPerPrintSheet);
+      const printSheetsNeeded = Math.ceil(totalCoverPages / coversPerPrintSheet);
       
       // Calculate how many print sheets fit per stock sheet
       const printSheetsPerStockSheet = Math.floor(stockSheetSize.width / printSheetSize.width) * 
@@ -350,15 +345,101 @@ export const calculateCoverCost = (job, coverPaperType, coverMachine) => {
           clickCost,
           setupCost,
           totalCost,
-          totalPages,
-          innerPages,
-          innerSheetsNeeded
+          totalPages: job.totalPages,
+          innerPages: Math.max(0, job.totalPages - 2),
+          totalCoverPages,
+          bookletQuantity: job.quantity
         };
       }
     }
   }
   
   return bestCoverOption;
+};
+
+export const calculateInnerPagesCost = (job, innerPaperType, innerMachine) => {
+  if (!job.isBookletMode || !innerPaperType || !innerMachine) {
+    return null;
+  }
+
+  // For booklet mode:
+  // Inner pages per booklet = total pages - 2 cover pages
+  // Total inner pages = inner pages per booklet × number of booklets
+  const innerPagesPerBooklet = Math.max(0, job.totalPages - 2);
+  const totalInnerPages = job.quantity * innerPagesPerBooklet;
+  
+  if (totalInnerPages <= 0) return null;
+  
+  // Find the best stock sheet size for inner pages
+  let bestInnerOption = null;
+  let lowestCost = Infinity;
+
+  for (const stockSheetSize of innerPaperType.stockSheetSizes) {
+    for (const printSheetSize of innerMachine.printSheetSizes) {
+      // Check if print sheet size fits within the stock sheet size
+      if (printSheetSize.width > stockSheetSize.width || printSheetSize.height > stockSheetSize.height) {
+        continue;
+      }
+      
+      const margins = {
+        top: job.marginTop,
+        right: job.marginRight,
+        bottom: job.marginBottom,
+        left: job.marginLeft
+      };
+      
+      const pagesPerPrintSheet = calculateProductsPerSheet(
+        printSheetSize.width, printSheetSize.height, job.finalWidth, job.finalHeight, margins
+      );
+      
+      if (pagesPerPrintSheet <= 0) continue;
+      
+      const printSheetsNeeded = Math.ceil(totalInnerPages / pagesPerPrintSheet);
+      
+      // Calculate how many print sheets fit per stock sheet
+      const printSheetsPerStockSheet = Math.floor(stockSheetSize.width / printSheetSize.width) * 
+                                     Math.floor(stockSheetSize.height / printSheetSize.height);
+      
+      if (printSheetsPerStockSheet <= 0) continue;
+      
+      const stockSheetsNeeded = Math.ceil(printSheetsNeeded / printSheetsPerStockSheet);
+      
+      const paperWeight = calculatePaperWeight(stockSheetSize.width, stockSheetSize.height, innerPaperType.gsm, stockSheetsNeeded);
+      const paperCost = calculatePaperCost(paperWeight, innerPaperType.pricePerTon);
+      
+      // Calculate click cost based on double-sided printing
+      const clickMultiplier = job.isDoubleSided ? 2 : 1;
+      const clickCost = printSheetsNeeded * printSheetSize.clickCost * clickMultiplier;
+      
+      const setupCost = job.setupRequired ? innerMachine.setupCost : 0;
+      const totalCost = paperCost + clickCost + setupCost;
+      
+      if (totalCost < lowestCost) {
+        lowestCost = totalCost;
+        bestInnerOption = {
+          paperType: innerPaperType,
+          machine: innerMachine,
+          printSheetSize,
+          stockSheetSize,
+          pagesPerPrintSheet,
+          printSheetsNeeded,
+          printSheetsPerStockSheet,
+          stockSheetsNeeded,
+          paperWeight,
+          paperCost,
+          clickCost,
+          setupCost,
+          totalCost,
+          innerPagesPerBooklet,
+          totalInnerPages,
+          bookletQuantity: job.quantity,
+          clickMultiplier
+        };
+      }
+    }
+  }
+  
+  return bestInnerOption;
 };
 
 export const findOptimalPrintSheetSize = (job, paperTypes, machines) => {
