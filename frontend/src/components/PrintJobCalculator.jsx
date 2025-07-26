@@ -1304,7 +1304,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                   </div>
                 )}
 
-                {results.coverResults && results.innerPagesResults && (
+                {results.coverResults && (results.innerPagesResults || results.multiPartResults) && (
                   <div className="p-4 border-2 border-blue-500 rounded-lg bg-blue-50">
                     <h3 className="text-lg font-semibold text-blue-800 mb-4">Total Booklet Cost Summary</h3>
                     
@@ -1323,7 +1323,9 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                       </div>
                       <div>
                         <span className="font-medium text-gray-700">Inner Pages Cost:</span>
-                        <p className="text-sm">${results.innerPagesResults.totalCost.toFixed(2)}</p>
+                        <p className="text-sm">
+                          ${(results.innerPagesResults ? results.innerPagesResults.totalCost : results.multiPartResults.totalCost).toFixed(2)}
+                        </p>
                       </div>
                     </div>
 
@@ -1331,13 +1333,13 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                       <div>
                         <span className="font-bold text-xl text-gray-800">Total Cost:</span>
                         <p className="text-2xl font-bold text-blue-600">
-                          ${(results.coverResults.totalCost + results.innerPagesResults.totalCost).toFixed(2)}
+                          ${(results.coverResults.totalCost + (results.innerPagesResults ? results.innerPagesResults.totalCost : results.multiPartResults.totalCost)).toFixed(2)}
                         </p>
                       </div>
                       <div>
                         <span className="font-bold text-xl text-gray-800">Cost per Booklet:</span>
                         <p className="text-2xl font-bold text-green-600">
-                          ${((results.coverResults.totalCost + results.innerPagesResults.totalCost) / results.job.quantity).toFixed(4)}
+                          ${((results.coverResults.totalCost + (results.innerPagesResults ? results.innerPagesResults.totalCost : results.multiPartResults.totalCost)) / results.job.quantity).toFixed(4)}
                         </p>
                       </div>
                     </div>
