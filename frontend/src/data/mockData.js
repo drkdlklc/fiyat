@@ -274,6 +274,10 @@ export const calculatePaperWeight = (sheetWidth, sheetHeight, gsm, quantity) => 
   return (weightPerSheet * quantity) / 1000; // Convert to kg
 };
 
+export const calculatePaperCost = (weightKg, pricePerTon) => {
+  return (weightKg / 1000) * pricePerTon;
+};
+
 export const calculateCoverCost = (job, coverPaperType, coverMachine) => {
   if (!job.hasCover || !coverPaperType || !coverMachine) {
     return null;
