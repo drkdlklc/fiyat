@@ -599,7 +599,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                     </div>
                   </div>
                   <p className="text-sm text-green-600 mt-2">
-                    Covers will be printed separately. Each booklet needs 1 cover (2 pages).
+                    Covers will be printed separately. Each booklet needs 1 cover (4 pages when folded).
                   </p>
                 </div>
 
