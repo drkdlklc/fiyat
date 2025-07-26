@@ -288,11 +288,19 @@ export const calculateCoverCost = (job, coverPaperType, coverMachine) => {
   // Each cover sheet provides 4 pages when folded
   const coverSheetsNeeded = job.quantity; // 1 cover sheet per booklet
   
-  // Determine the orientation based on binding edge (same logic as inner pages)
-  // Short edge binding: portrait orientation (normal width x height)
-  // Long edge binding: landscape orientation (height x width)  
-  const effectiveWidth = job.bindingEdge === 'short' ? job.finalWidth : job.finalHeight;
-  const effectiveHeight = job.bindingEdge === 'short' ? job.finalHeight : job.finalWidth;
+  // Booklet cover special calculation:
+  // The length of the selected binding edge should be doubled (cover wraps around)
+  let effectiveWidth, effectiveHeight;
+  
+  if (job.bindingEdge === 'short') {
+    // Short edge binding: double the height (short edge)
+    effectiveWidth = job.finalWidth;
+    effectiveHeight = job.finalHeight * 2; // Double the binding edge dimension
+  } else {
+    // Long edge binding: double the width (long edge)
+    effectiveWidth = job.finalWidth * 2; // Double the binding edge dimension
+    effectiveHeight = job.finalHeight;
+  }
   
   // Find the best stock sheet size for the cover
   let bestCoverOption = null;
