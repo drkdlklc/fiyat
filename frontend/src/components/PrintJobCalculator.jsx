@@ -818,7 +818,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
               </div>
             )}
 
-            {!jobData.isBookletMode && (
+            {!jobData.isBookletMode && !jobData.useMultiPartConfiguration && (
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="machine">Machine (Optional)</Label>
