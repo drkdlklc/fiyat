@@ -1132,14 +1132,14 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                         
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
                           <div>
-                            <span className="font-medium text-gray-700">Paper Type:</span>
-                            <p className="text-sm">{part.paperType.name}</p>
-                            <p className="text-xs text-gray-500">{part.paperType.gsm} GSM</p>
+                            <span className="font-medium text-gray-700">Paper & Machine Pairing:</span>
+                            <p className="text-sm font-semibold text-blue-600">{part.paperType.name} + {part.machine.name}</p>
+                            <p className="text-xs text-gray-500">{part.paperType.gsm} GSM | Setup: ${part.machine.setupCost}</p>
                           </div>
                           <div>
-                            <span className="font-medium text-gray-700">Machine:</span>
-                            <p className="text-sm">{part.machine.name}</p>
-                            <p className="text-xs text-gray-500">Setup: ${part.machine.setupCost}</p>
+                            <span className="font-medium text-gray-700">Optimal Print Sheet:</span>
+                            <p className="text-sm">{part.printSheetSize.name}</p>
+                            <p className="text-xs text-gray-500">{part.printSheetSize.width} × {part.printSheetSize.height} mm</p>
                           </div>
                           <div>
                             <span className="font-medium text-gray-700">Pages per Print Sheet:</span>
