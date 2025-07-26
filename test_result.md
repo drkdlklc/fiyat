@@ -241,6 +241,8 @@ agent_communication:
     message: "Successfully implemented persistent storage for paper types and machines. Created complete backend API with CRUD endpoints, integrated frontend with API service, and verified data persistence across application restarts. All data is now stored in MongoDB."
   - agent: "main"
     message: "Implemented UI improvements and validation: 1) Setup Required option now defaults to unchecked, 2) Default paper/machine selection sections are hidden when multi-part is enabled, 3) Added validation to ensure total pages in multi-part configurations match main page counts with clear error messages."
+  - agent: "main"
+    message: "Fixed cover calculation bug - the program was calculating 'Stock Sheets Needed' as double the required amount. Updated logic to use 1 cover per booklet instead of 2, correctly reflecting that each cover yields 4 pages when folded. Also updated UI text to clarify this."
   - agent: "testing"
     message: "Backend API testing completed. All core endpoints (/, /status GET/POST) working correctly. Database connectivity verified. Backend service running properly via supervisor. No calculation endpoints found as expected for frontend-focused feature. Backend is healthy and ready for future integration. Created backend_test.py for comprehensive API testing."
   - agent: "testing"
