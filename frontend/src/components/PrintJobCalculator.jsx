@@ -81,10 +81,19 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
       return;
     }
 
+    // Calculate cover costs if cover is needed
+    let coverResults = null;
+    if (job.hasCover && selectedCoverPaperType && selectedCoverMachine) {
+      const coverPaperType = paperTypes.find(p => p.id === selectedCoverPaperType);
+      const coverMachine = machines.find(m => m.id === selectedCoverMachine);
+      coverResults = calculateCoverCost(job, coverPaperType, coverMachine);
+    }
+
     setResults({ 
       job, 
       calculations: calculationResults, 
-      selectedPaperType: selectedPaperType ? paperTypes.find(p => p.id === selectedPaperType) : null
+      selectedPaperType: selectedPaperType ? paperTypes.find(p => p.id === selectedPaperType) : null,
+      coverResults
     });
     
     toast({
