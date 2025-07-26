@@ -153,7 +153,7 @@ export const mockMachines = [
         unit: "mm"
       },
       {
-        id: 4,
+        id: 10,
         name: "Large Format",
         width: 330,
         height: 695,
