@@ -35,6 +35,59 @@ class StatusCheck(BaseModel):
 class StatusCheckCreate(BaseModel):
     client_name: str
 
+# Paper Type Models
+class StockSheetSize(BaseModel):
+    id: int
+    name: str
+    width: float
+    height: float
+    unit: str = "mm"
+
+class PaperType(BaseModel):
+    id: int
+    name: str
+    gsm: int
+    pricePerTon: float
+    stockSheetSizes: List[StockSheetSize]
+
+class PaperTypeCreate(BaseModel):
+    name: str
+    gsm: int
+    pricePerTon: float
+    stockSheetSizes: List[StockSheetSize]
+
+class PaperTypeUpdate(BaseModel):
+    name: Optional[str] = None
+    gsm: Optional[int] = None
+    pricePerTon: Optional[float] = None
+    stockSheetSizes: Optional[List[StockSheetSize]] = None
+
+# Machine Models
+class PrintSheetSize(BaseModel):
+    id: int
+    name: str
+    width: float
+    height: float
+    clickCost: float
+    duplexSupport: bool
+    unit: str = "mm"
+
+class Machine(BaseModel):
+    id: int
+    name: str
+    setupCost: float
+    printSheetSizes: List[PrintSheetSize]
+
+class MachineCreate(BaseModel):
+    name: str
+    setupCost: float
+    printSheetSizes: List[PrintSheetSize]
+
+class MachineUpdate(BaseModel):
+    name: Optional[str] = None
+    setupCost: Optional[float] = None
+    printSheetSizes: Optional[List[PrintSheetSize]] = None
+
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
