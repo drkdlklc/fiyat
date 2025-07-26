@@ -1027,7 +1027,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                       <div>
                         <span className="font-medium text-gray-700">Total Cover Pages:</span>
                         <p className="text-sm">{results.coverResults.totalCoverPages}</p>
-                        <p className="text-xs text-gray-500">({results.coverResults.bookletQuantity} booklets × 2 pages)</p>
+                        <p className="text-xs text-gray-500">({results.coverResults.bookletQuantity} booklets × 4 pages per cover)</p>
                       </div>
                       <div>
                         <span className="font-medium text-gray-700">Covers per Print Sheet:</span>
