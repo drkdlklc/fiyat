@@ -393,6 +393,54 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
     ));
   };
 
+  // Unified multi-part configuration handlers
+  const addMultiPartConfiguration = () => {
+    if (multiPartConfigurations.length < 3) {
+      setMultiPartConfigurations([...multiPartConfigurations, { 
+        id: Date.now(), 
+        paperTypeId: null, 
+        machineId: null, 
+        pageCount: '' 
+      }]);
+    }
+  };
+
+  const removeMultiPartConfiguration = (id) => {
+    if (multiPartConfigurations.length > 1) {
+      setMultiPartConfigurations(multiPartConfigurations.filter(item => item.id !== id));
+    }
+  };
+
+  const updateMultiPartConfiguration = (id, field, value) => {
+    setMultiPartConfigurations(multiPartConfigurations.map(item => 
+      item.id === id ? { ...item, [field]: value } : item
+    ));
+  };
+
+  // Unified multi-part inner configuration handlers
+  const addMultiPartInnerConfiguration = () => {
+    if (multiPartInnerConfigurations.length < 3) {
+      setMultiPartInnerConfigurations([...multiPartInnerConfigurations, { 
+        id: Date.now(), 
+        paperTypeId: null, 
+        machineId: null, 
+        pageCount: '' 
+      }]);
+    }
+  };
+
+  const removeMultiPartInnerConfiguration = (id) => {
+    if (multiPartInnerConfigurations.length > 1) {
+      setMultiPartInnerConfigurations(multiPartInnerConfigurations.filter(item => item.id !== id));
+    }
+  };
+
+  const updateMultiPartInnerConfiguration = (id, field, value) => {
+    setMultiPartInnerConfigurations(multiPartInnerConfigurations.map(item => 
+      item.id === id ? { ...item, [field]: value } : item
+    ));
+  };
+
   const getAvailableSheetSizes = () => {
     if (!selectedMachine) return [];
     const machine = machines.find(m => m.id === selectedMachine);
