@@ -274,8 +274,79 @@ export const calculatePaperWeight = (sheetWidth, sheetHeight, gsm, quantity) => 
   return (weightPerSheet * quantity) / 1000; // Convert to kg
 };
 
-export const calculatePaperCost = (weightKg, pricePerTon) => {
-  return (weightKg / 1000) * pricePerTon;
+export const calculateCoverCost = (job, coverPaperType, coverMachine) => {
+  if (!job.hasCover || !coverPaperType || !coverMachine) {
+    return null;
+  }
+
+  // For cover, we typically print 2 covers per product (front and back)
+  // But we'll calculate based on the job quantity
+  const coverQuantity = job.quantity; // Each product needs 1 cover
+  
+  // Find the best stock sheet size for the cover
+  let bestCoverOption = null;
+  let lowestCost = Infinity;
+
+  for (const stockSheetSize of coverPaperType.stockSheetSizes) {
+    for (const printSheetSize of coverMachine.printSheetSizes) {
+      // Check if print sheet size fits within the stock sheet size
+      if (printSheetSize.width > stockSheetSize.width || printSheetSize.height > stockSheetSize.height) {
+        continue;
+      }
+      
+      const margins = {
+        top: job.marginTop,
+        right: job.marginRight,
+        bottom: job.marginBottom,
+        left: job.marginLeft
+      };
+      
+      const coversPerPrintSheet = calculateProductsPerSheet(
+        printSheetSize.width, printSheetSize.height, job.finalWidth, job.finalHeight, margins
+      );
+      
+      if (coversPerPrintSheet <= 0) continue;
+      
+      const printSheetsNeeded = calculateSheetsNeeded(coverQuantity, coversPerPrintSheet);
+      
+      // Calculate how many print sheets fit per stock sheet
+      const printSheetsPerStockSheet = Math.floor(stockSheetSize.width / printSheetSize.width) * 
+                                     Math.floor(stockSheetSize.height / printSheetSize.height);
+      
+      if (printSheetsPerStockSheet <= 0) continue;
+      
+      const stockSheetsNeeded = Math.ceil(printSheetsNeeded / printSheetsPerStockSheet);
+      
+      const paperWeight = calculatePaperWeight(stockSheetSize.width, stockSheetSize.height, coverPaperType.gsm, stockSheetsNeeded);
+      const paperCost = calculatePaperCost(paperWeight, coverPaperType.pricePerTon);
+      
+      // Cover is typically double-sided, so we'll assume 2x click cost
+      const clickCost = printSheetsNeeded * printSheetSize.clickCost * 2;
+      const setupCost = coverMachine.setupCost;
+      const totalCost = paperCost + clickCost + setupCost;
+      
+      if (totalCost < lowestCost) {
+        lowestCost = totalCost;
+        bestCoverOption = {
+          paperType: coverPaperType,
+          machine: coverMachine,
+          printSheetSize,
+          stockSheetSize,
+          coversPerPrintSheet,
+          printSheetsNeeded,
+          printSheetsPerStockSheet,
+          stockSheetsNeeded,
+          paperWeight,
+          paperCost,
+          clickCost,
+          setupCost,
+          totalCost
+        };
+      }
+    }
+  }
+  
+  return bestCoverOption;
 };
 
 export const findOptimalPrintSheetSize = (job, paperTypes, machines) => {
