@@ -366,14 +366,6 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
               </div>
               <div className="flex items-center space-x-2">
                 <Checkbox
-                  id="hasCover"
-                  checked={jobData.hasCover}
-                  onCheckedChange={(checked) => setJobData({ ...jobData, hasCover: checked })}
-                />
-                <Label htmlFor="hasCover">Has Cover</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox
                   id="setupRequired"
                   checked={jobData.setupRequired}
                   onCheckedChange={(checked) => setJobData({ ...jobData, setupRequired: checked })}
