@@ -313,77 +313,165 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                 />
               </div>
               <div className="col-span-2">
-                <Label htmlFor="quantity">Quantity *</Label>
+                <Label htmlFor="quantity">
+                  {jobData.isBookletMode ? 'Number of Booklets *' : 'Quantity *'}
+                </Label>
                 <Input
                   id="quantity"
                   type="number"
                   value={jobData.quantity}
                   onChange={(e) => setJobData({ ...jobData, quantity: e.target.value })}
-                  placeholder="1000"
+                  placeholder={jobData.isBookletMode ? "100" : "1000"}
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4">
-              <div>
-                <Label htmlFor="paperType">Paper Type (Optional - auto-selects optimal stock sheet)</Label>
-                <Select value={selectedPaperType?.toString()} onValueChange={handlePaperTypeChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a paper type (or leave blank for all options)" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {paperTypes.map((paperType) => (
-                      <SelectItem key={paperType.id} value={paperType.id.toString()}>
-                        {paperType.name} ({paperType.gsm} GSM)
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {selectedPaperType && (
-                  <p className="text-sm text-green-600 mt-1 flex items-center gap-1">
-                    <CheckCircle size={14} />
-                    System will automatically select the most cost-efficient stock sheet size
+            {jobData.isBookletMode && (
+              <>
+                <div className="p-4 border rounded-lg bg-green-50">
+                  <h3 className="font-semibold text-lg mb-3 text-green-800">Cover Configuration</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="coverPaperType">Cover Paper Type</Label>
+                      <Select value={selectedCoverPaperType?.toString()} onValueChange={handleCoverPaperTypeChange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select cover paper type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {paperTypes.map((paperType) => (
+                            <SelectItem key={paperType.id} value={paperType.id.toString()}>
+                              {paperType.name} ({paperType.gsm} GSM)
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="coverMachine">Cover Printing Machine</Label>
+                      <Select value={selectedCoverMachine?.toString()} onValueChange={handleCoverMachineChange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select cover machine" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {machines.map((machine) => (
+                            <SelectItem key={machine.id} value={machine.id.toString()}>
+                              {machine.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <p className="text-sm text-green-600 mt-2">
+                    Covers will be printed separately. Each booklet needs 1 cover (2 pages).
                   </p>
-                )}
-              </div>
-            </div>
+                </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="machine">Machine (Optional)</Label>
-                <Select value={selectedMachine?.toString()} onValueChange={handleMachineChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a machine" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {machines.map((machine) => (
-                      <SelectItem key={machine.id} value={machine.id.toString()}>
-                        {machine.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="p-4 border rounded-lg bg-orange-50">
+                  <h3 className="font-semibold text-lg mb-3 text-orange-800">Inner Pages Configuration</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="innerPaperType">Inner Paper Type</Label>
+                      <Select value={selectedInnerPaperType?.toString()} onValueChange={handleInnerPaperTypeChange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select inner paper type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {paperTypes.map((paperType) => (
+                            <SelectItem key={paperType.id} value={paperType.id.toString()}>
+                              {paperType.name} ({paperType.gsm} GSM)
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="innerMachine">Inner Pages Machine</Label>
+                      <Select value={selectedInnerMachine?.toString()} onValueChange={handleInnerMachineChange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select inner machine" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {machines.map((machine) => (
+                            <SelectItem key={machine.id} value={machine.id.toString()}>
+                              {machine.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <p className="text-sm text-orange-600 mt-2">
+                    Inner pages will be calculated as: {jobData.totalPages ? `(${jobData.totalPages} total - 2 cover = ${Math.max(0, jobData.totalPages - 2)} inner pages) × ${jobData.quantity || 'quantity'} booklets` : '(total pages - 2) × quantity booklets'}
+                  </p>
+                </div>
+              </>
+            )}
+
+            {!jobData.isBookletMode && (
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <Label htmlFor="paperType">Paper Type (Optional - auto-selects optimal stock sheet)</Label>
+                  <Select value={selectedPaperType?.toString()} onValueChange={handlePaperTypeChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a paper type (or leave blank for all options)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {paperTypes.map((paperType) => (
+                        <SelectItem key={paperType.id} value={paperType.id.toString()}>
+                          {paperType.name} ({paperType.gsm} GSM)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {selectedPaperType && (
+                    <p className="text-sm text-green-600 mt-1 flex items-center gap-1">
+                      <CheckCircle size={14} />
+                      System will automatically select the most cost-efficient stock sheet size
+                    </p>
+                  )}
+                </div>
               </div>
-              <div>
-                <Label htmlFor="sheetSize">Print Sheet Size (Optional)</Label>
-                <Select 
-                  value={selectedSheetSize?.toString()} 
-                  onValueChange={(value) => setSelectedSheetSize(value ? parseInt(value) : null)}
-                  disabled={!selectedMachine}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a sheet size" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {getAvailableSheetSizes().map((sheetSize) => (
-                      <SelectItem key={sheetSize.id} value={sheetSize.id.toString()}>
-                        {sheetSize.name} ({sheetSize.width} × {sheetSize.height} mm)
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            )}
+
+            {!jobData.isBookletMode && (
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="machine">Machine (Optional)</Label>
+                  <Select value={selectedMachine?.toString()} onValueChange={handleMachineChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a machine" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {machines.map((machine) => (
+                        <SelectItem key={machine.id} value={machine.id.toString()}>
+                          {machine.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="sheetSize">Print Sheet Size (Optional)</Label>
+                  <Select 
+                    value={selectedSheetSize?.toString()} 
+                    onValueChange={(value) => setSelectedSheetSize(value ? parseInt(value) : null)}
+                    disabled={!selectedMachine}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a sheet size" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {getAvailableSheetSizes().map((sheetSize) => (
+                        <SelectItem key={sheetSize.id} value={sheetSize.id.toString()}>
+                          {sheetSize.name} ({sheetSize.width} × {sheetSize.height} mm)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
