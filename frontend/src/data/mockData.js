@@ -364,13 +364,19 @@ export const calculateInnerPagesCost = (job, innerPaperType, innerMachine) => {
     return null;
   }
 
-  // For booklet mode:
-  // Inner pages per booklet = total pages - 2 cover pages
-  // Total inner pages = inner pages per booklet × number of booklets
-  const innerPagesPerBooklet = Math.max(0, job.totalPages - 2);
-  const totalInnerPages = job.quantity * innerPagesPerBooklet;
+  // For booklet mode with 1 sheet = 4 pages:
+  // Total pages per booklet = job.totalPages
+  // Cover pages per booklet = 4 (from 1 cover sheet)
+  // Inner pages per booklet = total pages - cover pages
+  const innerPagesPerBooklet = Math.max(0, job.totalPages - 4);
   
-  if (totalInnerPages <= 0) return null;
+  // Calculate inner sheets needed per booklet (1 sheet = 4 pages)
+  const innerSheetsPerBooklet = Math.ceil(innerPagesPerBooklet / 4);
+  
+  // Total inner sheets needed for all booklets
+  const totalInnerSheetsNeeded = job.quantity * innerSheetsPerBooklet;
+  
+  if (totalInnerSheetsNeeded <= 0) return null;
   
   // Find the best stock sheet size for inner pages
   let bestInnerOption = null;
@@ -390,13 +396,14 @@ export const calculateInnerPagesCost = (job, innerPaperType, innerMachine) => {
         left: job.marginLeft
       };
       
-      const pagesPerPrintSheet = calculateProductsPerSheet(
+      // Calculate how many inner sheets can fit per print sheet
+      const innerSheetsPerPrintSheet = calculateProductsPerSheet(
         printSheetSize.width, printSheetSize.height, job.finalWidth, job.finalHeight, margins
       );
       
-      if (pagesPerPrintSheet <= 0) continue;
+      if (innerSheetsPerPrintSheet <= 0) continue;
       
-      const printSheetsNeeded = Math.ceil(totalInnerPages / pagesPerPrintSheet);
+      const printSheetsNeeded = Math.ceil(totalInnerSheetsNeeded / innerSheetsPerPrintSheet);
       
       // Calculate how many print sheets fit per stock sheet
       const printSheetsPerStockSheet = Math.floor(stockSheetSize.width / printSheetSize.width) * 
@@ -423,7 +430,7 @@ export const calculateInnerPagesCost = (job, innerPaperType, innerMachine) => {
           machine: innerMachine,
           printSheetSize,
           stockSheetSize,
-          pagesPerPrintSheet,
+          innerSheetsPerPrintSheet,
           printSheetsNeeded,
           printSheetsPerStockSheet,
           stockSheetsNeeded,
@@ -433,7 +440,9 @@ export const calculateInnerPagesCost = (job, innerPaperType, innerMachine) => {
           setupCost,
           totalCost,
           innerPagesPerBooklet,
-          totalInnerPages,
+          innerSheetsPerBooklet,
+          totalInnerSheetsNeeded,
+          totalInnerPages: totalInnerSheetsNeeded * 4, // Each sheet provides 4 pages
           bookletQuantity: job.quantity,
           clickMultiplier
         };
