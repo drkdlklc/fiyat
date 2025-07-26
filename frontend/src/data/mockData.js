@@ -358,14 +358,6 @@ export const calculateCoverCost = (job, coverPaperType, coverMachine) => {
   
   return bestCoverOption;
 };
-          bookletQuantity: job.quantity
-        };
-      }
-    }
-  }
-  
-  return bestCoverOption;
-};
 
 export const calculateInnerPagesCost = (job, innerPaperType, innerMachine) => {
   if (!job.isBookletMode || !innerPaperType || !innerMachine) {
