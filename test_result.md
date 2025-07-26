@@ -269,6 +269,8 @@ agent_communication:
     message: "Fixed cover calculation bug - the program was calculating 'Stock Sheets Needed' as double the required amount. Updated logic to use 1 cover per booklet instead of 2, correctly reflecting that each cover yields 4 pages when folded. Also updated UI text to clarify this."
   - agent: "main"
     message: "Implemented comprehensive '1 sheet = 4 pages' calculation system throughout the program. Updated both cover and inner pages calculations to properly reflect booklet printing principles: 1 cover sheet = 4 pages, inner pages = total pages - 4 cover pages, inner sheets = ceil(inner pages / 4). Updated UI text, validation logic, and results display to reflect these changes."
+  - agent: "main"
+    message: "Corrected calculation system to properly reflect printing principles: 1 cover = 4 pages (when folded), 1 inner sheet = 2 pages (front and back). Updated calculateCoverCost to maintain 1 cover = 4 pages, updated calculateInnerPagesCost to use 1 sheet = 2 pages for inner pages, and updated all UI text and validation logic accordingly."
   - agent: "testing"
     message: "Backend API testing completed. All core endpoints (/, /status GET/POST) working correctly. Database connectivity verified. Backend service running properly via supervisor. No calculation endpoints found as expected for frontend-focused feature. Backend is healthy and ready for future integration. Created backend_test.py for comprehensive API testing."
   - agent: "testing"
