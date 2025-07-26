@@ -28,6 +28,8 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
   const [selectedPaperType, setSelectedPaperType] = useState(null);
   const [selectedMachine, setSelectedMachine] = useState(null);
   const [selectedSheetSize, setSelectedSheetSize] = useState(null);
+  const [selectedInnerPaperType, setSelectedInnerPaperType] = useState(null);
+  const [selectedInnerMachine, setSelectedInnerMachine] = useState(null);
   const [selectedCoverPaperType, setSelectedCoverPaperType] = useState(null);
   const [selectedCoverMachine, setSelectedCoverMachine] = useState(null);
   const [results, setResults] = useState(null);
