@@ -25,7 +25,9 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
     coverSetupRequired: false,
     totalPages: '',
     useMultiplePaperTypes: false,
-    useMultipleInnerPaperTypes: false
+    useMultipleInnerPaperTypes: false,
+    useMultipleMachines: false,
+    useMultipleInnerMachines: false
   });
   const [selectedPaperType, setSelectedPaperType] = useState(null);
   const [selectedMachine, setSelectedMachine] = useState(null);
