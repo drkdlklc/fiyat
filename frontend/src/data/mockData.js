@@ -237,6 +237,15 @@ export const mockMachines = [
         clickCost: 0.085,
         duplexSupport: false,
         unit: "mm"
+      },
+      {
+        id: 12,
+        name: "Large Format",
+        width: 330,
+        height: 695,
+        clickCost: 0.09,
+        duplexSupport: true,
+        unit: "mm"
       }
     ]
   }
