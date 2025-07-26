@@ -284,8 +284,9 @@ export const calculateCoverCost = (job, coverPaperType, coverMachine) => {
   }
 
   // For booklet mode: 
-  // Total cover pages = 2 pages per booklet × number of booklets
-  const totalCoverPages = job.quantity * 2;
+  // Total covers needed = 1 cover per booklet
+  // Each cover when folded yields 4 pages, but we only need to print 1 cover per booklet
+  const totalCoversNeeded = job.quantity;
   
   // Find the best stock sheet size for the cover
   let bestCoverOption = null;
@@ -311,7 +312,7 @@ export const calculateCoverCost = (job, coverPaperType, coverMachine) => {
       
       if (coversPerPrintSheet <= 0) continue;
       
-      const printSheetsNeeded = Math.ceil(totalCoverPages / coversPerPrintSheet);
+      const printSheetsNeeded = Math.ceil(totalCoversNeeded / coversPerPrintSheet);
       
       // Calculate how many print sheets fit per stock sheet
       const printSheetsPerStockSheet = Math.floor(stockSheetSize.width / printSheetSize.width) * 
@@ -347,7 +348,7 @@ export const calculateCoverCost = (job, coverPaperType, coverMachine) => {
           totalCost,
           totalPages: job.totalPages,
           innerPages: Math.max(0, job.totalPages - 2),
-          totalCoverPages,
+          totalCoverPages: totalCoversNeeded * 4, // Each cover yields 4 pages when folded
           bookletQuantity: job.quantity
         };
       }
