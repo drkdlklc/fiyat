@@ -417,8 +417,9 @@ export const calculateInnerPagesCost = (job, innerPaperType, innerMachine) => {
   // Inner pages per booklet = total pages - cover pages
   const innerPagesPerBooklet = Math.max(0, job.totalPages - 4);
   
-  // Calculate inner sheets needed per booklet (1 sheet = 2 pages for inner pages)
-  const innerSheetsPerBooklet = Math.ceil(innerPagesPerBooklet / 2);
+  // Calculate inner sheets needed per booklet 
+  // With doubled booklet dimensions: 1 sheet = 4 pages (like covers)
+  const innerSheetsPerBooklet = Math.ceil(innerPagesPerBooklet / 4);
   
   // Total inner sheets needed for all booklets
   const totalInnerSheetsNeeded = job.quantity * innerSheetsPerBooklet;
