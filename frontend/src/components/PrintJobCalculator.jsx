@@ -568,6 +568,74 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                     </p>
                   )}
                 </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="useMultiplePaperTypes"
+                    checked={jobData.useMultiplePaperTypes}
+                    onCheckedChange={(checked) => setJobData({ ...jobData, useMultiplePaperTypes: checked })}
+                  />
+                  <Label htmlFor="useMultiplePaperTypes">Use Different Paper Types for Different Parts</Label>
+                </div>
+
+                {jobData.useMultiplePaperTypes && (
+                  <div className="p-4 border rounded-lg bg-blue-50">
+                    <h4 className="font-semibold text-blue-800 mb-3">Paper Type Configuration by Parts</h4>
+                    {multiPartPaperTypes.map((part, index) => (
+                      <div key={part.id} className="grid grid-cols-3 gap-4 mb-3">
+                        <div>
+                          <Label>Paper Type for Part {index + 1}</Label>
+                          <Select 
+                            value={part.paperTypeId?.toString() || ''} 
+                            onValueChange={(value) => updateMultiPartPaperType(part.id, 'paperTypeId', value ? parseInt(value) : null)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select paper type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {paperTypes.map((paperType) => (
+                                <SelectItem key={paperType.id} value={paperType.id.toString()}>
+                                  {paperType.name} ({paperType.gsm} GSM)
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label>Page Count</Label>
+                          <Input
+                            type="number"
+                            value={part.pageCount}
+                            onChange={(e) => updateMultiPartPaperType(part.id, 'pageCount', e.target.value)}
+                            placeholder="e.g., 100"
+                          />
+                        </div>
+                        <div className="flex items-end gap-2">
+                          {multiPartPaperTypes.length < 3 && (
+                            <Button 
+                              type="button" 
+                              variant="outline" 
+                              size="sm"
+                              onClick={addMultiPartPaperType}
+                            >
+                              <Plus size={16} />
+                            </Button>
+                          )}
+                          {multiPartPaperTypes.length > 1 && (
+                            <Button 
+                              type="button" 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => removeMultiPartPaperType(part.id)}
+                            >
+                              <Minus size={16} />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
