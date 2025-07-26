@@ -21,7 +21,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
     quantity: '',
     isDoubleSided: false,
     setupRequired: true,
-    hasCover: false,
+    isBookletMode: false,
     coverSetupRequired: false,
     totalPages: ''
   });
