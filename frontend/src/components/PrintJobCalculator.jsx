@@ -203,7 +203,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
       }
     }
     
-    if (!job.isBookletMode && calculationResults.length === 0) {
+    if (!job.isBookletMode && calculationResults.length === 0 && !multiPartResults) {
       toast({
         title: "Error",
         description: "No suitable paper type, machine, and sheet size combination found for this job",
@@ -212,7 +212,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
       return;
     }
 
-    if (job.isBookletMode && !coverResults && !innerPagesResults) {
+    if (job.isBookletMode && !coverResults && !innerPagesResults && !multiPartResults) {
       toast({
         title: "Error",
         description: "Please select paper types and machines for both cover and inner pages",
