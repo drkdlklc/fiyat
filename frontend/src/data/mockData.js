@@ -325,8 +325,8 @@ export const calculateCoverCost = (job, coverPaperType, coverMachine) => {
     effectiveHeight = job.finalHeight * 2; // Double the binding edge dimension
   } else {
     // Long edge binding: double the width (long edge)
-    effectiveWidth = job.finalWidth * 2; // Double the binding edge dimension
-    effectiveHeight = job.finalHeight;
+    effectiveWidth = job.finalHeight; // Use height as width
+    effectiveHeight = job.finalWidth * 2; // Double the width, use as height
   }
   
   // Find the best stock sheet size for the cover
