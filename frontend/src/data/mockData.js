@@ -288,6 +288,12 @@ export const calculateCoverCost = (job, coverPaperType, coverMachine) => {
   // Each cover sheet provides 4 pages when folded
   const coverSheetsNeeded = job.quantity; // 1 cover sheet per booklet
   
+  // Determine the orientation based on binding edge (same logic as inner pages)
+  // Short edge binding: portrait orientation (normal width x height)
+  // Long edge binding: landscape orientation (height x width)
+  const effectiveWidth = job.bindingEdge === 'short' ? job.finalWidth : job.finalHeight;
+  const effectiveHeight = job.bindingEdge === 'short' ? job.finalHeight : job.finalWidth;
+  
   // Find the best stock sheet size for the cover
   let bestCoverOption = null;
   let lowestCost = Infinity;
@@ -306,9 +312,9 @@ export const calculateCoverCost = (job, coverPaperType, coverMachine) => {
         left: job.marginLeft
       };
       
-      // Calculate how many cover sheets can fit per print sheet
+      // Calculate how many cover sheets can fit per print sheet using effective dimensions
       const coverSheetsPerPrintSheet = calculateProductsPerSheet(
-        printSheetSize.width, printSheetSize.height, job.finalWidth, job.finalHeight, margins
+        printSheetSize.width, printSheetSize.height, effectiveWidth, effectiveHeight, margins
       );
       
       if (coverSheetsPerPrintSheet <= 0) continue;
