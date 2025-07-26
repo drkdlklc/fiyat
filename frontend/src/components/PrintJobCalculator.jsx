@@ -120,43 +120,8 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
       calculationResults = [];
     } else {
       // Normal mode - handle multi-part configurations
-      if (jobData.useMultiplePaperTypes || jobData.useMultipleMachines) {
-        const configs = [];
-        
-        // Merge paper type and machine configurations
-        if (jobData.useMultiplePaperTypes && jobData.useMultipleMachines) {
-          // Both paper types and machines are multi-part
-          const maxLength = Math.max(multiPartPaperTypes.length, multiPartMachines.length);
-          for (let i = 0; i < maxLength; i++) {
-            const paperConfig = multiPartPaperTypes[i] || {};
-            const machineConfig = multiPartMachines[i] || {};
-            configs.push({
-              paperTypeId: paperConfig.paperTypeId,
-              machineId: machineConfig.machineId,
-              pageCount: paperConfig.pageCount || machineConfig.pageCount || ''
-            });
-          }
-        } else if (jobData.useMultiplePaperTypes) {
-          // Only paper types are multi-part
-          multiPartPaperTypes.forEach(config => {
-            configs.push({
-              paperTypeId: config.paperTypeId,
-              machineId: selectedMachine,
-              pageCount: config.pageCount
-            });
-          });
-        } else if (jobData.useMultipleMachines) {
-          // Only machines are multi-part
-          multiPartMachines.forEach(config => {
-            configs.push({
-              paperTypeId: selectedPaperType,
-              machineId: config.machineId,
-              pageCount: config.pageCount
-            });
-          });
-        }
-        
-        multiPartResults = calculateMultiPartCost(job, configs, paperTypes, machines);
+      if (jobData.useMultiPartConfiguration) {
+        multiPartResults = calculateMultiPartCost(job, multiPartConfigurations, paperTypes, machines);
         calculationResults = multiPartResults.results;
       } else {
         // Single configuration - original calculation logic
