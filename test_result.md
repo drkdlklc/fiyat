@@ -102,10 +102,10 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "1 sheet = 4 pages update the program around this"
+user_problem_statement: "1 sheet = 2 pages normal but 1 cover = 4 pages"
 
 backend:
-  - task: "1 sheet = 4 pages calculation system"
+  - task: "Corrected calculation system implementation"
     implemented: true
     working: true
     file: "frontend/src/data/mockData.js"
@@ -115,7 +115,7 @@ backend:
     status_history:
       - working: true
         agent: "main"
-        comment: "Successfully updated entire calculation system to reflect 1 sheet = 4 pages principle for both cover and inner pages in booklet mode"
+        comment: "Successfully implemented corrected calculation system - 1 cover = 4 pages, 1 inner sheet = 2 pages. Updated calculateCoverCost and calculateInnerPagesCost functions with proper logic."
 
   - task: "Backend API endpoints for persistent storage"
     implemented: true
