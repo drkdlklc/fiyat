@@ -117,17 +117,7 @@ backend:
         agent: "main"
         comment: "Successfully updated entire calculation system to reflect 1 sheet = 4 pages principle for both cover and inner pages in booklet mode"
 
-  - task: "Cover UI text update"
-    implemented: true
-    working: true
-    file: "frontend/src/components/PrintJobCalculator.jsx"
-    stuck_count: 0
-    priority: "medium"
-    needs_retesting: false
-    status_history:
-      - working: true
-        agent: "main"
-        comment: "Updated cover configuration text to correctly state 'Each booklet needs 1 cover (4 pages when folded)'"
+
 
   - task: "Backend API endpoints for persistent storage"
     implemented: true
