@@ -112,6 +112,7 @@ const MachineManager = ({ machines, onAddMachine, onUpdateMachine, onDeleteMachi
     const machineData = {
       name: formData.name,
       setupCost: parseFloat(formData.setupCost),
+      setupCostCurrency: formData.setupCostCurrency,
       printSheetSizes: formData.printSheetSizes
     };
 
