@@ -252,6 +252,18 @@ backend:
         agent: "main"
         comment: "VARIANTS SYSTEM IMPLEMENTATION COMPLETED: ✅ Backend: New ExtraVariant model with variants array, enhanced CRUD operations, CM-based pricing (0.8/cm, 1.2/cm), default data with realistic variants. 88.5% backend test success rate. ✅ Frontend ExtrasManager: Variants management (add/remove), shared properties validation, enhanced UI display, CM display updates. ✅ Calculator Integration: Fixed 'toFixed' property errors, variants display with individual prices, length unit updates. ✅ Error Resolution: Preview now loads without errors. ✅ Key Features: Multiple variants per extra, shared pricing methods, centimeter-based length calculations, enhanced UX. The variants system is fully functional and ready for use."
 
+  - task: "Improve extra selection workflow with dropdown and variant selection"
+    implemented: false
+    working: false
+    file: "frontend/src/components/PrintJobCalculator.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "NEW USER REQUEST: Change extras selection workflow in PrintJobCalculator: 1) Start with dropdown menu to choose desired extra, 2) After selecting extra, show 'Add Extra' button, 3) Allow user to select one of the available variants of chosen extra. This replaces the current checkbox-based selection with a more structured workflow that enables explicit variant selection during calculation."
+
 frontend:
   - task: "Frontend API integration for persistent storage"
     implemented: true
