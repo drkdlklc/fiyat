@@ -426,7 +426,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Add multiple variants support for extras with shared properties and cm-based length pricing"
+    - "Improve extra selection workflow with dropdown and variant selection"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
