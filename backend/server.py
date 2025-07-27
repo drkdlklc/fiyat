@@ -88,6 +88,23 @@ class MachineUpdate(BaseModel):
     setupCost: Optional[float] = None
     printSheetSizes: Optional[List[PrintSheetSize]] = None
 
+# Extras Models
+class Extra(BaseModel):
+    id: int
+    name: str
+    pricingType: str  # 'per_page', 'per_booklet', 'per_length'
+    price: float
+
+class ExtraCreate(BaseModel):
+    name: str
+    pricingType: str
+    price: float
+
+class ExtraUpdate(BaseModel):
+    name: Optional[str] = None
+    pricingType: Optional[str] = None
+    price: Optional[float] = None
+
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
