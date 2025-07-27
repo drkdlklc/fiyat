@@ -309,15 +309,47 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
       isDoubleSided: extra.supportsDoubleSided ? isDoubleSidedSelected : false
     };
 
+    // Check for duplicates before adding
     if (section === 'normal') {
+      const existingExtra = selectedExtras.find(e => 
+        e.extraId === newExtra.extraId && 
+        e.variantId === newExtra.variantId && 
+        e.isDoubleSided === newExtra.isDoubleSided
+      );
+      
+      if (existingExtra) {
+        toast({
+          title: "Already Added",
+          description: `${extra.name} - ${variant.variantName} is already in your selection`,
+          variant: "default"
+        });
+        return;
+      }
+      
       setSelectedExtras([...selectedExtras, newExtra]);
       setSelectedExtraId('');
       setSelectedVariantId('');
       setIsDoubleSided(false); // Reset
     } else if (section === 'cover') {
+      const existingExtra = selectedCoverExtras.find(e => 
+        e.extraId === newExtra.extraId && 
+        e.variantId === newExtra.variantId && 
+        e.isDoubleSided === newExtra.isDoubleSided
+      );
+      
+      if (existingExtra) {
+        toast({
+          title: "Already Added",
+          description: `${extra.name} - ${variant.variantName} is already in your cover selection`,
+          variant: "default"
+        });
+        return;
+      }
+      
       setSelectedCoverExtras([...selectedCoverExtras, newExtra]);
       setSelectedCoverExtraId('');
       setSelectedCoverVariantId('');
+      setIsCoverDoubleSided(false); // Reset
       setIsCoverDoubleSided(false); // Reset
       
       // If this is an Inside/Outside Same extra, show info message
