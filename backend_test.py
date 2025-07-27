@@ -322,6 +322,55 @@ class BackendTester:
             self.log_test("Extras GET Endpoint", False, f"Connection error: {str(e)}")
 
     def test_extras_post_endpoint(self):
+        """Test the POST /api/extras endpoint with currency field in variants"""
+        try:
+            test_extra = {
+                "name": "Test Lamination with Currency",
+                "pricingType": "per_page",
+                "insideOutsideSame": True,
+                "variants": [
+                    {"variantName": "Standard", "price": 0.20, "currency": "USD"},
+                    {"variantName": "Premium", "price": 0.35, "currency": "EUR"}
+                ]
+            }
+            
+            response = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if (data.get("name") == test_extra["name"] and 
+                    data.get("pricingType") == test_extra["pricingType"] and
+                    data.get("insideOutsideSame") == test_extra["insideOutsideSame"] and
+                    "id" in data and "variants" in data):
+                    
+                    # Verify variants structure including currency
+                    variants = data.get("variants", [])
+                    if len(variants) == 2:
+                        variant1, variant2 = variants[0], variants[1]
+                        if (variant1.get("variantName") == "Standard" and variant1.get("price") == 0.20 and
+                            variant1.get("currency") == "USD" and variant2.get("variantName") == "Premium" and 
+                            variant2.get("price") == 0.35 and variant2.get("currency") == "EUR" and
+                            "id" in variant1 and "id" in variant2):
+                            self.log_test("Extras POST Endpoint", True, f"Extra creation with currency variants successful. ID: {data.get('id')}, Variants: {len(variants)}")
+                            return data.get("id")  # Return the created ID for cleanup
+                        else:
+                            self.log_test("Extras POST Endpoint", False, f"Variant data mismatch: {variants}")
+                    else:
+                        self.log_test("Extras POST Endpoint", False, f"Expected 2 variants, got {len(variants)}")
+                else:
+                    self.log_test("Extras POST Endpoint", False, f"Invalid response structure: {data}")
+            else:
+                self.log_test("Extras POST Endpoint", False, f"HTTP {response.status_code}: {response.text}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Extras POST Endpoint", False, f"Connection error: {str(e)}")
+        
+        return None
         """Test the POST /api/extras endpoint with new variants structure"""
         try:
             test_extra = {
