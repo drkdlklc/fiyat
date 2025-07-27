@@ -33,20 +33,38 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.price || !formData.pricingType) {
+    // Validate basic fields
+    if (!formData.name || !formData.pricingType) {
       toast({
         title: "Error",
-        description: "Please fill in all fields",
+        description: "Please fill in name and pricing type",
         variant: "destructive"
       });
       return;
     }
 
+    // Validate variants
+    const validVariants = formData.variants.filter(v => v.variantName && v.price);
+    if (validVariants.length === 0) {
+      toast({
+        title: "Error", 
+        description: "Please add at least one variant with name and price",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Process variants
+    const variants = validVariants.map(variant => ({
+      variantName: variant.variantName,
+      price: parseFloat(variant.price)
+    }));
+
     const extraData = {
       name: formData.name,
       pricingType: formData.pricingType,
-      price: parseFloat(formData.price),
-      insideOutsideSame: formData.insideOutsideSame
+      insideOutsideSame: formData.insideOutsideSame,
+      variants: variants
     };
 
     if (editingId) {
@@ -58,8 +76,8 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
     } else {
       onAddExtra(extraData);
       toast({
-        title: "Success", 
-        description: "Extra added successfully"
+        title: "Success",
+        description: "Extra created successfully"
       });
     }
 
