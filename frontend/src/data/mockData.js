@@ -379,11 +379,15 @@ export const calculateCoverCost = (job, coverPaperType, coverMachine) => {
       const stockSheetsNeeded = Math.ceil(printSheetsNeeded / printSheetsPerStockSheet);
       
       const paperWeight = calculatePaperWeight(stockSheetSize.width, stockSheetSize.height, coverPaperType.gsm, stockSheetsNeeded);
-      const paperCost = calculatePaperCost(paperWeight, coverPaperType.pricePerTon);
+      const paperCost = calculatePaperCost(paperWeight, coverPaperType.pricePerTon, coverPaperType.currency);
       
       // Cover is typically double-sided, so we'll assume 2x click cost
-      const clickCost = printSheetsNeeded * printSheetSize.clickCost * 2;
-      const setupCost = job.coverSetupRequired ? coverMachine.setupCost : 0;
+      // Convert machine costs to EUR
+      const clickCostEUR = convertToEURSync(printSheetSize.clickCost, printSheetSize.clickCostCurrency || 'EUR');
+      const setupCostEUR = convertToEURSync(coverMachine.setupCost, coverMachine.setupCostCurrency || 'EUR');
+      
+      const clickCost = printSheetsNeeded * clickCostEUR * 2;
+      const setupCost = job.coverSetupRequired ? setupCostEUR : 0;
       const totalCost = paperCost + clickCost + setupCost;
       
       if (totalCost < lowestCost) {
