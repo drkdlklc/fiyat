@@ -1319,8 +1319,6 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                           })}
                         </div>
                       )}
-                        
-                      )}
                     </div>
                   )}
 
