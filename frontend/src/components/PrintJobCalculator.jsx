@@ -2906,6 +2906,22 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                       Final Total Price (EUR)
                     </h2>
                     
+                    {/* Exchange Rates Display */}
+                    {exchangeRates && (
+                      <div className="mb-4 p-3 bg-gray-100 rounded-lg border">
+                        <h4 className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                          <TrendingUp size={16} />
+                          Current Exchange Rates
+                        </h4>
+                        <div className="flex flex-wrap gap-4 text-xs text-gray-600">
+                          <span>1 EUR = {(1/exchangeRates.EUR).toFixed(4)} TRY</span>
+                          <span>1 USD = {(exchangeRates.USD/exchangeRates.EUR).toFixed(4)} EUR</span>
+                          <span>1 USD = {(exchangeRates.USD/exchangeRates.TRY).toFixed(4)} TRY</span>
+                          <span className="text-blue-600">• Rates from altinkaynak.com</span>
+                        </div>
+                      </div>
+                    )}
+                    
                     <div className="space-y-4">
                       {results.job.isBookletMode ? (
                         // Booklet Mode Total Breakdown with EUR conversion
