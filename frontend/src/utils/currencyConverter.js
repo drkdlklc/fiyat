@@ -1,21 +1,61 @@
 // Currency conversion utility for printing cost calculator
-// Exchange rates updated as of 2025 (approximate rates) - Converting TO EUR
-const EXCHANGE_RATES = {
-  'EUR': 1.0,      // Base currency (target)
-  'USD': 0.95,     // 1 USD = 0.95 EUR
-  'TRY': 0.028     // 1 TRY = 0.028 EUR
+// Fetches live exchange rates from altinkaynak.com via backend API
+
+let EXCHANGE_RATES = {
+  'EUR': 1.0,      // Base currency (fallback)
+  'USD': 0.95,     // Fallback rate
+  'TRY': 0.028     // Fallback rate
+};
+
+let lastFetchTime = 0;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
+
+/**
+ * Fetch live exchange rates from backend API
+ */
+export const fetchExchangeRates = async () => {
+  const now = Date.now();
+  
+  // Use cached rates if still fresh
+  if (now - lastFetchTime < CACHE_DURATION) {
+    return EXCHANGE_RATES;
+  }
+  
+  try {
+    const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+    const response = await fetch(`${backendUrl}/api/exchange-rates`);
+    
+    if (response.ok) {
+      const data = await response.json();
+      console.log('Live exchange rates fetched:', data);
+      
+      EXCHANGE_RATES = data.rates;
+      lastFetchTime = now;
+      
+      return EXCHANGE_RATES;
+    } else {
+      console.warn('Failed to fetch exchange rates, using fallback');
+      return EXCHANGE_RATES;
+    }
+  } catch (error) {
+    console.warn('Error fetching exchange rates:', error);
+    return EXCHANGE_RATES;
+  }
 };
 
 /**
  * Convert price from one currency to EUR
  * @param {number} price - The price to convert
  * @param {string} fromCurrency - The source currency (USD, EUR, TRY)
+ * @param {object} customRates - Optional custom exchange rates
  * @returns {number} - Price converted to EUR
  */
-export const convertToEUR = (price, fromCurrency) => {
+export const convertToEUR = async (price, fromCurrency, customRates = null) => {
   if (!price || !fromCurrency) return 0;
   
-  const rate = EXCHANGE_RATES[fromCurrency.toUpperCase()];
+  const rates = customRates || await fetchExchangeRates();
+  const rate = rates[fromCurrency.toUpperCase()];
+  
   if (!rate) {
     console.warn(`Unknown currency: ${fromCurrency}, defaulting to EUR`);
     return price; // Default to no conversion if currency unknown
@@ -25,13 +65,35 @@ export const convertToEUR = (price, fromCurrency) => {
 };
 
 /**
+ * Synchronous version of convertToEUR using cached rates
+ * @param {number} price - The price to convert
+ * @param {string} fromCurrency - The source currency (USD, EUR, TRY)
+ * @returns {number} - Price converted to EUR
+ */
+export const convertToEURSync = (price, fromCurrency) => {
+  if (!price || !fromCurrency) return 0;
+  
+  const rate = EXCHANGE_RATES[fromCurrency.toUpperCase()];
+  if (!rate) {
+    console.warn(`Unknown currency: ${fromCurrency}, defaulting to EUR`);
+    return price;
+  }
+  
+  return price * rate;
+};
+
+/**
  * Convert multiple prices to EUR and return total
  * @param {Array} priceData - Array of {price, currency} objects
+ * @param {object} customRates - Optional custom exchange rates
  * @returns {number} - Total price in EUR
  */
-export const convertPricesToEURTotal = (priceData) => {
+export const convertPricesToEURTotal = async (priceData, customRates = null) => {
+  const rates = customRates || await fetchExchangeRates();
+  
   return priceData.reduce((total, item) => {
-    return total + convertToEUR(item.price, item.currency);
+    const rate = rates[item.currency?.toUpperCase()] || 1;
+    return total + (item.price * rate);
   }, 0);
 };
 
@@ -49,11 +111,12 @@ export const formatEURPrice = (price, decimals = 2) => {
  * Convert paper type cost to EUR
  * @param {object} paperType - Paper type object with pricePerTon and currency
  * @param {number} tons - Amount in tons
+ * @param {object} customRates - Optional custom exchange rates
  * @returns {number} - Cost in EUR
  */
-export const convertPaperCostToEUR = (paperType, tons) => {
+export const convertPaperCostToEUR = async (paperType, tons, customRates = null) => {
   if (!paperType || !paperType.pricePerTon) return 0;
-  const eurPrice = convertToEUR(paperType.pricePerTon, paperType.currency || 'EUR');
+  const eurPrice = await convertToEUR(paperType.pricePerTon, paperType.currency || 'EUR', customRates);
   return eurPrice * tons;
 };
 
@@ -61,34 +124,41 @@ export const convertPaperCostToEUR = (paperType, tons) => {
  * Convert machine cost to EUR
  * @param {number} cost - Machine cost 
  * @param {string} currency - Machine currency
+ * @param {object} customRates - Optional custom exchange rates
  * @returns {number} - Cost in EUR
  */
-export const convertMachineCostToEUR = (cost, currency) => {
-  return convertToEUR(cost, currency || 'EUR');
+export const convertMachineCostToEUR = async (cost, currency, customRates = null) => {
+  return await convertToEUR(cost, currency || 'EUR', customRates);
 };
 
 /**
  * Convert extra cost to EUR
  * @param {object} extra - Extra object with price and currency
+ * @param {object} customRates - Optional custom exchange rates
  * @returns {number} - Cost in EUR
  */
-export const convertExtraCostToEUR = (extra) => {
+export const convertExtraCostToEUR = async (extra, customRates = null) => {
   if (!extra || !extra.pricePerUnit) return 0;
   
   // Get currency from originalPrice if available, otherwise default to EUR
   const currency = extra.originalPrice?.currency || 'EUR';
-  const basePrice = convertToEUR(extra.pricePerUnit, currency);
+  const basePrice = await convertToEUR(extra.pricePerUnit, currency, customRates);
   
   // Apply the same calculation logic as the original
   return basePrice * (extra.units || 0) * (extra.edgeLength || 1);
 };
 
+// Initialize exchange rates on module load
+fetchExchangeRates().catch(console.error);
+
 export default {
   convertToEUR,
+  convertToEURSync,
   convertPricesToEURTotal,
   formatEURPrice,
   convertPaperCostToEUR,
   convertMachineCostToEUR,
   convertExtraCostToEUR,
+  fetchExchangeRates,
   EXCHANGE_RATES
 };
