@@ -141,6 +141,18 @@ backend:
         agent: "testing"
         comment: "COMPREHENSIVE EXTRAS SYSTEM TESTING COMPLETED: ✅ All extras CRUD endpoints (/api/extras GET/POST/PUT/DELETE) working correctly. ✅ Database connectivity verified with successful create/read/update/delete operations. ✅ Extras models and validation working properly. ✅ Default extras initialization functional (4/5 default extras present - minor: 'Cellophane Lamination' missing due to previous test data preventing re-initialization). ✅ No regressions in existing API endpoints (/api/, /api/status, /api/paper-types, /api/machines). ✅ Backend service running properly via supervisor. Test success rate: 75% (12/16 tests passed - failures are minor CORS config and frontend calculation function tests, not backend API issues). The extras management system is fully functional and ready for production use."
 
+  - task: "Display cover and inner pages extras separately in Booklet Mode"
+    implemented: true
+    working: true
+    file: "frontend/src/components/PrintJobCalculator.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Task was already completed. The results display (lines 1719-1888) already shows separate Cover Extras (green bg), Inner Pages Extras (orange bg), and Combined Total (purple bg) sections in Booklet Mode. Implementation includes detailed pricing breakdowns and proper color coding for each section."
+
 frontend:
   - task: "Frontend API integration for persistent storage"
     implemented: true
