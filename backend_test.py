@@ -293,12 +293,13 @@ class BackendTester:
             self.log_test("Extras GET Endpoint", False, f"Connection error: {str(e)}")
 
     def test_extras_post_endpoint(self):
-        """Test the POST /api/extras endpoint"""
+        """Test the POST /api/extras endpoint with new insideOutsideSame field"""
         try:
             test_extra = {
                 "name": "Test Lamination",
                 "pricingType": "per_page",
-                "price": 0.20
+                "price": 0.20,
+                "insideOutsideSame": True
             }
             
             response = requests.post(
@@ -313,8 +314,9 @@ class BackendTester:
                 if (data.get("name") == test_extra["name"] and 
                     data.get("pricingType") == test_extra["pricingType"] and
                     data.get("price") == test_extra["price"] and
+                    data.get("insideOutsideSame") == test_extra["insideOutsideSame"] and
                     "id" in data):
-                    self.log_test("Extras POST Endpoint", True, f"Extra creation successful with ID: {data.get('id')}")
+                    self.log_test("Extras POST Endpoint", True, f"Extra creation successful with ID: {data.get('id')}, insideOutsideSame: {data.get('insideOutsideSame')}")
                     return data.get("id")  # Return the created ID for cleanup
                 else:
                     self.log_test("Extras POST Endpoint", False, f"Invalid response structure: {data}")
