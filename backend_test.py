@@ -544,7 +544,7 @@ class BackendTester:
             self.log_test("Extras DELETE Endpoint", False, f"Connection error: {str(e)}")
 
     def test_extras_database_operations(self):
-        """Test comprehensive extras database operations with variants structure"""
+        """Test comprehensive extras database operations with variants structure including per_print_sheet pricing"""
         try:
             # Initialize data to ensure extras exist
             init_response = requests.post(f"{self.api_url}/initialize-data", timeout=10)
@@ -561,7 +561,8 @@ class BackendTester:
                         "Staple Binding": {"insideOutsideSame": True, "variants": ["2-Staple", "3-Staple"]}, 
                         "Spiral Binding": {"insideOutsideSame": True, "variants": ["Plastic Coil", "Metal Wire"]},
                         "Perfect Binding (American)": {"insideOutsideSame": True, "variants": ["Standard", "Premium"]},
-                        "UV Coating": {"insideOutsideSame": False, "variants": ["Matte", "Gloss"]}
+                        "UV Coating": {"insideOutsideSame": False, "variants": ["Matte", "Gloss"]},
+                        "Print Sheet Setup": {"insideOutsideSame": False, "variants": ["Standard Setup", "Premium Setup"]}
                     }
                     
                     found_extras = {}
