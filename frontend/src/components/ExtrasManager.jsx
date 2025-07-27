@@ -145,7 +145,6 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
       case 'per_page': return 'Per Page';
       case 'per_booklet': return 'Per Booklet/Unit';
       case 'per_length': return 'Per Length (cm)';
-      case 'per_print_sheet': return 'Per Print Sheet';
       default: return pricingType;
     }
   };
