@@ -474,7 +474,9 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="totalPages">Total Pages (including cover)</Label>
+                      <Label htmlFor="totalPages">
+                        {jobData.hasCover ? "Total Pages (including cover)" : "Total Pages"}
+                      </Label>
                       <Input
                         id="totalPages"
                         type="number"
