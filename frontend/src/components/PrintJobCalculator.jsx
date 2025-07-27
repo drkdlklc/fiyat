@@ -706,21 +706,29 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
           return;
       }
 
-      extrasResults.push({
+      const resultObject = {
         extraId: extra.id,
         variantId: selectedExtra.variantId,
         extraName: extra.name,
         variantName: selectedExtra.variantName,
         pricingType: extra.pricingType,
         pricePerUnit: basePrice, // This now includes double-sided multiplier if applicable
-        originalPrice: variant.price, // Keep original price for display
+        originalPrice: selectedExtra, // Store the full selectedExtra object
         isDoubleSided: selectedExtra.isDoubleSided || false,
         supportsDoubleSided: extra.supportsDoubleSided,
         units,
         unitType,
         edgeLength: extra.pricingType === 'per_length' ? edgeLength : 0,
         totalCost: cost
-      });
+      };
+      
+      console.log('=== RESULT OBJECT CREATED ===');
+      console.log('Result object being pushed:', resultObject);
+      console.log('edgeLength in result:', resultObject.edgeLength);
+      console.log('units in result:', resultObject.units);
+      console.log('totalCost in result:', resultObject.totalCost);
+      
+      extrasResults.push(resultObject);
     });
 
     return extrasResults;
