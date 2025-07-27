@@ -267,6 +267,23 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
                 Enable this for extras that apply to the entire booklet (e.g., binding, spiral coils)
               </p>
             </div>
+
+            {/* Supports Double-Sided Checkbox */}
+            <div className="mt-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="supportsDoubleSided"
+                  checked={formData.supportsDoubleSided}
+                  onCheckedChange={(checked) => setFormData({ ...formData, supportsDoubleSided: checked })}
+                />
+                <Label htmlFor="supportsDoubleSided" className="text-sm">
+                  Supports Double-Sided Application (can be applied to one or both sides of a page)
+                </Label>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Enable this for extras like lamination or coating that can be applied to one side or both sides
+              </p>
+            </div>
             
             <div className="flex gap-2 mt-4">
               <Button type="submit" size="sm">
