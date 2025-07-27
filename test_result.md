@@ -351,7 +351,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Add 'Per Print Sheet' pricing type for extras and fix extras duplication"
+    - "Fix edge length NaN calculation and add edit buttons for machine print sheet sizes"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
