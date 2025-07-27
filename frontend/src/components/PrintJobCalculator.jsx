@@ -108,111 +108,83 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
         background-color: white;
         padding: 10px;
         font-family: Arial, sans-serif;
-        font-size: 10px;
-        line-height: 1.2;
+        font-size: 11px;
+        line-height: 1.3;
         color: #000;
-        max-width: 210mm;
+        width: 100%;
       `;
       
-      // Add company header (compact)
+      // Add company header
       const header = document.createElement('div');
       header.innerHTML = `
-        <div style="text-align: center; margin-bottom: 15px; border-bottom: 1px solid #1e40af; padding-bottom: 8px;">
-          <h1 style="color: #1e40af; font-size: 18px; margin: 0; font-weight: bold;">Print and Smile</h1>
-          <p style="color: #6b7280; margin: 2px 0; font-size: 10px;">www.printandsmile.com.tr - Professional Printing Solutions</p>
-          <p style="color: #6b7280; margin: 0; font-size: 9px;">Generated: ${new Date().toLocaleDateString()}</p>
+        <div style="text-align: center; margin-bottom: 15px; border-bottom: 2px solid #1e40af; padding-bottom: 10px;">
+          <h1 style="color: #1e40af; font-size: 20px; margin: 0; font-weight: bold;">Print and Smile</h1>
+          <p style="color: #6b7280; margin: 3px 0; font-size: 11px;">www.printandsmile.com.tr - Professional Printing Solutions</p>
+          <p style="color: #6b7280; margin: 0; font-size: 10px;">Quote Generated: ${new Date().toLocaleDateString()}</p>
         </div>
       `;
       
       // Clone the results content
       const resultsClone = resultsRef.current.cloneNode(true);
       
-      // Remove any interactive elements that shouldn't be in PDF
+      // Remove interactive elements
       const buttons = resultsClone.querySelectorAll('button');
       buttons.forEach(button => button.remove());
       
       const checkboxes = resultsClone.querySelectorAll('input[type="checkbox"]');
       checkboxes.forEach(checkbox => checkbox.remove());
-      
-      // Apply comprehensive styling to make content fit on one page
-      const applyCompactStyles = (element) => {
-        // Base styles for all elements
-        element.style.cssText += `
-          font-size: 9px !important;
-          line-height: 1.1 !important;
-          margin: 1px 0 !important;
-          padding: 2px !important;
-        `;
 
-        // Grid layouts - make them more compact
-        if (element.classList.contains('grid')) {
-          element.style.cssText += `
-            gap: 4px !important;
-            margin: 3px 0 !important;
-          `;
+      // Simple styling adjustments - less aggressive
+      const allElements = resultsClone.querySelectorAll('*');
+      allElements.forEach(element => {
+        // Make fonts slightly smaller but not too small
+        const currentFontSize = window.getComputedStyle(element).fontSize;
+        const currentSize = parseInt(currentFontSize) || 14;
+        const newSize = Math.max(9, currentSize - 2); // Minimum 9px
+        
+        element.style.fontSize = `${newSize}px`;
+        element.style.lineHeight = '1.2';
+        
+        // Reduce padding and margins slightly
+        const currentPadding = window.getComputedStyle(element).padding;
+        if (currentPadding && currentPadding !== '0px') {
+          element.style.padding = '3px';
         }
-
-        // Card-like containers
-        if (element.classList.contains('border') || element.classList.contains('rounded') || element.classList.contains('p-4')) {
-          element.style.cssText += `
-            padding: 4px !important;
-            margin: 2px 0 !important;
-          `;
-        }
-
-        // Headers
-        if (element.tagName && ['H1', 'H2', 'H3', 'H4', 'H5', 'H6'].includes(element.tagName)) {
-          const level = parseInt(element.tagName[1]);
-          const fontSize = Math.max(10, 16 - level * 2);
-          element.style.cssText += `
-            font-size: ${fontSize}px !important;
-            margin: 2px 0 !important;
-            font-weight: bold !important;
-          `;
-        }
-
-        // Final Total Price section - make it prominent but compact
-        if (element.classList.contains('final-total-price-section')) {
-          element.style.cssText += `
-            background-color: #dbeafe !important;
-            border: 2px solid #3b82f6 !important;
-            padding: 6px !important;
-            margin: 4px 0 !important;
-            border-radius: 4px !important;
-            page-break-inside: avoid !important;
-          `;
-        }
-
-        // Apply to all children recursively
-        for (let child of element.children) {
-          applyCompactStyles(child);
-        }
-      };
-
-      // Apply compact styles to the entire cloned content
-      applyCompactStyles(resultsClone);
-
-      // Specific targeting for Final Total Price elements
-      const finalTotalElements = resultsClone.querySelectorAll('.final-total-price-section, [class*="final"], h2');
-      finalTotalElements.forEach(element => {
-        if (element.textContent && (element.textContent.includes('Final Total Price') || element.textContent.includes('Grand Total'))) {
-          element.style.cssText += `
-            background-color: #e0f2fe !important;
-            border: 1px solid #0277bd !important;
-            padding: 4px !important;
-            margin: 3px 0 !important;
-            border-radius: 3px !important;
-            font-weight: bold !important;
-          `;
+        
+        const currentMargin = window.getComputedStyle(element).margin;
+        if (currentMargin && currentMargin !== '0px') {
+          element.style.margin = '2px 0';
         }
       });
 
-      // Look for Grand Total specifically
-      const grandTotalElements = resultsClone.querySelectorAll('*');
-      grandTotalElements.forEach(element => {
+      // Highlight Final Total Price section specifically
+      const finalTotalSection = resultsClone.querySelector('.final-total-price-section');
+      if (finalTotalSection) {
+        finalTotalSection.style.cssText += `
+          background-color: #e3f2fd !important;
+          border: 2px solid #1976d2 !important;
+          padding: 8px !important;
+          margin: 8px 0 !important;
+          border-radius: 6px !important;
+        `;
+        
+        // Make sure Final Total Price header is visible
+        const finalHeader = finalTotalSection.querySelector('h2');
+        if (finalHeader) {
+          finalHeader.style.cssText += `
+            color: #1976d2 !important;
+            font-size: 16px !important;
+            font-weight: bold !important;
+          `;
+        }
+      }
+
+      // Find and highlight Grand Total specifically
+      const allTextElements = resultsClone.querySelectorAll('*');
+      allTextElements.forEach(element => {
         if (element.textContent && element.textContent.includes('Grand Total')) {
           element.style.cssText += `
-            background-color: #ffeb3b !important;
+            background-color: #fff3cd !important;
             color: #000 !important;
             font-weight: bold !important;
             padding: 4px !important;
@@ -225,38 +197,38 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
       tempWrapper.appendChild(header);
       tempWrapper.appendChild(resultsClone);
       
-      // PDF Options optimized for single page with all content
+      // PDF Options - optimized but not too aggressive
       const opt = {
-        margin: [5, 5, 5, 5], // Very small margins
+        margin: [8, 8, 8, 8],
         filename: filename,
         image: { 
           type: 'jpeg', 
-          quality: 0.75
+          quality: 0.8
         },
         html2canvas: { 
-          scale: 1.2,
+          scale: 1.5,
           useCORS: true,
           allowTaint: true,
           backgroundColor: '#ffffff',
-          width: tempWrapper.scrollWidth,
-          height: tempWrapper.scrollHeight,
-          scrollX: 0,
-          scrollY: 0
+          width: 800, // Fixed width for consistency
+          height: tempWrapper.scrollHeight
         },
         jsPDF: { 
           unit: 'mm', 
           format: 'a4', 
-          orientation: 'portrait',
-          compress: true
+          orientation: 'portrait'
         },
         pagebreak: { 
-          mode: ['css'],
-          avoid: ['.final-total-price-section', '.no-break']
+          mode: ['avoid-all'],
+          avoid: ['.final-total-price-section']
         }
       };
       
       // Temporarily add to document for html2pdf
       document.body.appendChild(tempWrapper);
+      
+      // Give the browser a moment to render
+      await new Promise(resolve => setTimeout(resolve, 100));
       
       // Generate PDF
       await html2pdf().set(opt).from(tempWrapper).save();
@@ -274,7 +246,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
       console.error('PDF generation error:', error);
       toast({
         title: "Error",
-        description: "Failed to generate PDF. Please try again.",
+        description: `Failed to generate PDF: ${error.message}`,
         variant: "destructive"
       });
     }
