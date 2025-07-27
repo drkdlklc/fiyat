@@ -1557,6 +1557,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                                 {extra.name} ({extra.pricingType === 'per_page' ? 'Per Page' : 
                                                 extra.pricingType === 'per_booklet' ? 'Per Booklet' : 
                                                 'Per Length (cm)'})
+                                {extra.insideOutsideSame && " ✓ Applies to both cover & inner"}
                               </SelectItem>
                             ))}
                           </SelectContent>
