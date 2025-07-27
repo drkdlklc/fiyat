@@ -267,6 +267,7 @@ async def create_extra(extra: ExtraCreate):
         pricingType=extra.pricingType,
         insideOutsideSame=extra.insideOutsideSame,
         supportsDoubleSided=extra.supportsDoubleSided,
+        applyToPrintSheet=extra.applyToPrintSheet,
         variants=variants_with_ids
     )
     await db.extras.insert_one(extra_obj.dict())
