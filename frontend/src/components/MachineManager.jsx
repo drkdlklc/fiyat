@@ -238,16 +238,31 @@ const MachineManager = ({ machines, onAddMachine, onUpdateMachine, onDeleteMachi
                         placeholder="e.g., SRA3, A3, Custom"
                       />
                     </div>
-                    <div>
-                      <Label htmlFor="sheetClickCost">Click Cost ($)</Label>
-                      <Input
-                        id="sheetClickCost"
-                        type="number"
-                        step="0.01"
-                        value={sheetSizeForm.clickCost}
-                        onChange={(e) => setSheetSizeForm({ ...sheetSizeForm, clickCost: e.target.value })}
-                        placeholder="0.08"
-                      />
+                    <div className="col-span-2">
+                      <Label htmlFor="sheetClickCost">Click Cost</Label>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Input
+                          id="sheetClickCost"
+                          type="number"
+                          step="0.01"
+                          value={sheetSizeForm.clickCost}
+                          onChange={(e) => setSheetSizeForm({ ...sheetSizeForm, clickCost: e.target.value })}
+                          placeholder="0.08"
+                        />
+                        <Select 
+                          value={sheetSizeForm.clickCostCurrency} 
+                          onValueChange={(value) => setSheetSizeForm({ ...sheetSizeForm, clickCostCurrency: value })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Currency" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="USD">USD ($)</SelectItem>
+                            <SelectItem value="EUR">EUR (€)</SelectItem>
+                            <SelectItem value="TRY">TRY (₺)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                     <div>
                       <Label htmlFor="sheetWidth">Width (mm)</Label>
