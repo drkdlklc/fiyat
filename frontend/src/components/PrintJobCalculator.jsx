@@ -133,14 +133,20 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
   useEffect(() => {
     const initializeExchangeRates = async () => {
       try {
-        await fetchExchangeRates();
-        console.log('Exchange rates initialized');
+        const rates = await fetchExchangeRates();
+        setExchangeRates(rates);
+        console.log('Exchange rates initialized:', rates);
       } catch (error) {
         console.warn('Failed to initialize exchange rates:', error);
       }
     };
     
     initializeExchangeRates();
+    
+    // Refresh rates every 5 minutes
+    const interval = setInterval(initializeExchangeRates, 5 * 60 * 1000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   // Alternative PDF Generation Function using html2canvas + jsPDF
