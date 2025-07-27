@@ -199,20 +199,22 @@ class BackendTester:
             self.log_test("CORS Configuration", False, f"Connection error: {str(e)}")
 
     def test_paper_types_endpoint(self):
-        """Test the GET /api/paper-types endpoint"""
+        """Test the GET /api/paper-types endpoint with currency field"""
         try:
             response = requests.get(f"{self.api_url}/paper-types", timeout=10)
             
             if response.status_code == 200:
                 data = response.json()
                 if isinstance(data, list) and len(data) > 0:
-                    # Verify structure of first paper type
+                    # Verify structure of first paper type including currency field
                     first_paper = data[0]
-                    required_fields = ['id', 'name', 'gsm', 'pricePerTon', 'stockSheetSizes']
+                    required_fields = ['id', 'name', 'gsm', 'pricePerTon', 'currency', 'stockSheetSizes']
                     if all(field in first_paper for field in required_fields):
-                        self.log_test("Paper Types GET Endpoint", True, f"Paper types endpoint returned {len(data)} paper types with correct structure")
+                        currency = first_paper.get('currency')
+                        self.log_test("Paper Types GET Endpoint", True, f"Paper types endpoint returned {len(data)} paper types with correct structure including currency field. First paper currency: {currency}")
                     else:
-                        self.log_test("Paper Types GET Endpoint", False, f"Paper type structure missing required fields: {required_fields}")
+                        missing_fields = [field for field in required_fields if field not in first_paper]
+                        self.log_test("Paper Types GET Endpoint", False, f"Paper type structure missing required fields: {missing_fields}")
                 else:
                     self.log_test("Paper Types GET Endpoint", False, f"Expected non-empty list, got: {type(data)} with length {len(data) if isinstance(data, list) else 'N/A'}")
             else:
