@@ -11,6 +11,7 @@ import { findOptimalPrintSheetSize, calculateOptimalForPaperType, calculateCover
 import html2pdf from 'html2pdf.js';
 
 const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
+  const resultsRef = useRef(null);
   const [jobData, setJobData] = useState({
     productName: '',
     finalWidth: '',
