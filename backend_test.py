@@ -261,6 +261,202 @@ class BackendTester:
         except requests.exceptions.RequestException as e:
             self.log_test("Initialize Data Endpoint", False, f"Connection error: {str(e)}")
 
+    def test_extras_get_endpoint(self):
+        """Test the GET /api/extras endpoint"""
+        try:
+            response = requests.get(f"{self.api_url}/extras", timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if isinstance(data, list):
+                    if len(data) > 0:
+                        # Verify structure of first extra
+                        first_extra = data[0]
+                        required_fields = ['id', 'name', 'pricingType', 'price']
+                        if all(field in first_extra for field in required_fields):
+                            self.log_test("Extras GET Endpoint", True, f"Extras endpoint returned {len(data)} extras with correct structure")
+                        else:
+                            self.log_test("Extras GET Endpoint", False, f"Extra structure missing required fields: {required_fields}")
+                    else:
+                        self.log_test("Extras GET Endpoint", True, "Extras endpoint returned empty list (no extras initialized yet)")
+                else:
+                    self.log_test("Extras GET Endpoint", False, f"Expected list, got: {type(data)}")
+            else:
+                self.log_test("Extras GET Endpoint", False, f"HTTP {response.status_code}: {response.text}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Extras GET Endpoint", False, f"Connection error: {str(e)}")
+
+    def test_extras_post_endpoint(self):
+        """Test the POST /api/extras endpoint"""
+        try:
+            test_extra = {
+                "name": "Test Lamination",
+                "pricingType": "per_page",
+                "price": 0.20
+            }
+            
+            response = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if (data.get("name") == test_extra["name"] and 
+                    data.get("pricingType") == test_extra["pricingType"] and
+                    data.get("price") == test_extra["price"] and
+                    "id" in data):
+                    self.log_test("Extras POST Endpoint", True, f"Extra creation successful with ID: {data.get('id')}")
+                    return data.get("id")  # Return the created ID for cleanup
+                else:
+                    self.log_test("Extras POST Endpoint", False, f"Invalid response structure: {data}")
+            else:
+                self.log_test("Extras POST Endpoint", False, f"HTTP {response.status_code}: {response.text}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Extras POST Endpoint", False, f"Connection error: {str(e)}")
+        
+        return None
+
+    def test_extras_put_endpoint(self):
+        """Test the PUT /api/extras/{id} endpoint"""
+        try:
+            # First create an extra to update
+            test_extra = {
+                "name": "Test Update Extra",
+                "pricingType": "per_booklet",
+                "price": 5.00
+            }
+            
+            create_response = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if create_response.status_code != 200:
+                self.log_test("Extras PUT Endpoint", False, "Failed to create test extra for update")
+                return
+            
+            created_extra = create_response.json()
+            extra_id = created_extra.get("id")
+            
+            # Now update the extra
+            update_data = {
+                "name": "Updated Test Extra",
+                "price": 7.50
+            }
+            
+            update_response = requests.put(
+                f"{self.api_url}/extras/{extra_id}",
+                json=update_data,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if update_response.status_code == 200:
+                updated_extra = update_response.json()
+                if (updated_extra.get("name") == update_data["name"] and
+                    updated_extra.get("price") == update_data["price"] and
+                    updated_extra.get("pricingType") == test_extra["pricingType"]):  # Should remain unchanged
+                    self.log_test("Extras PUT Endpoint", True, f"Extra update successful for ID: {extra_id}")
+                else:
+                    self.log_test("Extras PUT Endpoint", False, f"Update data mismatch: {updated_extra}")
+            else:
+                self.log_test("Extras PUT Endpoint", False, f"HTTP {update_response.status_code}: {update_response.text}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Extras PUT Endpoint", False, f"Connection error: {str(e)}")
+
+    def test_extras_delete_endpoint(self):
+        """Test the DELETE /api/extras/{id} endpoint"""
+        try:
+            # First create an extra to delete
+            test_extra = {
+                "name": "Test Delete Extra",
+                "pricingType": "per_length",
+                "price": 0.10
+            }
+            
+            create_response = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if create_response.status_code != 200:
+                self.log_test("Extras DELETE Endpoint", False, "Failed to create test extra for deletion")
+                return
+            
+            created_extra = create_response.json()
+            extra_id = created_extra.get("id")
+            
+            # Now delete the extra
+            delete_response = requests.delete(f"{self.api_url}/extras/{extra_id}", timeout=10)
+            
+            if delete_response.status_code == 200:
+                data = delete_response.json()
+                if data.get("message") == "Extra deleted successfully":
+                    # Verify the extra is actually deleted by trying to get it
+                    get_response = requests.get(f"{self.api_url}/extras", timeout=10)
+                    if get_response.status_code == 200:
+                        all_extras = get_response.json()
+                        deleted_extra_exists = any(extra.get("id") == extra_id for extra in all_extras)
+                        if not deleted_extra_exists:
+                            self.log_test("Extras DELETE Endpoint", True, f"Extra deletion successful for ID: {extra_id}")
+                        else:
+                            self.log_test("Extras DELETE Endpoint", False, "Extra still exists after deletion")
+                    else:
+                        self.log_test("Extras DELETE Endpoint", False, "Could not verify deletion")
+                else:
+                    self.log_test("Extras DELETE Endpoint", False, f"Unexpected response: {data}")
+            else:
+                self.log_test("Extras DELETE Endpoint", False, f"HTTP {delete_response.status_code}: {delete_response.text}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Extras DELETE Endpoint", False, f"Connection error: {str(e)}")
+
+    def test_extras_database_operations(self):
+        """Test comprehensive extras database operations"""
+        try:
+            # Initialize data to ensure extras exist
+            init_response = requests.post(f"{self.api_url}/initialize-data", timeout=10)
+            
+            # Get all extras
+            get_response = requests.get(f"{self.api_url}/extras", timeout=10)
+            
+            if get_response.status_code == 200:
+                extras = get_response.json()
+                if isinstance(extras, list) and len(extras) > 0:
+                    # Verify default extras are properly initialized
+                    expected_extras = [
+                        "Cellophane Lamination",
+                        "Staple Binding", 
+                        "Spiral Binding",
+                        "Perfect Binding (American)",
+                        "UV Coating"
+                    ]
+                    
+                    found_extras = [extra.get("name") for extra in extras]
+                    missing_extras = [name for name in expected_extras if name not in found_extras]
+                    
+                    if not missing_extras:
+                        self.log_test("Extras Database Operations", True, f"All {len(expected_extras)} default extras properly initialized")
+                    else:
+                        self.log_test("Extras Database Operations", False, f"Missing default extras: {missing_extras}")
+                else:
+                    self.log_test("Extras Database Operations", False, "No extras found after initialization")
+            else:
+                self.log_test("Extras Database Operations", False, f"Failed to retrieve extras: {get_response.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Extras Database Operations", False, f"Connection error: {str(e)}")
+
     def test_cover_calculation_logic(self):
         """Test the cover calculation logic for booklet mode using Node.js"""
         try:
