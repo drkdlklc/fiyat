@@ -121,6 +121,7 @@ class ExtraCreate(BaseModel):
     pricingType: str
     insideOutsideSame: bool = False
     supportsDoubleSided: bool = False
+    applyToPrintSheet: bool = False  # New field: apply pricing to print sheet dimensions
     variants: List[ExtraVariantCreate]
 
 class ExtraVariantUpdate(BaseModel):
