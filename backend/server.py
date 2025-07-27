@@ -342,11 +342,11 @@ async def initialize_default_data():
     existing_extras = await db.extras.count_documents({})
     if existing_extras == 0:
         default_extras = [
-            {"id": 1, "name": "Cellophane Lamination", "pricingType": "per_page", "price": 0.15},
-            {"id": 2, "name": "Staple Binding", "pricingType": "per_booklet", "price": 2.50},
-            {"id": 3, "name": "Spiral Binding", "pricingType": "per_length", "price": 0.08},
-            {"id": 4, "name": "Perfect Binding (American)", "pricingType": "per_booklet", "price": 15.00},
-            {"id": 5, "name": "UV Coating", "pricingType": "per_page", "price": 0.25}
+            {"id": 1, "name": "Cellophane Lamination", "pricingType": "per_page", "price": 0.15, "insideOutsideSame": False},
+            {"id": 2, "name": "Staple Binding", "pricingType": "per_booklet", "price": 2.50, "insideOutsideSame": True},
+            {"id": 3, "name": "Spiral Binding", "pricingType": "per_length", "price": 0.08, "insideOutsideSame": True},
+            {"id": 4, "name": "Perfect Binding (American)", "pricingType": "per_booklet", "price": 15.00, "insideOutsideSame": True},
+            {"id": 5, "name": "UV Coating", "pricingType": "per_page", "price": 0.25, "insideOutsideSame": False}
         ]
         
         await db.extras.insert_many(default_extras)
