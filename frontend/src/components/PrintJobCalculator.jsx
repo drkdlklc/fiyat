@@ -607,18 +607,21 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
         case 'per_page':
           if (job.isBookletMode && bookletSection) {
             if (bookletSection === 'cover') {
-              // Cover pages: 4 pages per booklet
+              // Cover pages: always 4 pages per booklet (1 cover = 4 pages)
               units = job.quantity * 4;
               unitType = 'cover pages';
             } else {
-              // Inner pages
-              const innerPages = job.totalPages - 4; // Subtract cover pages
-              units = job.quantity * innerPages;
+              // Inner pages: total pages - 4 cover pages (if has cover)
+              const innerPagesPerBooklet = job.hasCover 
+                ? Math.max(0, job.totalPages - 4) 
+                : job.totalPages;
+              units = job.quantity * innerPagesPerBooklet;
               unitType = 'inner pages';
             }
           } else {
-            // Normal mode
-            units = job.quantity * job.totalPages;
+            // Normal mode: quantity is number of items, each with totalPages
+            const pagesPerUnit = job.totalPages || 1;
+            units = job.quantity * pagesPerUnit;
             unitType = 'pages';
           }
           cost = units * basePrice;
