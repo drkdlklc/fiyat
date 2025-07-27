@@ -687,6 +687,17 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
           // Ensure edgeLength is a valid number
           edgeLength = isNaN(edgeLength) || edgeLength <= 0 ? 21.0 : edgeLength; // Default to 21cm (A4 width)
           
+          // Debug the final calculation
+          console.log('Final edge calculation result:', {
+            edgeLength,
+            units,
+            basePrice,
+            cost: units * edgeLength * basePrice,
+            resultObject: {
+              edgeLength: extra.pricingType === 'per_length' ? edgeLength : 0
+            }
+          });
+          
           units = job.quantity;
           unitType = job.isBookletMode ? 'booklets' : 'units';
           cost = units * edgeLength * basePrice;
