@@ -759,6 +759,48 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                         </Select>
                       </div>
                     </div>
+                    
+                    {/* Cover Binding Edge Selection */}
+                    <div className="mt-4">
+                      <Label htmlFor="coverBindingEdge" className="text-base font-semibold">Cover Binding Edge</Label>
+                      <div className="mt-2 p-3 border rounded-lg bg-green-100 border-green-300">
+                        <Select value={coverBindingEdge} onValueChange={setCoverBindingEdge}>
+                          <SelectTrigger className="mb-2">
+                            <SelectValue placeholder="Choose which edge will be bound for the cover" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="short">
+                              <div className="flex flex-col">
+                                <span className="font-semibold">Short Edge Binding</span>
+                                <span className="text-xs text-gray-500">Bound on the short side (height) - Portrait cover</span>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="long">
+                              <div className="flex flex-col">
+                                <span className="font-semibold">Long Edge Binding</span>
+                                <span className="text-xs text-gray-500">Bound on the long side (width) - Landscape cover</span>
+                              </div>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                        
+                        <div className="mt-2 p-2 bg-green-50 rounded text-sm">
+                          <p className="font-medium text-green-800">
+                            {coverBindingEdge === 'short' 
+                              ? '📖 Cover: Books open like a standard portrait book' 
+                              : '📋 Cover: Books open like a landscape calendar or flip chart'
+                            }
+                          </p>
+                          <p className="text-green-600 text-xs mt-1">
+                            Cover binding edge: {coverBindingEdge === 'short' 
+                              ? `${jobData.height}mm edge will be bound` 
+                              : `${jobData.width}mm edge will be bound`
+                            }
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
                     <p className="text-sm text-green-600 mt-2">
                       Covers will be printed separately. Each booklet needs 1 cover (4 pages when folded).
                     </p>
