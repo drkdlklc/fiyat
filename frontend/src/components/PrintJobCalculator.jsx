@@ -72,6 +72,57 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
   const [showOptimalOnly, setShowOptimalOnly] = useState(true);
   const { toast } = useToast();
 
+  // Helper functions for the new extras workflow
+  const addExtraWithVariant = (extraId, variantId, section = 'normal') => {
+    const extra = extras.find(e => e.id === parseInt(extraId));
+    const variant = extra?.variants?.find(v => v.id === parseInt(variantId));
+    
+    if (!extra || !variant) {
+      toast({
+        title: "Error",
+        description: "Invalid extra or variant selection",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const newExtra = {
+      extraId: extra.id,
+      variantId: variant.id,
+      variantName: variant.variantName,
+      price: variant.price
+    };
+
+    if (section === 'normal') {
+      setSelectedExtras([...selectedExtras, newExtra]);
+      setSelectedExtraId('');
+      setSelectedVariantId('');
+    } else if (section === 'cover') {
+      setSelectedCoverExtras([...selectedCoverExtras, newExtra]);
+      setSelectedCoverExtraId('');
+      setSelectedCoverVariantId('');
+    } else if (section === 'inner') {
+      setSelectedInnerExtras([...selectedInnerExtras, newExtra]);
+      setSelectedInnerExtraId('');
+      setSelectedInnerVariantId('');
+    }
+
+    toast({
+      title: "Success",
+      description: `Added ${extra.name} - ${variant.variantName}`,
+    });
+  };
+
+  const removeExtraFromSection = (extraId, variantId, section = 'normal') => {
+    if (section === 'normal') {
+      setSelectedExtras(selectedExtras.filter(e => !(e.extraId === extraId && e.variantId === variantId)));
+    } else if (section === 'cover') {
+      setSelectedCoverExtras(selectedCoverExtras.filter(e => !(e.extraId === extraId && e.variantId === variantId)));
+    } else if (section === 'inner') {
+      setSelectedInnerExtras(selectedInnerExtras.filter(e => !(e.extraId === extraId && e.variantId === variantId)));
+    }
+  };
+
   // Function to consolidate extras that have insideOutsideSame flag
   const consolidateExtrasForBooklet = (coverExtras, innerExtras, extrasData, selectedCoverExtras, selectedInnerExtras) => {
     // Find extras that are selected for both cover and inner and have insideOutsideSame = true
