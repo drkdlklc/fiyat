@@ -97,8 +97,9 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
       variants: extra.variants?.map(v => ({
         id: v.id,
         variantName: v.variantName,
-        price: v.price.toString()
-      })) || [{ variantName: '', price: '' }]
+        price: v.price.toString(),
+        currency: v.currency || 'USD'
+      })) || [{ variantName: '', price: '', currency: 'USD' }]
     });
     setEditingId(extra.id);
     setIsAdding(true);
