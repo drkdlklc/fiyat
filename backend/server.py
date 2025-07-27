@@ -350,6 +350,7 @@ async def initialize_default_data():
                 "name": "80g Standard",
                 "gsm": 80,
                 "pricePerTon": 850,
+                "currency": "USD",
                 "stockSheetSizes": [
                     {"id": 1, "name": "A4", "width": 210, "height": 297, "unit": "mm"},
                     {"id": 2, "name": "A3", "width": 297, "height": 420, "unit": "mm"},
@@ -361,6 +362,7 @@ async def initialize_default_data():
                 "name": "120g Premium",
                 "gsm": 120,
                 "pricePerTon": 1200,
+                "currency": "EUR",
                 "stockSheetSizes": [
                     {"id": 4, "name": "A3", "width": 297, "height": 420, "unit": "mm"},
                     {"id": 5, "name": "SRA3", "width": 320, "height": 450, "unit": "mm"},
@@ -371,7 +373,8 @@ async def initialize_default_data():
                 "id": 3,
                 "name": "90g Letter",
                 "gsm": 90,
-                "pricePerTon": 900,
+                "pricePerTon": 24000,
+                "currency": "TRY",
                 "stockSheetSizes": [
                     {"id": 7, "name": "Letter", "width": 216, "height": 279, "unit": "mm"},
                     {"id": 8, "name": "Legal", "width": 216, "height": 356, "unit": "mm"},
@@ -383,6 +386,7 @@ async def initialize_default_data():
                 "name": "100g Coated",
                 "gsm": 100,
                 "pricePerTon": 1000,
+                "currency": "USD",
                 "stockSheetSizes": [
                     {"id": 10, "name": "SRA3", "width": 320, "height": 450, "unit": "mm"},
                     {"id": 11, "name": "A2", "width": 420, "height": 594, "unit": "mm"},
