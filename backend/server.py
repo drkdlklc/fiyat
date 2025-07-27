@@ -94,16 +94,19 @@ class Extra(BaseModel):
     name: str
     pricingType: str  # 'per_page', 'per_booklet', 'per_length'
     price: float
+    insideOutsideSame: bool = False  # New field for inside/outside same option
 
 class ExtraCreate(BaseModel):
     name: str
     pricingType: str
     price: float
+    insideOutsideSame: bool = False
 
 class ExtraUpdate(BaseModel):
     name: Optional[str] = None
     pricingType: Optional[str] = None
     price: Optional[float] = None
+    insideOutsideSame: Optional[bool] = None
 
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
