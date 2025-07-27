@@ -349,6 +349,30 @@ metadata:
   test_sequence: 1
   run_ui: false
 
+  - task: "Display live exchange rates in Final Total Price section"
+    implemented: true
+    working: false
+    file: "frontend/src/components/PrintJobCalculator.jsx, backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "USER REQUEST: Display current exchange rates (USD/TRY, EUR/TRY) in the final price section without showing converted values next to each item. IMPLEMENTATION COMPLETED: Added live exchange rates display in Final Total Price section with automatic 5-minute refresh. Shows USD to EUR, TRY to EUR, EUR to TRY, and USD to TRY conversion rates. Uses altinkaynak.com API via backend endpoint. Added TrendingUp icon and proper formatting. Rates update automatically and display source attribution."
+
+  - task: "Implement live currency conversion system"
+    implemented: true
+    working: false
+    file: "backend/server.py, frontend/src/utils/currencyConverter.js, frontend/src/data/mockData.js"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "MAJOR IMPLEMENTATION: Fixed core issue where paper ton price currency changes didn't update total prices. Created comprehensive live currency conversion system: (1) Backend: Added /api/exchange-rates endpoint using altinkaynak package to fetch live rates from altinkaynak.com. (2) Frontend: Updated currencyConverter.js with live rate fetching, caching, and async/sync conversion functions. (3) Core Logic: Modified all calculation functions in mockData.js to convert paper costs, machine setup costs, and click costs to EUR using live rates before calculating totals. (4) Real-time Updates: Added automatic rate refresh every 5 minutes. System now properly converts all currencies to EUR during calculation, ensuring accurate total pricing regardless of source currency."
+
   - task: "Change currency display from USD to EUR"
     implemented: true
     working: false
