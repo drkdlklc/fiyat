@@ -969,13 +969,20 @@ if (innerResult) {
         self.test_machines_endpoint()
         
         # New extras endpoints tests
-        print("🎯 Testing Extras Management System")
+        print("🎯 Testing Extras Management System with InsideOutsideSame Field")
         print()
         self.test_extras_get_endpoint()
         self.test_extras_post_endpoint()
         self.test_extras_put_endpoint()
         self.test_extras_delete_endpoint()
         self.test_extras_database_operations()
+        
+        # New field specific tests
+        print("🔍 Testing InsideOutsideSame Field Functionality")
+        print()
+        self.test_extras_inside_outside_same_field_validation()
+        self.test_extras_model_compatibility()
+        self.test_extras_update_inside_outside_same_only()
         
         # Advanced functionality tests
         self.test_database_connectivity()
