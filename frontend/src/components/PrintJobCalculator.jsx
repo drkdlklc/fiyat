@@ -62,6 +62,46 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
   const [showOptimalOnly, setShowOptimalOnly] = useState(true);
   const { toast } = useToast();
 
+  // Function to consolidate extras that have insideOutsideSame flag
+  const consolidateExtrasForBooklet = (coverExtras, innerExtras, extrasData, selectedCoverExtras, selectedInnerExtras) => {
+    // Find extras that are selected for both cover and inner and have insideOutsideSame = true
+    const consolidatedCover = [...coverExtras];
+    const consolidatedInner = [];
+    
+    // Get IDs of cover extras
+    const coverExtraIds = selectedCoverExtras.map(se => se.extraId);
+    const innerExtraIds = selectedInnerExtras.map(se => se.extraId);
+    
+    innerExtras.forEach(innerExtra => {
+      const extraData = extrasData.find(e => e.id === innerExtra.extraId);
+      const isAlsoInCover = coverExtraIds.includes(innerExtra.extraId);
+      
+      if (extraData && extraData.insideOutsideSame && isAlsoInCover) {
+        // This extra should be consolidated - skip adding to inner, already in cover
+        // But we need to update the cover extra to include both costs
+        const coverExtraIndex = consolidatedCover.findIndex(ce => ce.extraId === innerExtra.extraId);
+        if (coverExtraIndex >= 0) {
+          // Combine the costs and update description
+          const combinedCost = consolidatedCover[coverExtraIndex].totalCost + innerExtra.totalCost;
+          const combinedUnits = consolidatedCover[coverExtraIndex].units + innerExtra.units;
+          
+          consolidatedCover[coverExtraIndex] = {
+            ...consolidatedCover[coverExtraIndex],
+            totalCost: combinedCost,
+            units: combinedUnits,
+            unitType: 'booklet (cover + inner)',
+            isConsolidated: true
+          };
+        }
+      } else {
+        // Add to inner extras as normal
+        consolidatedInner.push(innerExtra);
+      }
+    });
+    
+    return { consolidatedCover, consolidatedInner };
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     
