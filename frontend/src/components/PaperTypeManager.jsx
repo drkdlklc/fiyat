@@ -105,6 +105,7 @@ const PaperTypeManager = ({ paperTypes, onAddPaperType, onUpdatePaperType, onDel
       name: formData.name,
       gsm: parseFloat(formData.gsm),
       pricePerTon: parseFloat(formData.pricePerTon),
+      currency: formData.currency,
       stockSheetSizes: formData.stockSheetSizes
     };
 
