@@ -335,6 +335,11 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
                       ✓ Inside/Outside Same - Shows once when selected for both cover and inner
                     </p>
                   )}
+                  {extra.supportsDoubleSided && (
+                    <p className="text-xs text-blue-600 mt-1 flex items-center gap-1">
+                      ✓ Supports Double-Sided - Can be applied to one or both sides of a page
+                    </p>
+                  )}
                 </div>
                 <div className="flex gap-2">
                   <Button
