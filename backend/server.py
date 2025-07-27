@@ -453,6 +453,7 @@ async def initialize_default_data():
                 "pricingType": "per_page", 
                 "insideOutsideSame": False,
                 "supportsDoubleSided": True,  # Can be applied to one or both sides
+                "applyToPrintSheet": False,  # Apply to individual pages
                 "variants": [
                     {"id": 1, "variantName": "Standard", "price": 0.15, "currency": "USD"},
                     {"id": 2, "variantName": "Premium", "price": 0.22, "currency": "EUR"}
@@ -464,6 +465,7 @@ async def initialize_default_data():
                 "pricingType": "per_booklet", 
                 "insideOutsideSame": True,
                 "supportsDoubleSided": False,  # Binding applies to whole booklet
+                "applyToPrintSheet": False,  # Binding is per booklet, not per sheet
                 "variants": [
                     {"id": 3, "variantName": "2-Staple", "price": 2.50, "currency": "USD"},
                     {"id": 4, "variantName": "3-Staple", "price": 95, "currency": "TRY"}
@@ -475,6 +477,7 @@ async def initialize_default_data():
                 "pricingType": "per_length", 
                 "insideOutsideSame": True,
                 "supportsDoubleSided": False,  # Binding applies to whole booklet
+                "applyToPrintSheet": True,  # Use print sheet length for binding calculation
                 "variants": [
                     {"id": 5, "variantName": "Plastic Coil", "price": 0.8, "currency": "USD"},  # price per cm
                     {"id": 6, "variantName": "Metal Wire", "price": 1.1, "currency": "EUR"}    # price per cm
@@ -486,6 +489,7 @@ async def initialize_default_data():
                 "pricingType": "per_booklet", 
                 "insideOutsideSame": True,
                 "supportsDoubleSided": False,  # Binding applies to whole booklet
+                "applyToPrintSheet": False,  # Binding is per booklet, not per sheet
                 "variants": [
                     {"id": 7, "variantName": "Standard", "price": 15.00, "currency": "USD"},
                     {"id": 8, "variantName": "Premium", "price": 620, "currency": "TRY"}
@@ -497,6 +501,7 @@ async def initialize_default_data():
                 "pricingType": "per_page", 
                 "insideOutsideSame": False,
                 "supportsDoubleSided": True,  # Can be applied to one or both sides
+                "applyToPrintSheet": False,  # Apply to individual pages
                 "variants": [
                     {"id": 9, "variantName": "Matte", "price": 0.23, "currency": "EUR"},
                     {"id": 10, "variantName": "Gloss", "price": 8.5, "currency": "TRY"}
@@ -504,13 +509,14 @@ async def initialize_default_data():
             },
             {
                 "id": 6,
-                "name": "Print Sheet Setup",
-                "pricingType": "per_print_sheet",
+                "name": "Print Sheet Processing",
+                "pricingType": "per_length",
                 "insideOutsideSame": False,
-                "supportsDoubleSided": False,  # Applied per print sheet, not per side
+                "supportsDoubleSided": False,  # Applied per print sheet
+                "applyToPrintSheet": True,  # Use print sheet dimensions for calculation
                 "variants": [
-                    {"id": 11, "variantName": "Standard Setup", "price": 2.5, "currency": "USD"},
-                    {"id": 12, "variantName": "Premium Setup", "price": 4.0, "currency": "EUR"}
+                    {"id": 11, "variantName": "Standard Processing", "price": 0.12, "currency": "USD"},  # price per cm of print sheet edge
+                    {"id": 12, "variantName": "Premium Processing", "price": 0.18, "currency": "EUR"}   # price per cm of print sheet edge
                 ]
             }
         ]
