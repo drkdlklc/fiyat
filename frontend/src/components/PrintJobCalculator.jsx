@@ -11,6 +11,7 @@ import { findOptimalPrintSheetSize, calculateOptimalForPaperType, calculateCover
 import html2pdf from 'html2pdf.js';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { convertToUSD, formatUSDPrice, convertExtraCostToUSD } from '../utils/currencyConverter';
 
 const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
   const resultsRef = useRef(null);
