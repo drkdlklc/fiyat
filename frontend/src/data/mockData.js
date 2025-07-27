@@ -651,8 +651,9 @@ export const calculateExtrasCost = (job, selectedExtras, extras, lengthBasedEdge
             cost = units * extra.price;
           }
         } else {
-          // Normal mode: all pages
-          units = job.quantity;
+          // Normal mode: quantity * pages per unit
+          const pagesPerUnit = job.totalPages || 1;
+          units = job.quantity * pagesPerUnit;
           unitType = 'pages';
           cost = units * extra.price;
         }
