@@ -723,6 +723,10 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
       };
       
       console.log('=== RESULT OBJECT CREATED ===');
+      console.log('extra.pricingType:', extra.pricingType);
+      console.log('extra.pricingType === "per_length":', extra.pricingType === 'per_length');
+      console.log('edgeLength variable at this point:', edgeLength);
+      console.log('Calculated edgeLength for result:', extra.pricingType === 'per_length' ? edgeLength : 0);
       console.log('Result object being pushed:', resultObject);
       console.log('edgeLength in result:', resultObject.edgeLength);
       console.log('units in result:', resultObject.units);
