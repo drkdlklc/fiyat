@@ -404,30 +404,33 @@ async def initialize_default_data():
                 "id": 1,
                 "name": "Heidelberg SM 52",
                 "setupCost": 45,
+                "setupCostCurrency": "USD",
                 "printSheetSizes": [
-                    {"id": 1, "name": "SRA3", "width": 320, "height": 450, "clickCost": 0.08, "duplexSupport": True, "unit": "mm"},
-                    {"id": 2, "name": "A3+", "width": 330, "height": 483, "clickCost": 0.09, "duplexSupport": True, "unit": "mm"},
-                    {"id": 3, "name": "Custom Small", "width": 280, "height": 400, "clickCost": 0.06, "duplexSupport": False, "unit": "mm"}
+                    {"id": 1, "name": "SRA3", "width": 320, "height": 450, "clickCost": 0.08, "clickCostCurrency": "USD", "duplexSupport": True, "unit": "mm"},
+                    {"id": 2, "name": "A3+", "width": 330, "height": 483, "clickCost": 0.09, "clickCostCurrency": "USD", "duplexSupport": True, "unit": "mm"},
+                    {"id": 3, "name": "Custom Small", "width": 280, "height": 400, "clickCost": 0.06, "clickCostCurrency": "USD", "duplexSupport": False, "unit": "mm"}
                 ]
             },
             {
                 "id": 2,
                 "name": "Komori L528",
-                "setupCost": 50,
+                "setupCost": 42,
+                "setupCostCurrency": "EUR",
                 "printSheetSizes": [
-                    {"id": 4, "name": "SRA3", "width": 320, "height": 450, "clickCost": 0.07, "duplexSupport": True, "unit": "mm"},
-                    {"id": 5, "name": "A3", "width": 297, "height": 420, "clickCost": 0.065, "duplexSupport": True, "unit": "mm"},
-                    {"id": 6, "name": "Custom Large", "width": 350, "height": 500, "clickCost": 0.085, "duplexSupport": True, "unit": "mm"}
+                    {"id": 4, "name": "SRA3", "width": 320, "height": 450, "clickCost": 0.07, "clickCostCurrency": "EUR", "duplexSupport": True, "unit": "mm"},
+                    {"id": 5, "name": "A3", "width": 297, "height": 420, "clickCost": 0.065, "clickCostCurrency": "EUR", "duplexSupport": True, "unit": "mm"},
+                    {"id": 6, "name": "Custom Large", "width": 350, "height": 500, "clickCost": 0.085, "clickCostCurrency": "EUR", "duplexSupport": True, "unit": "mm"}
                 ]
             },
             {
                 "id": 3,
                 "name": "Digital Press HP",
-                "setupCost": 25,
+                "setupCost": 850,
+                "setupCostCurrency": "TRY",
                 "printSheetSizes": [
-                    {"id": 7, "name": "A3", "width": 297, "height": 420, "clickCost": 0.12, "duplexSupport": True, "unit": "mm"},
-                    {"id": 8, "name": "A4", "width": 210, "height": 297, "clickCost": 0.08, "duplexSupport": True, "unit": "mm"},
-                    {"id": 9, "name": "Letter", "width": 216, "height": 279, "clickCost": 0.085, "duplexSupport": False, "unit": "mm"}
+                    {"id": 7, "name": "A3", "width": 297, "height": 420, "clickCost": 4.0, "clickCostCurrency": "TRY", "duplexSupport": True, "unit": "mm"},
+                    {"id": 8, "name": "A4", "width": 210, "height": 297, "clickCost": 2.7, "clickCostCurrency": "TRY", "duplexSupport": True, "unit": "mm"},
+                    {"id": 9, "name": "Letter", "width": 216, "height": 279, "clickCost": 2.9, "clickCostCurrency": "TRY", "duplexSupport": False, "unit": "mm"}
                 ]
             }
         ]
