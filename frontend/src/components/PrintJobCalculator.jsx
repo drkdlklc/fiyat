@@ -2880,12 +2880,12 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                   <div className="mt-8 border-2 border-blue-200 rounded-lg bg-blue-50 p-6 final-total-price-section">
                     <h2 className="text-2xl font-bold text-blue-800 mb-4 text-center flex items-center justify-center gap-2">
                       <DollarSign size={24} />
-                      Final Total Price
+                      Final Total Price (USD)
                     </h2>
                     
                     <div className="space-y-4">
                       {results.job.isBookletMode ? (
-                        // Booklet Mode Total Breakdown
+                        // Booklet Mode Total Breakdown with USD conversion
                         <div className="space-y-3">
                           {/* Debug logging for troubleshooting */}
                           {console.log('Booklet Final Total Debug:', {
@@ -2895,66 +2895,55 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                             extrasResults: results.extrasResults
                           })}
                           
-                          {results.job.hasCover ? (
-                            results.coverResults ? (
-                              <div className="flex justify-between items-center p-3 bg-green-50 rounded border border-green-200">
-                                <span className="font-semibold text-green-800">Cover Total Cost:</span>
-                                <span className="font-bold text-green-700">
-                                  ${(results.coverResults.totalCost + 
-                                    (results.extrasResults?.coverExtras ? 
-                                      results.extrasResults.coverExtras.reduce((sum, extra) => sum + extra.totalCost, 0) : 0)
-                                  ).toFixed(2)}
-                                </span>
-                              </div>
-                            ) : (
-                              <div className="flex justify-between items-center p-3 bg-yellow-50 rounded border border-yellow-200">
-                                <span className="font-semibold text-yellow-800">Cover Total Cost:</span>
-                                <span className="font-medium text-yellow-700">Please select cover paper type and machine</span>
-                              </div>
-                            )
-                          ) : null}
-                          
-                          {results.innerPagesResults ? (
-                            <div className="flex justify-between items-center p-3 bg-orange-50 rounded border border-orange-200">
-                              <span className="font-semibold text-orange-800">Inner Pages Total Cost:</span>
-                              <span className="font-bold text-orange-700">
-                                ${(results.innerPagesResults.totalCost + 
-                                  (results.extrasResults?.innerExtras ? 
-                                    results.extrasResults.innerExtras.reduce((sum, extra) => sum + extra.totalCost, 0) : 0)
-                                ).toFixed(2)}
-                              </span>
-                            </div>
-                          ) : (
-                            <div className="flex justify-between items-center p-3 bg-yellow-50 rounded border border-yellow-200">
-                              <span className="font-semibold text-yellow-800">Inner Pages Total Cost:</span>
-                              <span className="font-medium text-yellow-700">Please select inner pages paper type and machine</span>
-                            </div>
-                          )}
-                          
-                          {/* Always show Grand Total section, even if some parts are missing */}
-                          <div className="flex justify-between items-center p-4 bg-blue-100 rounded-lg border-2 border-blue-300">
-                            <span className="text-xl font-bold text-blue-900">Grand Total:</span>
-                            <span className="text-2xl font-bold text-blue-800">
-                              ${((results.job.hasCover && results.coverResults ? results.coverResults.totalCost : 0) + 
-                                (results.innerPagesResults ? results.innerPagesResults.totalCost : 0) +
-                                (results.extrasResults?.coverExtras ? 
-                                  results.extrasResults.coverExtras.reduce((sum, extra) => sum + extra.totalCost, 0) : 0) +
-                                (results.extrasResults?.innerExtras ? 
-                                  results.extrasResults.innerExtras.reduce((sum, extra) => sum + extra.totalCost, 0) : 0)
-                              ).toFixed(2)}
-                            </span>
-                          </div>
-                          
-                          <div className="text-center text-sm text-gray-600 mt-3">
-                            <p>Price per booklet: ${(((results.job.hasCover && results.coverResults ? results.coverResults.totalCost : 0) + 
-                              (results.innerPagesResults ? results.innerPagesResults.totalCost : 0) +
-                              (results.extrasResults?.coverExtras ? 
-                                results.extrasResults.coverExtras.reduce((sum, extra) => sum + extra.totalCost, 0) : 0) +
-                              (results.extrasResults?.innerExtras ? 
-                                results.extrasResults.innerExtras.reduce((sum, extra) => sum + extra.totalCost, 0) : 0)) / 
-                              results.job.quantity).toFixed(4)}
-                            </p>
-                          </div>
+                          {(() => {
+                            const usdCosts = convertResultsCostsToUSD(results);
+                            return (
+                              <>
+                                {results.job.hasCover ? (
+                                  results.coverResults ? (
+                                    <div className="flex justify-between items-center p-3 bg-green-50 rounded border border-green-200">
+                                      <span className="font-semibold text-green-800">Cover Total Cost (USD):</span>
+                                      <span className="font-bold text-green-700">
+                                        {formatUSDPrice(usdCosts.coverCostUSD + usdCosts.coverExtrasUSD)}
+                                      </span>
+                                    </div>
+                                  ) : (
+                                    <div className="flex justify-between items-center p-3 bg-yellow-50 rounded border border-yellow-200">
+                                      <span className="font-semibold text-yellow-800">Cover Total Cost:</span>
+                                      <span className="font-medium text-yellow-700">Please select cover paper type and machine</span>
+                                    </div>
+                                  )
+                                ) : null}
+                                
+                                {results.innerPagesResults ? (
+                                  <div className="flex justify-between items-center p-3 bg-orange-50 rounded border border-orange-200">
+                                    <span className="font-semibold text-orange-800">Inner Pages Total Cost (USD):</span>
+                                    <span className="font-bold text-orange-700">
+                                      {formatUSDPrice(usdCosts.innerCostUSD + usdCosts.innerExtrasUSD)}
+                                    </span>
+                                  </div>
+                                ) : (
+                                  <div className="flex justify-between items-center p-3 bg-yellow-50 rounded border border-yellow-200">
+                                    <span className="font-semibold text-yellow-800">Inner Pages Total Cost:</span>
+                                    <span className="font-medium text-yellow-700">Please select inner pages paper type and machine</span>
+                                  </div>
+                                )}
+                                
+                                {/* Always show Grand Total section, even if some parts are missing */}
+                                <div className="flex justify-between items-center p-4 bg-blue-100 rounded-lg border-2 border-blue-300">
+                                  <span className="text-xl font-bold text-blue-900">Grand Total (USD):</span>
+                                  <span className="text-2xl font-bold text-blue-800">
+                                    {formatUSDPrice(usdCosts.totalUSD)}
+                                  </span>
+                                </div>
+                                
+                                <div className="text-center text-sm text-gray-600 mt-3">
+                                  <p>Price per booklet (USD): {formatUSDPrice(usdCosts.totalUSD / results.job.quantity, 4)}</p>
+                                  <p className="text-xs text-blue-600 mt-1">* All prices converted to USD using current exchange rates</p>
+                                </div>
+                              </>
+                            );
+                          })()}
                         </div>
                       ) : (
                         // Normal Mode Total
