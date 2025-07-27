@@ -924,14 +924,16 @@ class BackendTester:
             self.log_test("Extras Model Compatibility", False, f"Connection error: {str(e)}")
 
     def test_extras_update_inside_outside_same_only(self):
-        """Test updating only the insideOutsideSame field"""
+        """Test updating only the insideOutsideSame field with variants"""
         try:
             # First create an extra
             test_extra = {
                 "name": "Test Update Field Only",
                 "pricingType": "per_page",
-                "price": 0.25,
-                "insideOutsideSame": False
+                "insideOutsideSame": False,
+                "variants": [
+                    {"variantName": "Standard", "price": 0.25}
+                ]
             }
             
             create_response = requests.post(
@@ -965,7 +967,7 @@ class BackendTester:
                 if (updated_extra.get("insideOutsideSame") == True and
                     updated_extra.get("name") == test_extra["name"] and
                     updated_extra.get("pricingType") == test_extra["pricingType"] and
-                    updated_extra.get("price") == test_extra["price"]):
+                    len(updated_extra.get("variants", [])) == 1):
                     self.log_test("Update InsideOutsideSame Only", True, f"Successfully updated only insideOutsideSame field to True for ID: {extra_id}")
                 else:
                     self.log_test("Update InsideOutsideSame Only", False, f"Field update failed or other fields changed: {updated_extra}")
