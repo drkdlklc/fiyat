@@ -2880,12 +2880,12 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                   <div className="mt-8 border-2 border-blue-200 rounded-lg bg-blue-50 p-6 final-total-price-section">
                     <h2 className="text-2xl font-bold text-blue-800 mb-4 text-center flex items-center justify-center gap-2">
                       <DollarSign size={24} />
-                      Final Total Price (USD)
+                      Final Total Price (EUR)
                     </h2>
                     
                     <div className="space-y-4">
                       {results.job.isBookletMode ? (
-                        // Booklet Mode Total Breakdown with USD conversion
+                        // Booklet Mode Total Breakdown with EUR conversion
                         <div className="space-y-3">
                           {/* Debug logging for troubleshooting */}
                           {console.log('Booklet Final Total Debug:', {
@@ -2896,15 +2896,15 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                           })}
                           
                           {(() => {
-                            const usdCosts = convertResultsCostsToUSD(results);
+                            const eurCosts = convertResultsCostsToEUR(results);
                             return (
                               <>
                                 {results.job.hasCover ? (
                                   results.coverResults ? (
                                     <div className="flex justify-between items-center p-3 bg-green-50 rounded border border-green-200">
-                                      <span className="font-semibold text-green-800">Cover Total Cost (USD):</span>
+                                      <span className="font-semibold text-green-800">Cover Total Cost (EUR):</span>
                                       <span className="font-bold text-green-700">
-                                        {formatUSDPrice(usdCosts.coverCostUSD + usdCosts.coverExtrasUSD)}
+                                        {formatEURPrice(eurCosts.coverCostEUR + eurCosts.coverExtrasEUR)}
                                       </span>
                                     </div>
                                   ) : (
@@ -2917,9 +2917,9 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                                 
                                 {results.innerPagesResults ? (
                                   <div className="flex justify-between items-center p-3 bg-orange-50 rounded border border-orange-200">
-                                    <span className="font-semibold text-orange-800">Inner Pages Total Cost (USD):</span>
+                                    <span className="font-semibold text-orange-800">Inner Pages Total Cost (EUR):</span>
                                     <span className="font-bold text-orange-700">
-                                      {formatUSDPrice(usdCosts.innerCostUSD + usdCosts.innerExtrasUSD)}
+                                      {formatEURPrice(eurCosts.innerCostEUR + eurCosts.innerExtrasEUR)}
                                     </span>
                                   </div>
                                 ) : (
@@ -2931,15 +2931,15 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                                 
                                 {/* Always show Grand Total section, even if some parts are missing */}
                                 <div className="flex justify-between items-center p-4 bg-blue-100 rounded-lg border-2 border-blue-300">
-                                  <span className="text-xl font-bold text-blue-900">Grand Total (USD):</span>
+                                  <span className="text-xl font-bold text-blue-900">Grand Total (EUR):</span>
                                   <span className="text-2xl font-bold text-blue-800">
-                                    {formatUSDPrice(usdCosts.totalUSD)}
+                                    {formatEURPrice(eurCosts.totalEUR)}
                                   </span>
                                 </div>
                                 
                                 <div className="text-center text-sm text-gray-600 mt-3">
-                                  <p>Price per booklet (USD): {formatUSDPrice(usdCosts.totalUSD / results.job.quantity, 4)}</p>
-                                  <p className="text-xs text-blue-600 mt-1">* All prices converted to USD using current exchange rates</p>
+                                  <p>Price per booklet (EUR): {formatEURPrice(eurCosts.totalEUR / results.job.quantity, 4)}</p>
+                                  <p className="text-xs text-blue-600 mt-1">* All prices converted to EUR using current exchange rates</p>
                                 </div>
                               </>
                             );
