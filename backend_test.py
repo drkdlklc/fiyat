@@ -786,6 +786,15 @@ if (innerResult) {
         self.test_paper_types_endpoint()
         self.test_machines_endpoint()
         
+        # New extras endpoints tests
+        print("🎯 Testing Extras Management System")
+        print()
+        self.test_extras_get_endpoint()
+        self.test_extras_post_endpoint()
+        self.test_extras_put_endpoint()
+        self.test_extras_delete_endpoint()
+        self.test_extras_database_operations()
+        
         # Advanced functionality tests
         self.test_database_connectivity()
         self.test_cors_headers()
