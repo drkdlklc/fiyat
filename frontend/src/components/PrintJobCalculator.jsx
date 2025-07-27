@@ -495,8 +495,8 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
 
     const job = {
       productName: jobData.productName,
-      finalWidth: parseFloat(jobData.finalWidth),
-      finalHeight: parseFloat(jobData.finalHeight),
+      finalWidth: parseFloat(jobData.finalWidth) || 210, // Default to A4 width if not set
+      finalHeight: parseFloat(jobData.finalHeight) || 297, // Default to A4 height if not set
       marginTop: parseFloat(jobData.marginTop),
       marginRight: parseFloat(jobData.marginRight),
       marginBottom: parseFloat(jobData.marginBottom),
