@@ -1,77 +1,79 @@
 <analysis>
-The previous AI engineer successfully evolved a web-based printing cost calculator from an MVP to a robust application with complex features. Initial work focused on implementing Booklet Mode and Multi-part Printing, unifying UI elements, and integrating a FastAPI backend with MongoDB for persistent data. A significant portion of the work involved refining calculation logic, particularly for booklet mode's 1 cover = 4 pages and 1 inner sheet = 2/4 pages rules, and adding input validation. Subsequent iterations tackled critical calculation bugs related to binding edge logic and incorrect halving for booklet covers and inner pages. The engineer also added confirmation dialogs for deletions, removed the 'Duplex Support' checkbox, ensured calculation consistency between Normal and Booklet modes, optimized print sheet selection by considering product rotation, and recently implemented a comprehensive Extras system for finishing options with flexible pricing. The last ongoing task is to display booklet extras separately for cover and inner pages.
+The AI engineer successfully evolved a web-based printing cost calculator through several complex feature additions and refinements. Initial work established core calculation logic and UI, followed by integrating a FastAPI backend with MongoDB for persistence. Key developments included: refining booklet mode calculations (1 cover = 4 pages, 1 inner sheet = 2/4 pages), implementing multi-part printing, and adding comprehensive Extras management. Subsequent iterations focused on display refinements, such as integrating extras costs within paper sections, and enhancing UI for binding edge selection. More recently, the engineer implemented a robust variants system for extras, allowing different price points for the same extra, and then added a critical single/double-sided option for extras, impacting their pricing. Throughout, the engineer demonstrated strong debugging skills, addressing multiple UI and calculation bugs. The last major feature, the single/double-sided option for extras, was successfully implemented and backend tested. The immediate next task is to add a PDF generation Print button.
 </analysis>
 
 <product_requirements>
-The application is a web-based printing cost calculator that computes production costs based on intricate job specifications.
-1.  **Core Calculation**: Calculate total production costs (paper, click, setup) and per-unit costs, optimizing product fit per sheet.
-2.  **Machine & Paper Management**: Machines support multiple print sheet sizes; paper types support multiple stock sizes. Backend persistence via MongoDB is required for user-defined paper types and machines.
-3.  **Printing Options**: Support single/double-sided printing (double-sided doubles click cost).
-4.  **Cover Integration**: Optional Has Cover feature for separate paper/machine selection.
-5.  **Booklet Mode**: A dedicated mode for booklet jobs, displaying Inner Paper/Machine Selection, Total Pages, and calculating costs for inner/cover pages separately. Quantity becomes number of booklets.
-6.  **Multi-Part Printing**: Allow specifying different paper/machine/page counts for sections of inner pages in both Normal and Booklet modes.
-7.  **UI/Validation**: Setup Required defaults to unchecked. Multi-part sections hide default paper/machine. Validation ensures multi-part pages match total job pages.
-8.  **Calculation Logic**: Correctly apply 1 cover = 4 pages and 1 inner sheet = 2/4 pages logic for booklet mode.
-9.  **Binding Edge**: In booklet mode, users select short or long edge binding, influencing calculations.
-10. **Extras Section**: Implement an Extras section for finishing options (e.g., lamination, binding), allowing pricing per page, per booklet, or based on length (bound edge in booklet mode; user-selected edge in normal mode).
-11. **Default States**: 'Has Cover' should be unselected by default; 'Double-Sided' should be selected by default.
+The application is a web-based printing cost calculator designed for intricate job specifications. It calculates total production costs (paper, click, setup) and per-unit costs, optimizing product fit per sheet. Key requirements include:
+1.  **Machine & Paper Management**: CRUD operations for machines and paper types, supporting multiple print/stock sheet sizes, with data persisted in MongoDB.
+2.  **Printing Options**: Single/double-sided printing, where double-sided doubles click cost.
+3.  **Booklet Mode**: A dedicated mode for booklets, requiring Inner Paper/Machine Selection, Total Pages, and separate cost calculations for inner/cover pages. Quantity represents number of booklets.
+4.  **Cover Integration**: Optional Has Cover feature with separate paper/machine selection.
+5.  **Multi-Part Printing**: Allows specifying different paper/machine/page counts for sections of inner pages in both Normal and Booklet modes.
+6.  **Calculation Logic**: Precise application of 1 cover = 4 pages and 1 inner sheet = 2/4 pages logic for booklet mode, along with correct binding edge influence (short/long edge).
+7.  **Extras Section**: Implement finishing options (lamination, binding) with flexible pricing (per page, per booklet, per length). These extras should support multiple variants (types) with different prices but shared pricing method and inside/outside same setting. Length-based pricing must be in centimeters. An extra marked inside/outside same should only appear under the cover section if selected, applying to both. Extras also need an option to be applied single-sided or double-sided, doubling the price for the latter.
+8.  **UI/Validation**: Setup Required defaults to unchecked. Multi-part sections hide default paper/machine. Multi-part pages must match total job pages. In Normal Mode, only the single best calculation option should be displayed. A final Total Price should be shown.
+9.  **Default States**: 'Has Cover' should be unselected by default; 'Double-Sided' should be selected by default.
+10. **Print Functionality**: A Print button to generate a PDF of the output.
 </product_requirements>
 
 <key_technical_concepts>
--   **React.js**: Frontend UI development with conditional rendering and state management.
--   **FastAPI**: Python backend API for CRUD operations and data persistence.
--   **MongoDB**: NoSQL database for managing paper types, machines, and extras.
--   **Tailwind CSS & Radix UI**: Styling and pre-built UI components.
--   **API Integration**: Frontend-backend communication using .
--   **Calculation Logic**: Complex algorithms for optimal sheet fitting, cost breakdown, and booklet-specific rules.
+-   **React.js**: Frontend UI, state management, and component-based architecture.
+-   **FastAPI**: Python backend for RESTful APIs and business logic.
+-   **MongoDB**: NoSQL database for persistent storage of application data.
+-   **Tailwind CSS & Radix UI**: Modern styling and accessible UI components.
+-   **API Integration**: Frontend-backend communication via environment variables ().
+-   **Complex Calculation Logic**: Algorithms for optimal sheet fitting, cost breakdown, and intricate booklet/extra rules.
 </key_technical_concepts>
 
 <code_architecture>
 
 
 -   ****:
-    -   **Summary**: The main React application entry point, handling routing, global state (paper types, machines, extras), and data fetching.
-    -   **Changes**: Integrated  for data fetching, moved from mock data. Added state and handlers for , including , , , . Added a dedicated Extras tab in the UI navigation and passed  to .
+    -   **Summary**: The main React application entry point, managing global state (paper types, machines, extras) and routing.
+    -   **Changes**: Integrated  for data fetching. Added state and handlers for . Added an Extras tab in UI navigation and passed  to . No recent changes in the last trajectory.
 -   ****:
     -   **Summary**: Contains core calculation logic for optimal sheet selection, click costs, duplex printing, cover costs, and complex booklet mode calculations.
-    -   **Changes**: Heavily modified for booklet mode (,  rules). Implemented binding edge logic for cover and inner page calculations (doubling the binding edge dimension for effective size). Refined  to try both product orientations. Introduced  to compute costs based on per page, per booklet, or per length, with dynamic edge selection. Initial machine mock data was extended to include a 330x695 (Large Format) print sheet size to support larger booklet dimensions.
+    -   **Changes**: Heavily modified for booklet mode rules and binding edge logic. Introduced  for various pricing types. Recent changes involved creating  (a wrapper function) to adapt the new variant-based extra format for  and ensure correct centimeter calculations for length-based pricing.
 -   ****:
     -   **Summary**: The central UI component for printing cost calculation, state, and logic.
-    -   **Changes**: Extensive state additions for , , , , . UI for Binding Edge selection was added. Fixed a type mismatch bug. Defaulted Setup Required to . Total Click Cost display in booklet mode was changed to Total. Implemented Has Cover checkbox for booklet mode, making cover optional and adjusting inner page calculations. Updated default values for  (false) and  (true). Integrated  state and UI, including dynamic edge selection for length-based extras. The display for results (Normal, Booklet Cover, Booklet Inner) was refactored to show a simplified, consistent set of key metrics in a more readable format. Fixed a bug where  was not passed to the job object. Logic for  and  was corrected to apply doubling logic *only* in Booklet Mode.
+    -   **Changes**: Extensive state additions for booklet mode, cover, binding edge, multi-part configs. UI for binding edge selection was added (and later separated for cover/inner). Refactored results display to integrate extras costs within paper sections and show only the best option in Normal Mode. Implemented Inside/Outside Same logic for extras, including filtering from inner pages dropdown and adding a visual indicator in the cover dropdown. Updated to support extra variants (dropdown selection, add button, variant specific pricing). Added single/double-sided selection for relevant extras, with corresponding price adjustments. Corrected binding edge descriptions (Short edge bind as landscape, Long edge bind as portrait). Added  and  functions to handle complex extra logic.
 -   ****:
     -   **Summary**: Manages machine definitions and their print sheet sizes.
-    -   **Changes**: Adapted for  array and integrated with backend API. Removed the Duplex Support checkbox and its associated state/logic. Added confirmation dialog before deleting machines.
+    -   **Changes**: Adapted for  array and integrated with backend API. Removed Duplex Support checkbox. Added confirmation dialogs for deletions. No recent changes in the last trajectory.
 -   ****:
     -   **Summary**: Manages paper type definitions and stock sheet sizes.
-    -   **Changes**: Adapted for  array and integrated with backend API. Added confirmation dialog before deleting paper types.
+    -   **Changes**: Adapted for  array and integrated with backend API. Added confirmation dialogs for deletions. No recent changes in the last trajectory.
 -   ****:
-    -   **Summary**: FastAPI backend for the application.
-    -   **Changes**: Expanded significantly to include full CRUD endpoints for , , and  with MongoDB persistence. Added default data initialization for paper types, machines, and extras. Updated the  Pydantic model to make  optional () to prevent validation errors from frontend changes.
+    -   **Summary**: FastAPI backend for the application, handling API routes and database interactions.
+    -   **Changes**: Expanded CRUD endpoints for , , and  with MongoDB persistence. Updated  Pydantic model. Recent changes include modifying the  and  Pydantic models to support multiple variants for each extra, including fields for  and . Default extras initialization updated to reflect the new variant structure. CRUD operations (, ) were adapted to handle the nested variant data.
 -   ****:
     -   **Summary**: Centralized file for API calls to the backend.
-    -   **Changes**: Implemented functions for fetching, adding, updating, and deleting paper types, machines, and new  endpoints, using .
+    -   **Changes**: Implemented functions for fetching, adding, updating, and deleting paper types, machines, and . No recent explicit changes in the last trajectory, but implicitly handles new extra fields.
 -   ****:
-    -   **Summary**: A newly created component to manage extras (finishing options) definitions, allowing users to add, edit, and delete extras with various pricing types.
-    -   **Changes**: Implemented UI for adding/editing extras with fields for name, price, and pricing type (Per Page, Per Booklet/Unit, Per Length). Integrated with  for backend communication and included confirmation dialogs for deletions.
+    -   **Summary**: Manages extras (finishing options) definitions.
+    -   **Changes**: Implemented UI for adding/editing extras with fields for name, price, and pricing type. Integrated with . Recent changes added UI and state management for Inside/Outside Same checkbox, and a complete overhaul to support variants for each extra, allowing multiple types/prices under one extra. Also added a checkbox for  for extras.
+
 </code_architecture>
 
 <pending_tasks>
-- Update the results display to show cover and inner pages extras separately in Booklet Mode.
+-   Add a 'Print' button to the result display section. When clicked, it should generate a PDF version of the output.
 </pending_tasks>
 
 <current_work>
-The AI engineer has been working on implementing an Extras section to allow users to add finishing options like lamination or binding. This involved significant work across the stack:
--   **Backend ()**: New API endpoints () were created for CRUD operations, complete with Pydantic models for validation and MongoDB persistence. Default extras (e.g., Cellophane Lamination, Staple Binding) were initialized in the database.
--   **Frontend API Service ()**: Corresponding API service functions were added to handle communication with the new backend endpoints for extras.
--   **Extras Manager Component ()**: A new dedicated component was created to allow users to manage these extras, define their name, price, and how they are priced (per page, per booklet/unit, or per length). Confirmation dialogs were added for deletions.
--   **App Integration ()**: The  was integrated into the main application, including state management for extras, loading them from the backend, and adding a new Extras tab for navigation.
--   **Calculator Integration ()**: The  was updated to receive the list of available . UI elements were added to the calculator to allow users to select multiple extras. New state variables (, ) were introduced to manage user selections.
--   **Calculation Logic ()**: A new function  was implemented to compute the cost for selected extras based on their pricing type. This function intelligently handles length-based pricing, using the bound edge in Booklet Mode and requiring user selection (short/long edge) in Normal Mode.
--   **Display Logic ()**: The calculated extras costs were integrated into the total cost and a new section was added to the results display to show a detailed breakdown of each selected extra's cost.
+The AI engineer's most recent work focused on enhancing the Extras functionality in the Print Job Calculator.
+The last major feature implemented allows certain extras to be applied as single-sided or double-sided, with the price doubling for the latter. This involved:
+-   **Backend ()**: Adding a  boolean field to the  Pydantic model and updating default extras and the  endpoint to manage this field.
+-   **Extras Manager ()**: Modifying the extra creation/editing form to include a checkbox for  and updating its display for existing extras.
+-   **Print Job Calculator ()**:
+    -   Adding new state  to track user's choice for each selected extra.
+    -   Updating the  function to capture this selection.
+    -   Modifying the  function (which wraps ) to apply the doubling logic if an extra supports and is selected for double-sided application.
+    -   Integrating a UI ( component) next to each selected extra in the results display (for Normal, Booklet Cover, and Booklet Inner sections) to allow users to choose Single-Sided or Double-Sided.
+    -   Updating the displayed cost of selected extras to reflect the single/double-sided choice.
 
-Immediately before this summary request, the AI engineer was in the process of refining the display of extras in Booklet Mode, aiming to show them separately for the cover and inner pages to reflect distinct finishing applications. The engineer updated the state, UI selection, and calculation logic for this separation, and was about to update the results display.
+Immediately before this summary, the backend changes for  were successfully tested. The user then explicitly requested to Add a Print button to the result display section. When clicked, it should generate a PDF version of the output. This new task has been added to .
 </current_work>
 
 <optional_next_step>
-Update the results display in  to show separate Extras sections for the cover and inner pages in Booklet Mode.
+Implement the Print button to generate a PDF of the calculation results in .
 </optional_next_step>
