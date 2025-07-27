@@ -69,7 +69,7 @@ class PrintSheetSize(BaseModel):
     width: float
     height: float
     clickCost: float
-    duplexSupport: bool
+    duplexSupport: Optional[bool] = False  # Make optional with default
     unit: str = "mm"
 
 class Machine(BaseModel):
