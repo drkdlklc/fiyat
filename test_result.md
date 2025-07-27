@@ -259,12 +259,12 @@ backend:
         comment: "VARIANTS SYSTEM IMPLEMENTATION COMPLETED: ✅ Backend: New ExtraVariant model with variants array, enhanced CRUD operations, CM-based pricing (0.8/cm, 1.2/cm), default data with realistic variants. 88.5% backend test success rate. ✅ Frontend ExtrasManager: Variants management (add/remove), shared properties validation, enhanced UI display, CM display updates. ✅ Calculator Integration: Fixed 'toFixed' property errors, variants display with individual prices, length unit updates. ✅ Error Resolution: Preview now loads without errors. ✅ Key Features: Multiple variants per extra, shared pricing methods, centimeter-based length calculations, enhanced UX. The variants system is fully functional and ready for use."
 
   - task: "Improve extra selection workflow with dropdown and variant selection"
-    implemented: false
-    working: false
+    implemented: true
+    working: true
     file: "frontend/src/components/PrintJobCalculator.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "main"
@@ -272,6 +272,9 @@ backend:
       - working: "NA"
         agent: "testing"
         comment: "BACKEND STABILITY VERIFICATION COMPLETED after Inside/Outside Same consolidation and calculation crash fixes. COMPREHENSIVE TESTING RESULTS: ✅ Backend test success rate: 80.8% (21/26 tests passed). ✅ Core API Health: Root endpoint (/api/) and Status endpoints (/api/status GET/POST) working correctly with 40 status records. ✅ Extras System: All CRUD operations fully functional (GET/POST/PUT/DELETE /api/extras) with proper database persistence and variants structure support. ✅ Variants Support: Complete functionality verified - model validation, update operations, backward compatibility, complex CRUD operations all working correctly. ✅ InsideOutsideSame Field: All validation tests passed including defaults, true/false values, model compatibility, and field-only updates. ✅ Database Operations: Connectivity and read/write operations working correctly with successful create/retrieve cycles. ✅ Paper Types & Machines: Endpoints working correctly (2 paper types, 1 machine) with proper structure validation. ✅ Initialize Data: Endpoint working correctly. ✅ No Regressions: All existing backend functionality unaffected by frontend fixes for Inside/Outside Same consolidation and calculation crashes. MINOR ISSUES (don't affect functionality): Missing some default extras due to existing test data, CORS config headers, and frontend calculation function tests (not backend API issues). The backend infrastructure is completely stable and fully supports the printing cost calculator system after the recent fixes."
+      - working: true
+        agent: "testing"
+        comment: "COMPREHENSIVE TESTING COMPLETED: ✅ ALL CRITICAL FIXES VERIFIED WORKING CORRECTLY. INSIDE/OUTSIDE SAME CONSOLIDATION: Successfully tested Spiral Binding extra marked as 'Inside/Outside Same' - when added to cover section first, attempting to add same extra to inner section shows proper consolidation message: 'Spiral Binding is marked as Inside/Outside Same and is already selected for the cover. It will automatically apply to both sections.' ✅ CALCULATION CRASH PREVENTION: Calculate button works without crashes, results display properly with no error messages. ✅ VARIANT-BASED CALCULATIONS: Dropdown workflow implemented correctly with separate extra selection and variant selection dropdowns, Add Extra button appears only after both selections. ✅ NEW DROPDOWN WORKFLOW: Found extra selection dropdowns, variant selection functionality, and Add Extra buttons working as designed. ✅ CONSOLIDATION IN RESULTS: Calculation results display successfully showing proper booklet mode sections (Cover Configuration, Inner Pages Configuration, Cover Extras, Inner Pages Extras). The implementation successfully prevents application crashes and properly handles Inside/Outside Same consolidation as specified in the requirements."
 
 frontend:
   - task: "Frontend API integration for persistent storage"
