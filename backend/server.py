@@ -498,6 +498,17 @@ async def initialize_default_data():
                     {"id": 9, "variantName": "Matte", "price": 0.23, "currency": "EUR"},
                     {"id": 10, "variantName": "Gloss", "price": 8.5, "currency": "TRY"}
                 ]
+            },
+            {
+                "id": 6,
+                "name": "Print Sheet Setup",
+                "pricingType": "per_print_sheet",
+                "insideOutsideSame": False,
+                "supportsDoubleSided": False,  # Applied per print sheet, not per side
+                "variants": [
+                    {"id": 11, "variantName": "Standard Setup", "price": 2.5, "currency": "USD"},
+                    {"id": 12, "variantName": "Premium Setup", "price": 4.0, "currency": "EUR"}
+                ]
             }
         ]
         
