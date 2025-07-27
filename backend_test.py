@@ -1237,6 +1237,48 @@ class BackendTester:
         except requests.exceptions.RequestException as e:
             self.log_test("Per Print Sheet Model Validation", False, f"Connection error: {str(e)}")
 
+    def test_apply_to_print_sheet_model_validation(self):
+        """Test model validation for applyToPrintSheet field"""
+        try:
+            # Test valid pricing types with applyToPrintSheet field
+            valid_pricing_types = ["per_page", "per_booklet", "per_length"]
+            
+            for pricing_type in valid_pricing_types:
+                test_extra = {
+                    "name": f"Test {pricing_type.replace('_', ' ').title()} Extra",
+                    "pricingType": pricing_type,
+                    "insideOutsideSame": False,
+                    "applyToPrintSheet": True if pricing_type == "per_length" else False,
+                    "variants": [
+                        {"variantName": "Standard", "price": 1.0, "currency": "USD"}
+                    ]
+                }
+                
+                response = requests.post(
+                    f"{self.api_url}/extras",
+                    json=test_extra,
+                    headers={"Content-Type": "application/json"},
+                    timeout=10
+                )
+                
+                if response.status_code == 200:
+                    created_extra = response.json()
+                    if (created_extra.get("pricingType") == pricing_type and
+                        created_extra.get("applyToPrintSheet") == test_extra["applyToPrintSheet"]):
+                        # Clean up
+                        requests.delete(f"{self.api_url}/extras/{created_extra.get('id')}", timeout=10)
+                    else:
+                        self.log_test("ApplyToPrintSheet Model Validation", False, f"Field validation failed for {pricing_type}: expected applyToPrintSheet={test_extra['applyToPrintSheet']}, got {created_extra.get('applyToPrintSheet')}")
+                        return
+                else:
+                    self.log_test("ApplyToPrintSheet Model Validation", False, f"Failed to create extra with {pricing_type}: {response.status_code}")
+                    return
+            
+            self.log_test("ApplyToPrintSheet Model Validation", True, f"All {len(valid_pricing_types)} pricing types work correctly with applyToPrintSheet field")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("ApplyToPrintSheet Model Validation", False, f"Connection error: {str(e)}")
+
     def test_apply_to_print_sheet_update_operations(self):
         """Test updating the applyToPrintSheet field"""
         try:
