@@ -304,7 +304,7 @@ function App() {
                 </div>
 
                 <Tabs defaultValue="calculator" className="w-full">
-                  <TabsList className="grid w-full grid-cols-3">
+                  <TabsList className="grid w-full grid-cols-4">
                     <TabsTrigger value="calculator" className="flex items-center gap-2">
                       <Calculator size={16} />
                       Calculator
@@ -316,6 +316,10 @@ function App() {
                     <TabsTrigger value="machines" className="flex items-center gap-2">
                       <Printer size={16} />
                       Machines
+                    </TabsTrigger>
+                    <TabsTrigger value="extras" className="flex items-center gap-2">
+                      <Scissors size={16} />
+                      Extras
                     </TabsTrigger>
                   </TabsList>
 
