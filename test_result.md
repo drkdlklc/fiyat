@@ -553,17 +553,20 @@ backend:
         agent: "main"
         comment: "SINGLE/DOUBLE-SIDED FEATURE IMPLEMENTATION COMPLETED: ✅ Backend: Added supportsDoubleSided boolean field to Extra models with appropriate defaults (Cellophane Lamination & UV Coating = True, Bindings = False). All CRUD operations working (84.2% success rate). ✅ Frontend ExtrasManager: Added 'Supports Double-Sided Application' checkbox for creating/editing extras with clear explanatory text. ✅ Frontend Calculator: Added single/double-sided selection UI for all three sections (Normal, Cover, Inner) with radio buttons for 'Single Side' vs 'Both Sides (2x price)'. ✅ Price Calculation: Implemented price doubling logic - when double-sided selected, base price multiplied by 2 before calculations. ✅ Visual Indicators: Selected extras show '(Double-Sided)' label and 'x2' price indicators. ✅ State Management: Separate state handling for each section prevents conflicts. Feature works seamlessly with existing variants and Inside/Outside Same functionality."
 
-  - task: "Add 'Per Print Sheet' pricing type for extras and fix extras duplication"
+  - task: "Add 'Apply to Print Sheet' checkbox for extras and fix extras duplication"
     implemented: true
     working: true
     file: "backend/server.py, frontend/src/components/ExtrasManager.jsx, frontend/src/components/PrintJobCalculator.jsx, frontend/src/data/mockData.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: false
         agent: "main"
         comment: "NEW USER REQUEST: Add 'Per Print Sheet' pricing type for extras in creation screen and fix extras duplication issue where extras are re-added on every program change."
+      - working: false
+        agent: "main"
+        comment: "UPDATED USER REQUEST: Instead of separate pricing type, add 'Apply to Print Sheet' checkbox that modifies how existing pricing methods (e.g., per length) are calculated using print sheet dimensions instead of page dimensions."
       - working: true
         agent: "main"
         comment: "APPLY TO PRINT SHEET CHECKBOX IMPLEMENTATION COMPLETED: ✅ Backend: Replaced 'per_print_sheet' separate pricing type with 'applyToPrintSheet' boolean field in Extra models, updated default data with mixed settings (Spiral Binding and Print Sheet Processing = true, others = false). ✅ Frontend ExtrasManager: Removed per_print_sheet dropdown option, added 'Apply to Print Sheet Dimensions' checkbox with explanatory text. ✅ PrintJobCalculator: Enhanced per_length calculation to use print sheet dimensions when checkbox is checked (estimates SRA3 32cm for booklet mode, typical print sheet sizes). ✅ MockData: Removed per_print_sheet case from calculateExtrasCost function. ✅ Duplication Fix: Maintained duplicate prevention in addExtraWithVariant function. Backend tested successfully confirming applyToPrintSheet field works with all CRUD operations and integrates with existing pricing types."
