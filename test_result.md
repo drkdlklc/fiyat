@@ -559,7 +559,7 @@ backend:
     file: "backend/server.py, frontend/src/components/ExtrasManager.jsx, frontend/src/components/PrintJobCalculator.jsx, frontend/src/data/mockData.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "main"
@@ -567,6 +567,9 @@ backend:
       - working: true
         agent: "main"
         comment: "PER PRINT SHEET PRICING AND DUPLICATION FIX COMPLETED: ✅ Backend: Added 'per_print_sheet' pricing type to Extra model, updated default data with example 'Print Sheet Setup' extra with USD/EUR variants. ✅ Frontend ExtrasManager: Added per_print_sheet option to pricing type dropdown and updated display labels. ✅ PrintJobCalculator: Fixed duplicate prevention in addExtraWithVariant function - now checks for existing extras before adding, shows 'Already Added' message. Added per_print_sheet calculation logic estimating print sheets based on booklet/normal mode. ✅ MockData: Enhanced calculateExtrasCost with per_print_sheet case handling print sheets estimation. Backend tested successfully with 82.8% success rate confirming new pricing type works with all CRUD operations and currency support."
+      - working: true
+        agent: "testing"
+        comment: "APPLYTOPRINTSHEET FIELD IMPLEMENTATION VERIFIED: ✅ Implementation changed from 'per_print_sheet' pricing type to 'applyToPrintSheet' boolean field as requested. ✅ Backend models (Extra, ExtraCreate, ExtraUpdate) correctly include applyToPrintSheet boolean field with default False. ✅ POST /api/extras correctly handles applyToPrintSheet field - tested with True/False values and default behavior. ✅ PUT /api/extras correctly updates applyToPrintSheet field. ✅ GET /api/extras returns applyToPrintSheet field correctly. ✅ Database persistence working - applyToPrintSheet field stored and retrieved correctly. ✅ Model validation working for all pricing types (per_page, per_booklet, per_length) with applyToPrintSheet field. ✅ Complete CRUD operations successful with applyToPrintSheet field. ✅ Core API health verified - all endpoints working correctly. The applyToPrintSheet boolean field implementation is fully functional and replaces the previous per_print_sheet pricing type approach as intended."
 
   - task: "Add per_print_sheet pricing type for extras with example data"
     implemented: true
