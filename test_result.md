@@ -180,6 +180,18 @@ backend:
         agent: "testing"
         comment: "COMPREHENSIVE TESTING COMPLETED: ✅ INTEGRATED EXTRAS DISPLAY SYSTEM IS WORKING CORRECTLY. VERIFIED: ✅ Normal Mode shows single extras section with only optimal solution (no 'Show only top 3 optimal solutions' checkbox visible). ✅ Booklet Mode displays separate Cover Extras (green background) and Inner Pages Extras (orange background) sections. ✅ Cover extras are integrated WITHIN the Cover Cost section (bg-green-50). ✅ Inner extras are integrated WITHIN the Inner Pages Cost section (bg-orange-50). ✅ Extras are properly loaded from backend (7 extras available: Spiral Binding, Perfect Binding, UV Coating, Test Lamination, Updated Test Extra). ✅ UI structure matches integrated design requirements. ✅ Backend API endpoints working correctly with 75% success rate. Minor issues: 'Show only top 3 optimal solutions' checkbox not visible in Booklet Mode results (may require calculation to complete first), and calculation functionality not producing results (separate issue from extras integration). The core integrated extras display system is implemented correctly and working as specified."
 
+  - task: "Add 'inside/outside = same' option for extras to prevent duplication"
+    implemented: false
+    working: false
+    file: "backend/server.py, frontend/src/components/ExtrasManager.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "NEW TASK: Add 'inside/outside = same' checkbox when creating/editing extras. If enabled and extra is selected for both cover and inner pages, it should only appear once in the cover section (no duplication). Requires: 1) Backend - Add insideOutsideSame field to Extra model, 2) Frontend - Add checkbox to ExtrasManager form, 3) Update results display logic to consolidate duplicates."
+
 frontend:
   - task: "Frontend API integration for persistent storage"
     implemented: true
