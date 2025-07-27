@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test the backend API endpoints after implementing currency support for paper types, machines, and extras. The implementation added currency fields to all models and updated the default data initialization."
+user_problem_statement: "Fix the extras calculation logic to use the actual calculated 'print sheets needed' (e.g., 4 sheets) instead of the job's quantity (e.g., 100 units) when the 'Apply to Print Sheet Dimensions' option is selected for an extra."
 
 backend:
   - task: "Currency support for paper types implementation"
