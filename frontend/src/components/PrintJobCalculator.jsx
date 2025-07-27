@@ -637,37 +637,35 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
 
         case 'per_length':
           // Calculate length based on binding edge (convert mm to cm)
-          if (job.isBookletMode) {
-            if (bookletSection === 'cover') {
-              edgeLength = coverBindingEdge === 'short' ? job.height / 10 : job.width / 10; // mm to cm
+          let edgeLength = 0;
+          
+          if (extra.applyToPrintSheet) {
+            // Use print sheet dimensions when checkbox is checked
+            // This is a simplified estimation - in real implementation, this would need
+            // to be calculated based on the actual print sheet size being used
+            if (job.isBookletMode) {
+              // For booklet mode, estimate print sheet size (typical values)
+              edgeLength = bookletSection === 'cover' ? 32.0 : 29.7; // SRA3 width/height in cm
             } else {
-              edgeLength = innerBindingEdge === 'short' ? job.height / 10 : job.width / 10; // mm to cm
+              // For normal mode, use typical print sheet size
+              edgeLength = 32.0; // Default SRA3 width in cm
             }
           } else {
-            edgeLength = lengthBasedEdge === 'short' ? job.height / 10 : job.width / 10; // mm to cm
+            // Use page dimensions (existing logic)
+            if (job.isBookletMode) {
+              if (bookletSection === 'cover') {
+                edgeLength = coverBindingEdge === 'short' ? job.height / 10 : job.width / 10; // mm to cm
+              } else {
+                edgeLength = innerBindingEdge === 'short' ? job.height / 10 : job.width / 10; // mm to cm
+              }
+            } else {
+              edgeLength = lengthBasedEdge === 'short' ? job.height / 10 : job.width / 10; // mm to cm
+            }
           }
           
           units = job.quantity;
           unitType = job.isBookletMode ? 'booklets' : 'units';
           cost = units * edgeLength * basePrice;
-          break;
-
-        case 'per_print_sheet':
-          // For per_print_sheet pricing, we need to estimate print sheets
-          // This is a simplified calculation - in real implementation, this would
-          // need to be calculated based on the actual print job configuration
-          if (job.isBookletMode) {
-            // In booklet mode, estimate based on pages and folding
-            const pagesPerSheet = 4; // Typical folding scenario
-            const totalPages = bookletSection === 'cover' ? 4 : (job.totalPages - 4);
-            units = Math.ceil((totalPages * job.quantity) / pagesPerSheet);
-            unitType = bookletSection === 'cover' ? 'cover print sheets' : 'inner print sheets';
-          } else {
-            // In normal mode, assume each unit requires one print sheet
-            units = job.quantity;
-            unitType = 'print sheets';
-          }
-          cost = units * basePrice;
           break;
 
         default:
