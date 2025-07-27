@@ -130,6 +130,7 @@ const PaperTypeManager = ({ paperTypes, onAddPaperType, onUpdatePaperType, onDel
       name: paper.name,
       gsm: paper.gsm.toString(),
       pricePerTon: paper.pricePerTon.toString(),
+      currency: paper.currency || 'USD',
       stockSheetSizes: paper.stockSheetSizes
     });
     setEditingId(paper.id);
