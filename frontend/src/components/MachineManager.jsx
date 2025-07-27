@@ -60,6 +60,7 @@ const MachineManager = ({ machines, onAddMachine, onUpdateMachine, onDeleteMachi
       return;
     }
 
+    // Remove any potential limit on number of sheet sizes
     const newSheetSize = {
       id: Date.now(),
       name: sheetSizeForm.name,
