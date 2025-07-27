@@ -332,7 +332,7 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
                       <div key={variant.id || index} className="text-sm bg-gray-100 px-2 py-1 rounded flex justify-between">
                         <span className="font-medium">{variant.variantName}</span>
                         <span className="text-gray-600">
-                          ${variant.price.toFixed(2)}
+                          {variant.price.toFixed(2)} {variant.currency || 'USD'}
                           {extra.pricingType === 'per_length' ? '/cm' : 
                            extra.pricingType === 'per_page' ? '/page' : 
                            '/unit'}
