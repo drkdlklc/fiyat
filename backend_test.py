@@ -2582,13 +2582,14 @@ if (innerResult) {
         self.test_extras_crud_with_currency()
         self.test_extras_database_operations()
         
-        # NEW: Per Print Sheet Pricing Tests
-        print("📄 Testing Per Print Sheet Pricing Type Implementation")
+        # NEW: ApplyToPrintSheet Field Tests
+        print("📄 Testing ApplyToPrintSheet Field Implementation")
         print()
-        self.test_per_print_sheet_pricing_type()
-        self.test_per_print_sheet_default_data()
-        self.test_per_print_sheet_model_validation()
-        self.test_per_print_sheet_crud_operations()
+        self.test_apply_to_print_sheet_field_validation()
+        self.test_apply_to_print_sheet_default_data()
+        self.test_apply_to_print_sheet_model_validation()
+        self.test_apply_to_print_sheet_update_operations()
+        self.test_apply_to_print_sheet_model_compatibility()
         
         # NEW: Single/Double-Sided Functionality Tests
         print("🔄 Testing Single/Double-Sided Functionality (supportsDoubleSided)")
