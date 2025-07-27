@@ -1237,18 +1237,16 @@ class BackendTester:
         except requests.exceptions.RequestException as e:
             self.log_test("Per Print Sheet Model Validation", False, f"Connection error: {str(e)}")
 
-    def test_per_print_sheet_crud_operations(self):
-        """Test complete CRUD operations for extras with per_print_sheet pricing"""
+    def test_apply_to_print_sheet_update_operations(self):
+        """Test updating the applyToPrintSheet field"""
         try:
-            # CREATE
+            # First create an extra
             test_extra = {
-                "name": "CRUD Test Per Print Sheet",
-                "pricingType": "per_print_sheet",
-                "insideOutsideSame": False,
-                "supportsDoubleSided": False,
+                "name": "Test ApplyToPrintSheet Update",
+                "pricingType": "per_length",
+                "applyToPrintSheet": False,
                 "variants": [
-                    {"variantName": "Basic", "price": 1.2, "currency": "USD"},
-                    {"variantName": "Premium", "price": 2.1, "currency": "EUR"}
+                    {"variantName": "Standard", "price": 0.15}
                 ]
             }
             
@@ -1260,32 +1258,15 @@ class BackendTester:
             )
             
             if create_response.status_code != 200:
-                self.log_test("Per Print Sheet CRUD Operations", False, "Failed to create test extra")
+                self.log_test("ApplyToPrintSheet Update Operations", False, "Failed to create test extra")
                 return
             
             created_extra = create_response.json()
             extra_id = created_extra.get("id")
             
-            # READ - Verify creation
-            get_response = requests.get(f"{self.api_url}/extras", timeout=10)
-            if get_response.status_code == 200:
-                all_extras = get_response.json()
-                found_extra = next((e for e in all_extras if e.get("id") == extra_id), None)
-                
-                if not found_extra or found_extra.get("pricingType") != "per_print_sheet":
-                    self.log_test("Per Print Sheet CRUD Operations", False, "Created extra not found or pricing type incorrect")
-                    return
-            
-            # UPDATE - Modify pricing type and variants
-            original_variants = created_extra.get("variants", [])
-            basic_variant_id = next((v.get("id") for v in original_variants if v.get("variantName") == "Basic"), None)
-            
+            # Update only the applyToPrintSheet field
             update_data = {
-                "name": "Updated CRUD Test",
-                "variants": [
-                    {"id": basic_variant_id, "variantName": "Updated Basic", "price": 1.5, "currency": "USD"},
-                    {"variantName": "New Advanced", "price": 3.0, "currency": "TRY"}
-                ]
+                "applyToPrintSheet": True
             }
             
             update_response = requests.put(
@@ -1297,36 +1278,49 @@ class BackendTester:
             
             if update_response.status_code == 200:
                 updated_extra = update_response.json()
-                updated_variants = updated_extra.get("variants", [])
-                
-                if (updated_extra.get("pricingType") == "per_print_sheet" and
-                    updated_extra.get("name") == "Updated CRUD Test" and
-                    len(updated_variants) == 2):
-                    
-                    updated_basic = next((v for v in updated_variants if v.get("id") == basic_variant_id), None)
-                    new_advanced = next((v for v in updated_variants if v.get("variantName") == "New Advanced"), None)
-                    
-                    if (updated_basic and updated_basic.get("variantName") == "Updated Basic" and
-                        updated_basic.get("price") == 1.5 and new_advanced and 
-                        new_advanced.get("price") == 3.0 and new_advanced.get("currency") == "TRY"):
-                        
-                        # DELETE - Clean up
-                        delete_response = requests.delete(f"{self.api_url}/extras/{extra_id}", timeout=10)
-                        
-                        if delete_response.status_code == 200:
-                            self.log_test("Per Print Sheet CRUD Operations", True, 
-                                        "Complete CRUD operations successful for per_print_sheet pricing type: Create → Read → Update (variants modified) → Delete")
-                        else:
-                            self.log_test("Per Print Sheet CRUD Operations", False, "Delete operation failed")
-                    else:
-                        self.log_test("Per Print Sheet CRUD Operations", False, f"Update verification failed: {updated_variants}")
+                if (updated_extra.get("applyToPrintSheet") == True and
+                    updated_extra.get("name") == test_extra["name"] and
+                    updated_extra.get("pricingType") == test_extra["pricingType"] and
+                    len(updated_extra.get("variants", [])) == 1):
+                    self.log_test("ApplyToPrintSheet Update Operations", True, f"Successfully updated applyToPrintSheet field to True for ID: {extra_id}")
                 else:
-                    self.log_test("Per Print Sheet CRUD Operations", False, f"Update failed: {updated_extra}")
+                    self.log_test("ApplyToPrintSheet Update Operations", False, f"Field update failed or other fields changed: {updated_extra}")
             else:
-                self.log_test("Per Print Sheet CRUD Operations", False, f"Update operation failed: {update_response.status_code}")
+                self.log_test("ApplyToPrintSheet Update Operations", False, f"HTTP {update_response.status_code}: {update_response.text}")
                 
         except requests.exceptions.RequestException as e:
-            self.log_test("Per Print Sheet CRUD Operations", False, f"Connection error: {str(e)}")
+            self.log_test("ApplyToPrintSheet Update Operations", False, f"Connection error: {str(e)}")
+
+    def test_apply_to_print_sheet_model_compatibility(self):
+        """Test that existing extras work with the new applyToPrintSheet field"""
+        try:
+            # Get all existing extras
+            get_response = requests.get(f"{self.api_url}/extras", timeout=10)
+            
+            if get_response.status_code == 200:
+                extras = get_response.json()
+                if isinstance(extras, list) and len(extras) > 0:
+                    # Check that all extras have the applyToPrintSheet field
+                    all_have_field = True
+                    field_values = []
+                    
+                    for extra in extras:
+                        if "applyToPrintSheet" not in extra:
+                            all_have_field = False
+                            break
+                        field_values.append(f"{extra.get('name')}: {extra.get('applyToPrintSheet')}")
+                    
+                    if all_have_field:
+                        self.log_test("ApplyToPrintSheet Model Compatibility", True, f"All existing extras have applyToPrintSheet field. Values: {field_values}")
+                    else:
+                        self.log_test("ApplyToPrintSheet Model Compatibility", False, "Some existing extras missing applyToPrintSheet field")
+                else:
+                    self.log_test("ApplyToPrintSheet Model Compatibility", True, "No existing extras to test compatibility (empty database)")
+            else:
+                self.log_test("ApplyToPrintSheet Model Compatibility", False, f"Failed to retrieve extras: {get_response.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("ApplyToPrintSheet Model Compatibility", False, f"Connection error: {str(e)}")
 
     def test_cover_calculation_logic(self):
         """Test the cover calculation logic for booklet mode using Node.js"""
