@@ -544,7 +544,7 @@ class BackendTester:
             self.log_test("Extras DELETE Endpoint", False, f"Connection error: {str(e)}")
 
     def test_extras_database_operations(self):
-        """Test comprehensive extras database operations with variants structure including per_print_sheet pricing"""
+        """Test comprehensive extras database operations with variants structure including applyToPrintSheet field"""
         try:
             # Initialize data to ensure extras exist
             init_response = requests.post(f"{self.api_url}/initialize-data", timeout=10)
@@ -555,14 +555,14 @@ class BackendTester:
             if get_response.status_code == 200:
                 extras = get_response.json()
                 if isinstance(extras, list) and len(extras) > 0:
-                    # Verify default extras are properly initialized with variants and insideOutsideSame values
+                    # Verify default extras are properly initialized with variants, insideOutsideSame, and applyToPrintSheet values
                     expected_extras = {
-                        "Cellophane Lamination": {"insideOutsideSame": False, "variants": ["Standard", "Premium"]},
-                        "Staple Binding": {"insideOutsideSame": True, "variants": ["2-Staple", "3-Staple"]}, 
-                        "Spiral Binding": {"insideOutsideSame": True, "variants": ["Plastic Coil", "Metal Wire"]},
-                        "Perfect Binding (American)": {"insideOutsideSame": True, "variants": ["Standard", "Premium"]},
-                        "UV Coating": {"insideOutsideSame": False, "variants": ["Matte", "Gloss"]},
-                        "Print Sheet Setup": {"insideOutsideSame": False, "variants": ["Standard Setup", "Premium Setup"]}
+                        "Cellophane Lamination": {"insideOutsideSame": False, "applyToPrintSheet": False, "variants": ["Standard", "Premium"]},
+                        "Staple Binding": {"insideOutsideSame": True, "applyToPrintSheet": False, "variants": ["2-Staple", "3-Staple"]}, 
+                        "Spiral Binding": {"insideOutsideSame": True, "applyToPrintSheet": True, "variants": ["Plastic Coil", "Metal Wire"]},
+                        "Perfect Binding (American)": {"insideOutsideSame": True, "applyToPrintSheet": False, "variants": ["Standard", "Premium"]},
+                        "UV Coating": {"insideOutsideSame": False, "applyToPrintSheet": False, "variants": ["Matte", "Gloss"]},
+                        "Print Sheet Processing": {"insideOutsideSame": False, "applyToPrintSheet": True, "variants": ["Standard Processing", "Premium Processing"]}
                     }
                     
                     found_extras = {}
@@ -571,6 +571,7 @@ class BackendTester:
                         variants = [v.get("variantName") for v in extra.get("variants", [])]
                         found_extras[name] = {
                             "insideOutsideSame": extra.get("insideOutsideSame"),
+                            "applyToPrintSheet": extra.get("applyToPrintSheet"),
                             "variants": variants
                         }
                     
@@ -582,6 +583,8 @@ class BackendTester:
                             found_data = found_extras[name]
                             if found_data["insideOutsideSame"] != expected_data["insideOutsideSame"]:
                                 incorrect_values.append(f"{name}: insideOutsideSame expected {expected_data['insideOutsideSame']}, got {found_data['insideOutsideSame']}")
+                            if found_data["applyToPrintSheet"] != expected_data["applyToPrintSheet"]:
+                                incorrect_values.append(f"{name}: applyToPrintSheet expected {expected_data['applyToPrintSheet']}, got {found_data['applyToPrintSheet']}")
                             
                             # Check variants
                             expected_variants = set(expected_data["variants"])
@@ -590,7 +593,7 @@ class BackendTester:
                                 incorrect_values.append(f"{name}: variants expected {expected_variants}, got {found_variants}")
                     
                     if not missing_extras and not incorrect_values:
-                        self.log_test("Extras Database Operations", True, f"All {len(expected_extras)} default extras properly initialized with correct variants and insideOutsideSame values including new per_print_sheet extra")
+                        self.log_test("Extras Database Operations", True, f"All {len(expected_extras)} default extras properly initialized with correct variants, insideOutsideSame, and applyToPrintSheet values")
                     else:
                         error_msg = ""
                         if missing_extras:
