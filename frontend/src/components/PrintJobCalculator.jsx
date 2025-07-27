@@ -9,6 +9,8 @@ import { Calculator, FileText, Award, Settings, CheckCircle, Plus, Minus, Dollar
 import { useToast } from '../hooks/use-toast';
 import { findOptimalPrintSheetSize, calculateOptimalForPaperType, calculateCoverCost, calculateInnerPagesCost, calculateMultiPartCost, calculateMultiPartInnerPagesCost, calculateExtrasCost } from '../data/mockData';
 import html2pdf from 'html2pdf.js';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
   const resultsRef = useRef(null);
