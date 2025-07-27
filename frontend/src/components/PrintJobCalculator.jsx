@@ -9,7 +9,7 @@ import { Calculator, FileText, Award, Settings, CheckCircle, Plus, Minus } from 
 import { useToast } from '../hooks/use-toast';
 import { findOptimalPrintSheetSize, calculateOptimalForPaperType, calculateCoverCost, calculateInnerPagesCost, calculateMultiPartCost, calculateMultiPartInnerPagesCost } from '../data/mockData';
 
-const PrintJobCalculator = ({ paperTypes, machines }) => {
+const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
   const [jobData, setJobData] = useState({
     productName: '',
     finalWidth: '',
