@@ -652,6 +652,24 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
           cost = units * edgeLength * basePrice;
           break;
 
+        case 'per_print_sheet':
+          // For per_print_sheet pricing, we need to estimate print sheets
+          // This is a simplified calculation - in real implementation, this would
+          // need to be calculated based on the actual print job configuration
+          if (job.isBookletMode) {
+            // In booklet mode, estimate based on pages and folding
+            const pagesPerSheet = 4; // Typical folding scenario
+            const totalPages = bookletSection === 'cover' ? 4 : (job.totalPages - 4);
+            units = Math.ceil((totalPages * job.quantity) / pagesPerSheet);
+            unitType = bookletSection === 'cover' ? 'cover print sheets' : 'inner print sheets';
+          } else {
+            // In normal mode, assume each unit requires one print sheet
+            units = job.quantity;
+            unitType = 'print sheets';
+          }
+          cost = units * basePrice;
+          break;
+
         default:
           return;
       }
