@@ -347,6 +347,15 @@ function App() {
                       onDeleteMachine={handleDeleteMachine}
                     />
                   </TabsContent>
+                  
+                  <TabsContent value="extras">
+                    <ExtrasManager
+                      extras={extras}
+                      onAddExtra={handleAddExtra}
+                      onUpdateExtra={handleUpdateExtra}
+                      onDeleteExtra={handleDeleteExtra}
+                    />
+                  </TabsContent>
                 </Tabs>
               </div>
             } />
