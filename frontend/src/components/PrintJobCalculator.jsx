@@ -641,7 +641,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
 
         case 'per_length':
           // Calculate length based on binding edge (convert mm to cm)
-          let edgeLength = 0;
+          edgeLength = 0; // Reset the function-level variable
           
           console.log('=== PER_LENGTH CALCULATION START ===');
           console.log('Raw job object:', job);
