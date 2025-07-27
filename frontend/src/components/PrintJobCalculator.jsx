@@ -102,143 +102,72 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
       const productName = jobData.productName || 'PrintJob';
       const filename = `${productName}_Quote_${currentDate}.pdf`;
 
-      // Create a temporary wrapper with Print and Smile branding
-      const tempWrapper = document.createElement('div');
-      tempWrapper.style.cssText = `
-        background-color: white;
-        padding: 10px;
-        font-family: Arial, sans-serif;
-        font-size: 11px;
-        line-height: 1.3;
-        color: #000;
-        width: 100%;
-      `;
+      // Simple approach - capture the content directly
+      const element = resultsRef.current;
       
-      // Add company header
-      const header = document.createElement('div');
-      header.innerHTML = `
-        <div style="text-align: center; margin-bottom: 15px; border-bottom: 2px solid #1e40af; padding-bottom: 10px;">
-          <h1 style="color: #1e40af; font-size: 20px; margin: 0; font-weight: bold;">Print and Smile</h1>
-          <p style="color: #6b7280; margin: 3px 0; font-size: 11px;">www.printandsmile.com.tr - Professional Printing Solutions</p>
-          <p style="color: #6b7280; margin: 0; font-size: 10px;">Quote Generated: ${new Date().toLocaleDateString()}</p>
-        </div>
-      `;
-      
-      // Clone the results content
-      const resultsClone = resultsRef.current.cloneNode(true);
-      
-      // Remove interactive elements
-      const buttons = resultsClone.querySelectorAll('button');
-      buttons.forEach(button => button.remove());
-      
-      const checkboxes = resultsClone.querySelectorAll('input[type="checkbox"]');
-      checkboxes.forEach(checkbox => checkbox.remove());
+      // Debug: Check if element exists and has content
+      console.log('Element found:', !!element);
+      console.log('Element content:', element ? element.textContent.substring(0, 100) : 'No content');
+      console.log('Element HTML length:', element ? element.innerHTML.length : 0);
 
-      // Simple styling adjustments - less aggressive
-      const allElements = resultsClone.querySelectorAll('*');
-      allElements.forEach(element => {
-        // Make fonts slightly smaller but not too small
-        const currentFontSize = window.getComputedStyle(element).fontSize;
-        const currentSize = parseInt(currentFontSize) || 14;
-        const newSize = Math.max(9, currentSize - 2); // Minimum 9px
-        
-        element.style.fontSize = `${newSize}px`;
-        element.style.lineHeight = '1.2';
-        
-        // Reduce padding and margins slightly
-        const currentPadding = window.getComputedStyle(element).padding;
-        if (currentPadding && currentPadding !== '0px') {
-          element.style.padding = '3px';
-        }
-        
-        const currentMargin = window.getComputedStyle(element).margin;
-        if (currentMargin && currentMargin !== '0px') {
-          element.style.margin = '2px 0';
-        }
-      });
-
-      // Highlight Final Total Price section specifically
-      const finalTotalSection = resultsClone.querySelector('.final-total-price-section');
-      if (finalTotalSection) {
-        finalTotalSection.style.cssText += `
-          background-color: #e3f2fd !important;
-          border: 2px solid #1976d2 !important;
-          padding: 8px !important;
-          margin: 8px 0 !important;
-          border-radius: 6px !important;
-        `;
-        
-        // Make sure Final Total Price header is visible
-        const finalHeader = finalTotalSection.querySelector('h2');
-        if (finalHeader) {
-          finalHeader.style.cssText += `
-            color: #1976d2 !important;
-            font-size: 16px !important;
-            font-weight: bold !important;
-          `;
-        }
+      if (!element || !element.innerHTML.trim()) {
+        throw new Error('No content found to generate PDF');
       }
 
-      // Find and highlight Grand Total specifically
-      const allTextElements = resultsClone.querySelectorAll('*');
-      allTextElements.forEach(element => {
-        if (element.textContent && element.textContent.includes('Grand Total')) {
-          element.style.cssText += `
-            background-color: #fff3cd !important;
-            color: #000 !important;
-            font-weight: bold !important;
-            padding: 4px !important;
-            border-radius: 3px !important;
-          `;
-        }
-      });
+      // Create header content to prepend
+      const headerHtml = `
+        <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #1e40af; padding-bottom: 15px; background: white;">
+          <h1 style="color: #1e40af; font-size: 24px; margin: 0; font-weight: bold;">Print and Smile</h1>
+          <p style="color: #6b7280; margin: 5px 0; font-size: 14px;">www.printandsmile.com.tr - Professional Printing Solutions</p>
+          <p style="color: #6b7280; margin: 0; font-size: 12px;">Quote Generated: ${new Date().toLocaleDateString()}</p>
+        </div>
+      `;
+
+      // Clone the original element
+      const clonedElement = element.cloneNode(true);
       
-      // Append header and results to temp wrapper
-      tempWrapper.appendChild(header);
-      tempWrapper.appendChild(resultsClone);
+      // Remove buttons from cloned content
+      const buttons = clonedElement.querySelectorAll('button');
+      buttons.forEach(btn => btn.remove());
       
-      // PDF Options - optimized but not too aggressive
+      // Create wrapper with header
+      const wrapper = document.createElement('div');
+      wrapper.style.cssText = 'background: white; padding: 20px; font-family: Arial, sans-serif;';
+      wrapper.innerHTML = headerHtml + clonedElement.innerHTML;
+
+      // Very basic PDF options
       const opt = {
-        margin: [8, 8, 8, 8],
+        margin: [10, 10, 10, 10],
         filename: filename,
-        image: { 
-          type: 'jpeg', 
-          quality: 0.8
-        },
+        image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { 
-          scale: 1.5,
+          scale: 2,
           useCORS: true,
-          allowTaint: true,
-          backgroundColor: '#ffffff',
-          width: 800, // Fixed width for consistency
-          height: tempWrapper.scrollHeight
+          backgroundColor: '#ffffff'
         },
         jsPDF: { 
           unit: 'mm', 
           format: 'a4', 
           orientation: 'portrait'
-        },
-        pagebreak: { 
-          mode: ['avoid-all'],
-          avoid: ['.final-total-price-section']
         }
       };
+
+      // Add to body temporarily
+      document.body.appendChild(wrapper);
       
-      // Temporarily add to document for html2pdf
-      document.body.appendChild(tempWrapper);
+      console.log('About to generate PDF...');
       
-      // Give the browser a moment to render
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Generate PDF using the wrapper
+      await html2pdf().set(opt).from(wrapper).save();
       
-      // Generate PDF
-      await html2pdf().set(opt).from(tempWrapper).save();
+      console.log('PDF generation completed');
       
-      // Clean up
-      document.body.removeChild(tempWrapper);
+      // Remove from body
+      document.body.removeChild(wrapper);
       
       toast({
         title: "Success",
-        description: "PDF generated successfully with Final Total Price included!",
+        description: "PDF generated successfully!",
         variant: "default"
       });
       
@@ -246,7 +175,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
       console.error('PDF generation error:', error);
       toast({
         title: "Error",
-        description: `Failed to generate PDF: ${error.message}`,
+        description: `PDF generation failed: ${error.message}`,
         variant: "destructive"
       });
     }
