@@ -547,6 +547,66 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+@app.get("/api/exchange-rates")
+async def get_exchange_rates():
+    """
+    Fetch current exchange rates from altinkaynak.com
+    Returns rates with EUR as the base currency for consistent conversion
+    """
+    try:
+        # Initialize Altinkaynak client
+        altin = Altinkaynak()
+        
+        # Get exchange rates
+        # We'll get rates to convert FROM other currencies TO EUR
+        usd_to_try = altin.get_rate("USD", "TRY")  
+        eur_to_try = altin.get_rate("EUR", "TRY")
+        
+        if usd_to_try and eur_to_try:
+            # Calculate conversion rates with EUR as base
+            # If 1 EUR = X TRY and 1 USD = Y TRY, then 1 USD = Y/X EUR
+            usd_to_eur = usd_to_try / eur_to_try
+            try_to_eur = 1 / eur_to_try
+            
+            exchange_rates = {
+                "base_currency": "EUR",
+                "timestamp": datetime.now().isoformat(),
+                "rates": {
+                    "EUR": 1.0,  # Base currency
+                    "USD": usd_to_eur,  # 1 USD = X EUR
+                    "TRY": try_to_eur   # 1 TRY = X EUR
+                }
+            }
+            
+            return exchange_rates
+        else:
+            # Fallback to default rates if API fails
+            return {
+                "base_currency": "EUR", 
+                "timestamp": datetime.now().isoformat(),
+                "rates": {
+                    "EUR": 1.0,
+                    "USD": 0.95,  # Approximate fallback
+                    "TRY": 0.028  # Approximate fallback
+                },
+                "fallback": True
+            }
+            
+    except Exception as e:
+        print(f"Error fetching exchange rates: {e}")
+        # Return fallback rates
+        return {
+            "base_currency": "EUR",
+            "timestamp": datetime.now().isoformat(), 
+            "rates": {
+                "EUR": 1.0,
+                "USD": 0.95,  # Fallback rate
+                "TRY": 0.028  # Fallback rate
+            },
+            "fallback": True,
+            "error": str(e)
+        }
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
