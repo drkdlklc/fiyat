@@ -1048,68 +1048,88 @@ class BackendTester:
         except requests.exceptions.RequestException as e:
             self.log_test("Update InsideOutsideSame Only", False, f"Connection error: {str(e)}")
 
-    def test_per_print_sheet_pricing_type(self):
-        """Test the new per_print_sheet pricing type functionality"""
+    def test_apply_to_print_sheet_field_validation(self):
+        """Test the applyToPrintSheet field validation and optional behavior"""
         try:
-            # Test 1: Create extra with per_print_sheet pricing type
-            test_extra = {
-                "name": "Test Per Print Sheet Extra",
-                "pricingType": "per_print_sheet",
-                "insideOutsideSame": False,
-                "supportsDoubleSided": False,
+            # Test 1: Create extra without applyToPrintSheet field (should default to False)
+            test_extra_no_field = {
+                "name": "Test No ApplyToPrintSheet Field",
+                "pricingType": "per_page",
                 "variants": [
-                    {"variantName": "Basic Setup", "price": 1.5, "currency": "USD"},
-                    {"variantName": "Advanced Setup", "price": 2.8, "currency": "EUR"}
+                    {"variantName": "Standard", "price": 0.30}
                 ]
             }
             
-            create_response = requests.post(
+            response1 = requests.post(
                 f"{self.api_url}/extras",
-                json=test_extra,
+                json=test_extra_no_field,
                 headers={"Content-Type": "application/json"},
                 timeout=10
             )
             
-            if create_response.status_code == 200:
-                created_extra = create_response.json()
-                if (created_extra.get("pricingType") == "per_print_sheet" and
-                    created_extra.get("name") == test_extra["name"] and
-                    len(created_extra.get("variants", [])) == 2):
-                    self.log_test("Per Print Sheet Creation", True, f"Successfully created extra with per_print_sheet pricing type. ID: {created_extra.get('id')}")
-                    
-                    # Test 2: Update the extra to verify per_print_sheet pricing persists
-                    extra_id = created_extra.get("id")
-                    update_data = {
-                        "name": "Updated Per Print Sheet Extra"
-                    }
-                    
-                    update_response = requests.put(
-                        f"{self.api_url}/extras/{extra_id}",
-                        json=update_data,
-                        headers={"Content-Type": "application/json"},
-                        timeout=10
-                    )
-                    
-                    if update_response.status_code == 200:
-                        updated_extra = update_response.json()
-                        if (updated_extra.get("pricingType") == "per_print_sheet" and
-                            updated_extra.get("name") == update_data["name"]):
-                            self.log_test("Per Print Sheet Update", True, "Per print sheet pricing type preserved during update")
-                        else:
-                            self.log_test("Per Print Sheet Update", False, f"Pricing type not preserved: {updated_extra.get('pricingType')}")
-                    else:
-                        self.log_test("Per Print Sheet Update", False, f"Update failed: {update_response.status_code}")
-                        
-                    # Clean up
-                    requests.delete(f"{self.api_url}/extras/{extra_id}", timeout=10)
-                        
+            if response1.status_code == 200:
+                data1 = response1.json()
+                if data1.get("applyToPrintSheet") == False:  # Should default to False
+                    self.log_test("ApplyToPrintSheet Field Default", True, f"Field defaults to False when not provided: {data1.get('applyToPrintSheet')}")
                 else:
-                    self.log_test("Per Print Sheet Creation", False, f"Invalid response structure: {created_extra}")
+                    self.log_test("ApplyToPrintSheet Field Default", False, f"Expected False default, got: {data1.get('applyToPrintSheet')}")
             else:
-                self.log_test("Per Print Sheet Creation", False, f"HTTP {create_response.status_code}: {create_response.text}")
+                self.log_test("ApplyToPrintSheet Field Default", False, f"Failed to create extra without field: {response1.status_code}")
+            
+            # Test 2: Create extra with applyToPrintSheet = True
+            test_extra_true = {
+                "name": "Test True ApplyToPrintSheet",
+                "pricingType": "per_length",
+                "applyToPrintSheet": True,
+                "variants": [
+                    {"variantName": "Standard", "price": 0.12}
+                ]
+            }
+            
+            response2 = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra_true,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if response2.status_code == 200:
+                data2 = response2.json()
+                if data2.get("applyToPrintSheet") == True:
+                    self.log_test("ApplyToPrintSheet Field True", True, f"Field correctly set to True: {data2.get('applyToPrintSheet')}")
+                else:
+                    self.log_test("ApplyToPrintSheet Field True", False, f"Expected True, got: {data2.get('applyToPrintSheet')}")
+            else:
+                self.log_test("ApplyToPrintSheet Field True", False, f"Failed to create extra with True field: {response2.status_code}")
+            
+            # Test 3: Create extra with applyToPrintSheet = False
+            test_extra_false = {
+                "name": "Test False ApplyToPrintSheet",
+                "pricingType": "per_booklet",
+                "applyToPrintSheet": False,
+                "variants": [
+                    {"variantName": "Standard", "price": 5.00}
+                ]
+            }
+            
+            response3 = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra_false,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if response3.status_code == 200:
+                data3 = response3.json()
+                if data3.get("applyToPrintSheet") == False:
+                    self.log_test("ApplyToPrintSheet Field False", True, f"Field correctly set to False: {data3.get('applyToPrintSheet')}")
+                else:
+                    self.log_test("ApplyToPrintSheet Field False", False, f"Expected False, got: {data3.get('applyToPrintSheet')}")
+            else:
+                self.log_test("ApplyToPrintSheet Field False", False, f"Failed to create extra with False field: {response3.status_code}")
                 
         except requests.exceptions.RequestException as e:
-            self.log_test("Per Print Sheet Pricing Type", False, f"Connection error: {str(e)}")
+            self.log_test("ApplyToPrintSheet Field Validation", False, f"Connection error: {str(e)}")
 
     def test_per_print_sheet_default_data(self):
         """Test that the default data includes the new Print Sheet Setup extra with per_print_sheet pricing"""
