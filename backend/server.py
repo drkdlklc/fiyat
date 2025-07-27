@@ -426,6 +426,7 @@ async def initialize_default_data():
                 "name": "Cellophane Lamination", 
                 "pricingType": "per_page", 
                 "insideOutsideSame": False,
+                "supportsDoubleSided": True,  # Can be applied to one or both sides
                 "variants": [
                     {"id": 1, "variantName": "Standard", "price": 0.15},
                     {"id": 2, "variantName": "Premium", "price": 0.25}
@@ -436,6 +437,7 @@ async def initialize_default_data():
                 "name": "Staple Binding", 
                 "pricingType": "per_booklet", 
                 "insideOutsideSame": True,
+                "supportsDoubleSided": False,  # Binding applies to whole booklet
                 "variants": [
                     {"id": 3, "variantName": "2-Staple", "price": 2.50},
                     {"id": 4, "variantName": "3-Staple", "price": 3.50}
@@ -446,6 +448,7 @@ async def initialize_default_data():
                 "name": "Spiral Binding", 
                 "pricingType": "per_length", 
                 "insideOutsideSame": True,
+                "supportsDoubleSided": False,  # Binding applies to whole booklet
                 "variants": [
                     {"id": 5, "variantName": "Plastic Coil", "price": 0.8},  # price per cm
                     {"id": 6, "variantName": "Metal Wire", "price": 1.2}    # price per cm
@@ -456,6 +459,7 @@ async def initialize_default_data():
                 "name": "Perfect Binding (American)", 
                 "pricingType": "per_booklet", 
                 "insideOutsideSame": True,
+                "supportsDoubleSided": False,  # Binding applies to whole booklet
                 "variants": [
                     {"id": 7, "variantName": "Standard", "price": 15.00},
                     {"id": 8, "variantName": "Premium", "price": 22.50}
@@ -466,6 +470,7 @@ async def initialize_default_data():
                 "name": "UV Coating", 
                 "pricingType": "per_page", 
                 "insideOutsideSame": False,
+                "supportsDoubleSided": True,  # Can be applied to one or both sides
                 "variants": [
                     {"id": 9, "variantName": "Matte", "price": 0.25},
                     {"id": 10, "variantName": "Gloss", "price": 0.30}
