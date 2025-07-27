@@ -315,7 +315,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Update cover calculation to use binding edge in booklet mode"
+    - "Display cover and inner pages extras separately in Booklet Mode"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
