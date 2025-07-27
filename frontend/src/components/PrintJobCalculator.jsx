@@ -1328,62 +1328,97 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                       <FileText size={16} />
                       Inner Pages Extras
                     </h4>
-                    <div className="space-y-3">
-                      {extras.map((extra) => (
-                        <div key={`inner-${extra.id}`} className="flex items-center justify-between p-3 border rounded bg-white">
-                          <div className="flex items-center space-x-3">
-                            <Checkbox
-                              id={`inner-extra-${extra.id}`}
-                              checked={selectedInnerExtras.some(se => se.extraId === extra.id)}
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  setSelectedInnerExtras([...selectedInnerExtras, { extraId: extra.id }]);
-                                } else {
-                                  setSelectedInnerExtras(selectedInnerExtras.filter(se => se.extraId !== extra.id));
-                                }
-                              }}
-                            />
-                            <div>
-                              <Label htmlFor={`inner-extra-${extra.id}`} className="font-medium cursor-pointer">
-                                {extra.name}
-                              </Label>
-                              <div className="text-sm text-gray-600">
-                                {extra.variants?.length > 0 ? (
-                                  <div className="space-y-1">
-                                    {extra.variants.map((variant, idx) => (
-                                      <div key={idx} className="flex justify-between">
-                                        <span>{variant.variantName}:</span>
-                                        <span>${variant.price.toFixed(2)} per {
-                                          extra.pricingType === 'per_page' ? 'page' :
-                                          extra.pricingType === 'per_booklet' ? 'booklet' :
-                                          'length (cm)'
-                                        }</span>
-                                      </div>
-                                    ))}
-                                  </div>
-                                ) : (
-                                  <span className="text-red-500">No variants available</span>
-                                )}
-                              </div>
-                            </div>
+                    
+                    {/* Extra Selection Dropdown */}
+                    <div className="space-y-3 mb-4">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label>Choose Extra</Label>
+                          <Select value={selectedInnerExtraId} onValueChange={(value) => {
+                            setSelectedInnerExtraId(value);
+                            setSelectedInnerVariantId(''); // Reset variant selection
+                          }}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select an extra..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {extras.map((extra) => (
+                                <SelectItem key={extra.id} value={extra.id.toString()}>
+                                  {extra.name} ({extra.pricingType === 'per_page' ? 'Per Page' : 
+                                                  extra.pricingType === 'per_booklet' ? 'Per Booklet' : 
+                                                  'Per Length (cm)'})
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        {/* Variant Selection */}
+                        {selectedInnerExtraId && (
+                          <div>
+                            <Label>Choose Type/Variant</Label>
+                            <Select value={selectedInnerVariantId} onValueChange={setSelectedInnerVariantId}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select variant..." />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {extras.find(e => e.id === parseInt(selectedInnerExtraId))?.variants?.map((variant) => (
+                                  <SelectItem key={variant.id} value={variant.id.toString()}>
+                                    {variant.variantName} - ${variant.price.toFixed(2)}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </div>
-                        </div>
-                      ))}
+                        )}
+                      </div>
                       
-                      {extras.length === 0 && (
-                        <p className="text-sm text-gray-500 text-center py-2">No extras available</p>
-                      )}
-                      
-                      {selectedInnerExtras.some(se => {
-                        const extra = extras.find(e => e.id === se.extraId);
-                        return extra && extra.pricingType === 'per_length';
-                      }) && (
-                        <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded">
-                          <strong>Inner pages length-based pricing:</strong> Uses bound edge 
-                          ({jobData.bindingEdge === 'short' ? 'short edge (height)' : 'long edge (width)'})
-                        </div>
+                      {/* Add Extra Button */}
+                      {selectedInnerExtraId && selectedInnerVariantId && (
+                        <Button
+                          type="button"
+                          onClick={() => addExtraWithVariant(selectedInnerExtraId, selectedInnerVariantId, 'inner')}
+                          className="flex items-center gap-2"
+                        >
+                          <Plus size={16} />
+                          Add Extra
+                        </Button>
                       )}
                     </div>
+                    
+                    {/* Selected Inner Extras List */}
+                    {selectedInnerExtras.length > 0 && (
+                      <div className="space-y-2">
+                        <Label className="text-sm font-semibold">Selected Inner Pages Extras:</Label>
+                        {selectedInnerExtras.map((selected, index) => {
+                          const extra = extras.find(e => e.id === selected.extraId);
+                          return (
+                            <div key={index} className="flex items-center justify-between p-2 bg-white border rounded">
+                              <span className="font-medium">
+                                {extra?.name} - {selected.variantName}
+                              </span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm text-gray-600">
+                                  ${selected.price.toFixed(2)} per {
+                                    extra?.pricingType === 'per_page' ? 'page' :
+                                    extra?.pricingType === 'per_booklet' ? 'booklet' :
+                                    'cm'
+                                  }
+                                </span>
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="sm"
+                                  onClick={() => removeExtraFromSection(selected.extraId, selected.variantId, 'inner')}
+                                >
+                                  <X size={14} />
+                                </Button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 </div>
               ) : (
