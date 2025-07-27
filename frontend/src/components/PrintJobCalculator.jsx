@@ -935,6 +935,47 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                     )}
                   </div>
 
+                  {/* Inner Pages Binding Edge Selection */}
+                  <div className="mt-4">
+                    <Label htmlFor="innerBindingEdge" className="text-base font-semibold">Inner Pages Binding Edge</Label>
+                    <div className="mt-2 p-3 border rounded-lg bg-orange-100 border-orange-300">
+                      <Select value={innerBindingEdge} onValueChange={setInnerBindingEdge}>
+                        <SelectTrigger className="mb-2">
+                          <SelectValue placeholder="Choose which edge will be bound for inner pages" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="short">
+                            <div className="flex flex-col">
+                              <span className="font-semibold">Short Edge Binding</span>
+                              <span className="text-xs text-gray-500">Bound on the short side (height) - Portrait inner pages</span>
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="long">
+                            <div className="flex flex-col">
+                              <span className="font-semibold">Long Edge Binding</span>
+                              <span className="text-xs text-gray-500">Bound on the long side (width) - Landscape inner pages</span>
+                            </div>
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      
+                      <div className="mt-2 p-2 bg-orange-50 rounded text-sm">
+                        <p className="font-medium text-orange-800">
+                          {innerBindingEdge === 'short' 
+                            ? '📖 Inner Pages: Books open like a standard portrait book' 
+                            : '📋 Inner Pages: Books open like a landscape calendar or flip chart'
+                          }
+                        </p>
+                        <p className="text-orange-600 text-xs mt-1">
+                          Inner pages binding edge: {innerBindingEdge === 'short' 
+                            ? `${jobData.height}mm edge will be bound` 
+                            : `${jobData.width}mm edge will be bound`
+                          }
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
                   <p className="text-sm text-orange-600 mt-2">
                     Inner pages will be calculated as: {jobData.totalPages ? `(${jobData.totalPages} total - 4 cover = ${Math.max(0, jobData.totalPages - 4)} inner pages) × ${jobData.quantity || 'quantity'} booklets` : '(total pages - 4 cover pages) × quantity booklets'}
                     <br />
