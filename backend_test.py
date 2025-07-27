@@ -354,14 +354,16 @@ class BackendTester:
         return None
 
     def test_extras_put_endpoint(self):
-        """Test the PUT /api/extras/{id} endpoint with new insideOutsideSame field"""
+        """Test the PUT /api/extras/{id} endpoint with variants update"""
         try:
             # First create an extra to update
             test_extra = {
                 "name": "Test Update Extra",
                 "pricingType": "per_booklet",
-                "price": 5.00,
-                "insideOutsideSame": False
+                "insideOutsideSame": False,
+                "variants": [
+                    {"variantName": "Basic", "price": 5.00}
+                ]
             }
             
             create_response = requests.post(
@@ -377,12 +379,16 @@ class BackendTester:
             
             created_extra = create_response.json()
             extra_id = created_extra.get("id")
+            original_variant_id = created_extra.get("variants", [{}])[0].get("id")
             
-            # Now update the extra including the insideOutsideSame field
+            # Now update the extra including variants
             update_data = {
                 "name": "Updated Test Extra",
-                "price": 7.50,
-                "insideOutsideSame": True
+                "insideOutsideSame": True,
+                "variants": [
+                    {"id": original_variant_id, "variantName": "Updated Basic", "price": 7.50},
+                    {"variantName": "New Premium", "price": 12.00}
+                ]
             }
             
             update_response = requests.put(
@@ -394,11 +400,22 @@ class BackendTester:
             
             if update_response.status_code == 200:
                 updated_extra = update_response.json()
+                variants = updated_extra.get("variants", [])
+                
                 if (updated_extra.get("name") == update_data["name"] and
-                    updated_extra.get("price") == update_data["price"] and
                     updated_extra.get("insideOutsideSame") == update_data["insideOutsideSame"] and
-                    updated_extra.get("pricingType") == test_extra["pricingType"]):  # Should remain unchanged
-                    self.log_test("Extras PUT Endpoint", True, f"Extra update successful for ID: {extra_id}, insideOutsideSame updated to: {updated_extra.get('insideOutsideSame')}")
+                    len(variants) == 2):
+                    
+                    # Check if variants were updated correctly
+                    updated_variant = next((v for v in variants if v.get("id") == original_variant_id), None)
+                    new_variant = next((v for v in variants if v.get("variantName") == "New Premium"), None)
+                    
+                    if (updated_variant and updated_variant.get("variantName") == "Updated Basic" and 
+                        updated_variant.get("price") == 7.50 and new_variant and 
+                        new_variant.get("price") == 12.00):
+                        self.log_test("Extras PUT Endpoint", True, f"Extra and variants update successful for ID: {extra_id}")
+                    else:
+                        self.log_test("Extras PUT Endpoint", False, f"Variants update failed: {variants}")
                 else:
                     self.log_test("Extras PUT Endpoint", False, f"Update data mismatch: {updated_extra}")
             else:
