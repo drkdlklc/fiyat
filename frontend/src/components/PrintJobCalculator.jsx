@@ -48,6 +48,8 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
   const [multiPartInnerMachines, setMultiPartInnerMachines] = useState([
     { id: 1, machineId: null, pageCount: '' }
   ]);
+  const [selectedExtras, setSelectedExtras] = useState([]);
+  const [lengthBasedEdge, setLengthBasedEdge] = useState('long'); // For Normal Mode length-based extras
   const [multiPartConfigurations, setMultiPartConfigurations] = useState([
     { id: 1, paperTypeId: null, machineId: null, pageCount: '' }
   ]);
