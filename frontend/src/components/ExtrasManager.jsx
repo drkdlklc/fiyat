@@ -182,21 +182,69 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
                   <SelectContent>
                     <SelectItem value="per_page">Per Page</SelectItem>
                     <SelectItem value="per_booklet">Per Booklet/Unit</SelectItem>
-                    <SelectItem value="per_length">Per Length (mm)</SelectItem>
+                    <SelectItem value="per_length">Per Length (cm)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <Label htmlFor="price">Price ({getPricingTypeLabel(formData.pricingType)})</Label>
-                <Input
-                  id="price"
-                  type="number"
-                  step="0.01"
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  placeholder="0.00"
-                />
+            </div>
+
+            {/* Variants Section */}
+            <div className="mt-4">
+              <div className="flex items-center justify-between mb-3">
+                <Label className="text-base font-semibold">Variants</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addVariant}
+                  className="flex items-center gap-1"
+                >
+                  <Plus size={14} />
+                  Add Variant
+                </Button>
               </div>
+              
+              <div className="space-y-3">
+                {formData.variants.map((variant, index) => (
+                  <div key={index} className="grid grid-cols-2 gap-3 p-3 border rounded bg-white">
+                    <div>
+                      <Label>Variant Name</Label>
+                      <Input
+                        value={variant.variantName}
+                        onChange={(e) => updateVariant(index, 'variantName', e.target.value)}
+                        placeholder="e.g., Standard, Premium, Matte"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="flex-1">
+                        <Label>Price ({getPricingTypeLabel(formData.pricingType)})</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={variant.price}
+                          onChange={(e) => updateVariant(index, 'price', e.target.value)}
+                          placeholder="0.00"
+                        />
+                      </div>
+                      {formData.variants.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => removeVariant(index)}
+                          className="mt-6"
+                        >
+                          <Minus size={14} />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <p className="text-xs text-gray-500 mt-2">
+                Add multiple variants with different prices. All variants share the same pricing method and inside/outside settings.
+              </p>
             </div>
             
             {/* Inside/Outside Same Checkbox */}
