@@ -74,9 +74,22 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
     const coverExtraIds = selectedCoverExtras.map(se => se.extraId);
     const innerExtraIds = selectedInnerExtras.map(se => se.extraId);
     
+    console.log('Consolidation Debug:', {
+      coverExtraIds,
+      innerExtraIds,
+      coverExtras: coverExtras.length,
+      innerExtras: innerExtras.length
+    });
+    
     innerExtras.forEach(innerExtra => {
       const extraData = extrasData.find(e => e.id === innerExtra.extraId);
       const isAlsoInCover = coverExtraIds.includes(innerExtra.extraId);
+      
+      console.log(`Processing inner extra ${innerExtra.extraId}:`, {
+        extraData: extraData ? { name: extraData.name, insideOutsideSame: extraData.insideOutsideSame } : null,
+        isAlsoInCover,
+        shouldConsolidate: extraData && extraData.insideOutsideSame && isAlsoInCover
+      });
       
       if (extraData && extraData.insideOutsideSame && isAlsoInCover) {
         // This extra should be consolidated - skip adding to inner, already in cover
@@ -86,6 +99,8 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
           // Combine the costs and update description
           const combinedCost = consolidatedCover[coverExtraIndex].totalCost + innerExtra.totalCost;
           const combinedUnits = consolidatedCover[coverExtraIndex].units + innerExtra.units;
+          
+          console.log(`Consolidating extra ${innerExtra.extraId}: cover cost ${consolidatedCover[coverExtraIndex].totalCost} + inner cost ${innerExtra.totalCost} = ${combinedCost}`);
           
           consolidatedCover[coverExtraIndex] = {
             ...consolidatedCover[coverExtraIndex],
@@ -99,6 +114,11 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
         // Add to inner extras as normal
         consolidatedInner.push(innerExtra);
       }
+    });
+    
+    console.log('Consolidation Result:', {
+      consolidatedCover: consolidatedCover.length,
+      consolidatedInner: consolidatedInner.length
     });
     
     return { consolidatedCover, consolidatedInner };
