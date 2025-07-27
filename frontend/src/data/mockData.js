@@ -496,13 +496,17 @@ export const calculateInnerPagesCost = (job, innerPaperType, innerMachine) => {
       const stockSheetsNeeded = Math.ceil(printSheetsNeeded / printSheetsPerStockSheet);
       
       const paperWeight = calculatePaperWeight(stockSheetSize.width, stockSheetSize.height, innerPaperType.gsm, stockSheetsNeeded);
-      const paperCost = calculatePaperCost(paperWeight, innerPaperType.pricePerTon);
+      const paperCost = calculatePaperCost(paperWeight, innerPaperType.pricePerTon, innerPaperType.currency);
       
       // Calculate click cost based on double-sided printing
-      const clickMultiplier = job.isDoubleSided ? 2 : 1;
-      const clickCost = printSheetsNeeded * printSheetSize.clickCost * clickMultiplier;
+      // Convert machine costs to EUR
+      const clickCostEUR = convertToEURSync(printSheetSize.clickCost, printSheetSize.clickCostCurrency || 'EUR');
+      const setupCostEUR = convertToEURSync(innerMachine.setupCost, innerMachine.setupCostCurrency || 'EUR');
       
-      const setupCost = job.setupRequired ? innerMachine.setupCost : 0;
+      const clickMultiplier = job.isDoubleSided ? 2 : 1;
+      const clickCost = printSheetsNeeded * clickCostEUR * clickMultiplier;
+      
+      const setupCost = job.setupRequired ? setupCostEUR : 0;
       const totalCost = paperCost + clickCost + setupCost;
       
       if (totalCost < lowestCost) {
