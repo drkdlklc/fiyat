@@ -14,6 +14,7 @@ const PaperTypeManager = ({ paperTypes, onAddPaperType, onUpdatePaperType, onDel
     name: '',
     gsm: '',
     pricePerTon: '',
+    currency: 'USD',
     stockSheetSizes: []
   });
   const [stockSheetForm, setStockSheetForm] = useState({
