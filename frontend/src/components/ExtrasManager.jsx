@@ -46,11 +46,11 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
     }
 
     // Validate variants
-    const validVariants = formData.variants.filter(v => v.variantName && v.price);
+    const validVariants = formData.variants.filter(v => v.variantName && v.price && v.currency);
     if (validVariants.length === 0) {
       toast({
         title: "Error", 
-        description: "Please add at least one variant with name and price",
+        description: "Please add at least one variant with name, price, and currency",
         variant: "destructive"
       });
       return;
@@ -59,7 +59,8 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
     // Process variants
     const variants = validVariants.map(variant => ({
       variantName: variant.variantName,
-      price: parseFloat(variant.price)
+      price: parseFloat(variant.price),
+      currency: variant.currency
     }));
 
     const extraData = {
