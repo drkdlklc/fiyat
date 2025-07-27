@@ -588,44 +588,64 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
 
             {jobData.isBookletMode && (
               <>
-                <div className="p-4 border rounded-lg bg-green-50">
-                  <h3 className="font-semibold text-lg mb-3 text-green-800">Cover Configuration</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="coverPaperType">Cover Paper Type</Label>
-                      <Select value={selectedCoverPaperType?.toString()} onValueChange={handleCoverPaperTypeChange}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select cover paper type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {paperTypes.map((paperType) => (
-                            <SelectItem key={paperType.id} value={paperType.id.toString()}>
-                              {paperType.name} ({paperType.gsm} GSM)
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor="coverMachine">Cover Printing Machine</Label>
-                      <Select value={selectedCoverMachine?.toString()} onValueChange={handleCoverMachineChange}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select cover machine" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {machines.map((machine) => (
-                            <SelectItem key={machine.id} value={machine.id.toString()}>
-                              {machine.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                <div className="p-4 border rounded-lg bg-blue-50">
+                  <h3 className="font-semibold text-lg mb-3 text-blue-800">Cover Options</h3>
+                  <div className="flex items-center space-x-2 mb-3">
+                    <Checkbox
+                      id="hasCover"
+                      checked={jobData.hasCover}
+                      onCheckedChange={(checked) => setJobData({ ...jobData, hasCover: checked })}
+                    />
+                    <Label htmlFor="hasCover" className="font-medium">Has Cover</Label>
                   </div>
-                  <p className="text-sm text-green-600 mt-2">
-                    Covers will be printed separately. Each booklet needs 1 cover (4 pages when folded).
+                  <p className="text-sm text-blue-600">
+                    {jobData.hasCover 
+                      ? "Cover will be calculated separately with different paper/machine options."
+                      : "All pages will be treated as inner pages with the same specifications."
+                    }
                   </p>
                 </div>
+
+                {jobData.hasCover && (
+                  <div className="p-4 border rounded-lg bg-green-50">
+                    <h3 className="font-semibold text-lg mb-3 text-green-800">Cover Configuration</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="coverPaperType">Cover Paper Type</Label>
+                        <Select value={selectedCoverPaperType?.toString()} onValueChange={handleCoverPaperTypeChange}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select cover paper type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {paperTypes.map((paperType) => (
+                              <SelectItem key={paperType.id} value={paperType.id.toString()}>
+                                {paperType.name} ({paperType.gsm} GSM)
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="coverMachine">Cover Printing Machine</Label>
+                        <Select value={selectedCoverMachine?.toString()} onValueChange={handleCoverMachineChange}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select cover machine" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {machines.map((machine) => (
+                              <SelectItem key={machine.id} value={machine.id.toString()}>
+                                {machine.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <p className="text-sm text-green-600 mt-2">
+                      Covers will be printed separately. Each booklet needs 1 cover (4 pages when folded).
+                    </p>
+                  </div>
+                )}
 
                 <div className="p-4 border rounded-lg bg-orange-50">
                   <h3 className="font-semibold text-lg mb-3 text-orange-800">Inner Pages Configuration</h3>
