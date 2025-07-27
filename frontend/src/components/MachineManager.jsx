@@ -73,6 +73,7 @@ const MachineManager = ({ machines, onAddMachine, onUpdateMachine, onDeleteMachi
       width: parseFloat(sheetSizeForm.width),
       height: parseFloat(sheetSizeForm.height),
       clickCost: parseFloat(sheetSizeForm.clickCost),
+      clickCostCurrency: sheetSizeForm.clickCostCurrency,
       duplexSupport: false, // Add default duplexSupport
       unit: 'mm'
     };
