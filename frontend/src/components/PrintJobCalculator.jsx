@@ -649,15 +649,28 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
           console.log('job.finalHeight:', job.finalHeight, 'type:', typeof job.finalHeight);
           
           if (extra.applyToPrintSheet) {
-            // Use print sheet dimensions when checkbox is checked
+            // Use print sheet count and dimensions when checkbox is checked
+            console.log('Apply to Print Sheet is enabled');
+            
+            // Calculate print sheet count needed
             if (job.isBookletMode) {
-              // For booklet mode, estimate print sheet size (typical values)
-              edgeLength = bookletSection === 'cover' ? 32.0 : 29.7; // SRA3 width/height in cm
+              // In booklet mode, estimate print sheets needed
+              const pagesPerSheet = 4; // Typical folding scenario  
+              const totalPages = bookletSection === 'cover' ? 4 : (job.totalPages - 4);
+              units = Math.ceil((totalPages * job.quantity) / pagesPerSheet);
+              unitType = bookletSection === 'cover' ? 'cover print sheets' : 'inner print sheets';
             } else {
-              // For normal mode, use typical print sheet size
-              edgeLength = 32.0; // Default SRA3 width in cm
+              // In normal mode, estimate print sheets needed
+              const pagesPerSheet = job.isDoubleSided ? 2 : 1;
+              const totalPages = job.totalPages || 1;
+              units = Math.ceil((totalPages * job.quantity) / pagesPerSheet);
+              unitType = 'print sheets';
             }
-            console.log('Using print sheet dimensions. edgeLength:', edgeLength);
+            
+            // Always use long side of print sheet (SRA3: 45cm long edge)
+            edgeLength = 45.0; // SRA3 long edge in cm
+            
+            console.log('Print sheet calculation - units:', units, 'edgeLength:', edgeLength);
           } else {
             // Use page dimensions (existing logic)
             // Job object now always has valid dimensions (with A4 defaults)
@@ -678,6 +691,10 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
               edgeLength = lengthBasedEdge === 'short' ? validHeight / 10 : validWidth / 10; // mm to cm
               console.log('Normal mode calculation: lengthBasedEdge=', lengthBasedEdge, 'result=', edgeLength);
             }
+            
+            // Use standard units for page-based calculation
+            units = job.quantity;
+            unitType = job.isBookletMode ? 'booklets' : 'units';
           }
           
           // Ensure edgeLength is a valid number
@@ -691,14 +708,10 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
             units,
             basePrice,
             cost: units * edgeLength * basePrice,
-            resultObject: {
-              edgeLength: extra.pricingType === 'per_length' ? edgeLength : 0
-            }
+            unitType
           });
           console.log('=== PER_LENGTH CALCULATION END ===');
           
-          units = job.quantity;
-          unitType = job.isBookletMode ? 'booklets' : 'units';
           cost = units * edgeLength * basePrice;
           break;
 
