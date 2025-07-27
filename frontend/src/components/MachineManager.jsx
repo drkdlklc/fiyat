@@ -13,13 +13,15 @@ const MachineManager = ({ machines, onAddMachine, onUpdateMachine, onDeleteMachi
   const [formData, setFormData] = useState({
     name: '',
     setupCost: '',
+    setupCostCurrency: 'USD',
     printSheetSizes: []
   });
   const [sheetSizeForm, setSheetSizeForm] = useState({
     name: '',
     width: '',
     height: '',
-    clickCost: ''
+    clickCost: '',
+    clickCostCurrency: 'USD'
   });
   const [isAddingSheetSize, setIsAddingSheetSize] = useState(false);
   const { toast } = useToast();
