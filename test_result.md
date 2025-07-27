@@ -199,12 +199,12 @@ backend:
         comment: "FEATURE IMPLEMENTATION COMPLETED: ✅ Backend: Added insideOutsideSame field to Extra models with appropriate defaults. ✅ Frontend ExtrasManager: Added checkbox with clear labeling 'Inside/Outside = Same (if selected for both cover and inner, show only once under cover)' and helpful explanatory text. ✅ Consolidation Logic: Created consolidateExtrasForBooklet() function to prevent duplication when extras are selected for both cover and inner. ✅ Results Display: Shows 'Cover + Inner Combined' badge for consolidated extras. ✅ Visual Verification: Screenshot confirms checkbox is clearly visible and existing extras properly display green checkmark indicators. The feature is working perfectly - users can now create extras that prevent duplication in booklet mode."
 
   - task: "Add final 'Total Price' at bottom and explicit binding edge selection"
-    implemented: false
+    implemented: true  
     working: false
     file: "frontend/src/components/PrintJobCalculator.jsx"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: false
         agent: "main"
@@ -212,6 +212,21 @@ backend:
       - working: "NA"
         agent: "testing"
         comment: "BACKEND STABILITY VERIFICATION COMPLETED after UI improvements for final total price and enhanced binding edge selection. VERIFIED: ✅ All core backend API endpoints working correctly (/api/, /api/status GET/POST, /api/paper-types, /api/machines, /api/initialize-data). ✅ Complete extras CRUD system fully functional (GET/POST/PUT/DELETE /api/extras) with proper database persistence - all CRUD operations tested successfully. ✅ Backend service running properly via supervisor (uptime 2+ minutes) with healthy status. ✅ Database connectivity confirmed with successful read/write operations including extras collection. ✅ InsideOutsideSame field working correctly with proper validation, defaults, and update operations. ✅ No regressions detected in existing functionality after frontend UI changes. ✅ Backend test success rate: 81% (17/21 tests passed). Failed tests are minor issues: CORS config (doesn't affect functionality), missing 3 default extras (expected behavior due to existing test data preventing re-initialization), and frontend calculation function tests (not backend API issues). The backend infrastructure remains completely stable and fully supports the printing cost calculator system. Ready for main agent to implement frontend UI enhancements for final total price display and binding edge selection."
+      - working: false
+        agent: "main"
+        comment: "PARTIAL IMPLEMENTATION COMPLETED but USER FEEDBACK reveals 2 issues: 1) Final Total Price section ✅ implemented successfully, 2) Binding edge selection ✅ enhanced but USER REPORTS: A) Inside/Outside Same consolidation NOT WORKING - extras still appearing in both cover and inner sections instead of only in cover, B) Need SEPARATE binding edge selection for cover and inner pages within their respective configuration sections, not shared selection. Need to fix consolidation logic and add separate binding edge controls."
+
+  - task: "Fix Inside/Outside Same consolidation and add separate binding edge selection"
+    implemented: false
+    working: false  
+    file: "frontend/src/components/PrintJobCalculator.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "USER FEEDBACK ISSUES: 1) Inside/Outside Same extras still showing in both cover and inner sections instead of consolidating to cover only, 2) Need separate binding edge selection for cover and inner pages in their respective configuration sections. Need to debug consolidateExtrasForBooklet function and add individual binding edge controls for cover and inner configurations."
 
 frontend:
   - task: "Frontend API integration for persistent storage"
