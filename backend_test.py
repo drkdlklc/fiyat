@@ -1298,14 +1298,22 @@ if (innerResult) {
         self.test_paper_types_endpoint()
         self.test_machines_endpoint()
         
-        # New extras endpoints tests
-        print("🎯 Testing Extras Management System with InsideOutsideSame Field")
+        # New extras endpoints tests with variants support
+        print("🎯 Testing Extras Management System with Variants Support")
         print()
         self.test_extras_get_endpoint()
         self.test_extras_post_endpoint()
         self.test_extras_put_endpoint()
         self.test_extras_delete_endpoint()
         self.test_extras_database_operations()
+        
+        # Variants-specific tests
+        print("🔧 Testing Variants Functionality")
+        print()
+        self.test_variants_cm_based_pricing()
+        self.test_variants_model_validation()
+        self.test_variants_backward_compatibility()
+        self.test_variants_complex_crud_operations()
         
         # New field specific tests
         print("🔍 Testing InsideOutsideSame Field Functionality")
