@@ -62,6 +62,11 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
   const [selectedCoverVariantId, setSelectedCoverVariantId] = useState('');
   const [selectedInnerExtraId, setSelectedInnerExtraId] = useState('');
   const [selectedInnerVariantId, setSelectedInnerVariantId] = useState('');
+  
+  // New state for single/double-sided selection
+  const [isDoubleSided, setIsDoubleSided] = useState(false);
+  const [isCoverDoubleSided, setIsCoverDoubleSided] = useState(false);
+  const [isInnerDoubleSided, setIsInnerDoubleSided] = useState(false);
   const [multiPartConfigurations, setMultiPartConfigurations] = useState([
     { id: 1, paperTypeId: null, machineId: null, pageCount: '' }
   ]);
