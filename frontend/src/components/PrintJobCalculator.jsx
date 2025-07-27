@@ -350,7 +350,6 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
       setSelectedCoverExtraId('');
       setSelectedCoverVariantId('');
       setIsCoverDoubleSided(false); // Reset
-      setIsCoverDoubleSided(false); // Reset
       
       // If this is an Inside/Outside Same extra, show info message
       if (extra.insideOutsideSame) {
@@ -361,6 +360,21 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
         });
       }
     } else if (section === 'inner') {
+      const existingExtra = selectedInnerExtras.find(e => 
+        e.extraId === newExtra.extraId && 
+        e.variantId === newExtra.variantId && 
+        e.isDoubleSided === newExtra.isDoubleSided
+      );
+      
+      if (existingExtra) {
+        toast({
+          title: "Already Added",
+          description: `${extra.name} - ${variant.variantName} is already in your inner selection`,
+          variant: "default"
+        });
+        return;
+      }
+      
       setSelectedInnerExtras([...selectedInnerExtras, newExtra]);
       setSelectedInnerExtraId('');
       setSelectedInnerVariantId('');
