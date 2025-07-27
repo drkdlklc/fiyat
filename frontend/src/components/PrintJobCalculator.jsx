@@ -581,7 +581,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
     }
 
   // Calculate extras cost for variants
-  const calculateVariantExtrasCost = (job, selectedVariantExtras, lengthBasedEdge, bookletSection = null) => {
+  const calculateVariantExtrasCost = (job, selectedVariantExtras, lengthBasedEdge, bookletSection = null, calculationResults = null) => {
     const extrasResults = [];
     let edgeLength = 0; // Declare at function level to persist across switch cases
 
