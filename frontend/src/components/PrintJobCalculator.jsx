@@ -665,6 +665,16 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
             const validWidth = jobWidth > 0 ? jobWidth : defaultWidth;
             const validHeight = jobHeight > 0 ? jobHeight : defaultHeight;
             
+            // Debug logging (will help us understand what's happening)
+            console.log('Edge calculation debug:', {
+              bookletSection,
+              lengthBasedEdge,
+              validWidth,
+              validHeight,
+              finalWidth: job.finalWidth,
+              finalHeight: job.finalHeight
+            });
+            
             if (job.isBookletMode) {
               // In booklet mode, use the passed binding edge parameter (which is already the correct edge for the section)
               edgeLength = lengthBasedEdge === 'short' ? validHeight / 10 : validWidth / 10; // mm to cm
