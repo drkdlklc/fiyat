@@ -1602,13 +1602,13 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                   <SelectContent>
                     <SelectItem value="short">
                       <div className="flex flex-col">
-                        <span className="font-semibold">Short Edge ({jobData.height}mm)</span>
+                        <span className="font-semibold">Short Edge ({jobData.finalHeight}mm)</span>
                         <span className="text-xs text-gray-500">Use height for length calculations</span>
                       </div>
                     </SelectItem>
                     <SelectItem value="long">
                       <div className="flex flex-col">
-                        <span className="font-semibold">Long Edge ({jobData.width}mm)</span>
+                        <span className="font-semibold">Long Edge ({jobData.finalWidth}mm)</span>
                         <span className="text-xs text-gray-500">Use width for length calculations</span>
                       </div>
                     </SelectItem>
