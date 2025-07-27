@@ -652,9 +652,9 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
             }
           } else {
             // Use page dimensions (existing logic)
-            // Debug: Check if job dimensions are valid
-            const jobWidth = parseFloat(job.width) || 0;
-            const jobHeight = parseFloat(job.height) || 0;
+            // Debug: Check if job dimensions are valid - use finalWidth/finalHeight
+            const jobWidth = parseFloat(job.finalWidth) || 0;
+            const jobHeight = parseFloat(job.finalHeight) || 0;
             
             // Fallback to default dimensions if invalid
             const defaultWidth = 210; // A4 width in mm
