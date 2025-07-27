@@ -1320,20 +1320,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                         </div>
                       )}
                         
-                        {extras.length === 0 && (
-                          <p className="text-sm text-gray-500 text-center py-2">No extras available</p>
-                        )}
-                        
-                        {selectedCoverExtras.some(se => {
-                          const extra = extras.find(e => e.id === se.extraId);
-                          return extra && extra.pricingType === 'per_length';
-                        }) && (
-                          <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded">
-                            <strong>Cover length-based pricing:</strong> Uses bound edge 
-                            ({jobData.bindingEdge === 'short' ? 'short edge (height)' : 'long edge (width)'})
-                          </div>
-                        )}
-                      </div>
+                      )}
                     </div>
                   )}
 
