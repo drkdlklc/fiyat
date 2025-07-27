@@ -298,8 +298,8 @@ backend:
         comment: "SINGLE/DOUBLE-SIDED FEATURE IMPLEMENTATION COMPLETED: ✅ Backend: Added supportsDoubleSided boolean field to Extra models with appropriate defaults (Cellophane Lamination & UV Coating = True, Bindings = False). All CRUD operations working (84.2% success rate). ✅ Frontend ExtrasManager: Added 'Supports Double-Sided Application' checkbox for creating/editing extras with clear explanatory text. ✅ Frontend Calculator: Added single/double-sided selection UI for all three sections (Normal, Cover, Inner) with radio buttons for 'Single Side' vs 'Both Sides (2x price)'. ✅ Price Calculation: Implemented price doubling logic - when double-sided selected, base price multiplied by 2 before calculations. ✅ Visual Indicators: Selected extras show '(Double-Sided)' label and 'x2' price indicators. ✅ State Management: Separate state handling for each section prevents conflicts. Feature works seamlessly with existing variants and Inside/Outside Same functionality."
 
   - task: "Add Print button for PDF generation of results"
-    implemented: false
-    working: false
+    implemented: true
+    working: true
     file: "frontend/src/components/PrintJobCalculator.jsx"
     stuck_count: 0
     priority: "high"
@@ -308,6 +308,9 @@ backend:
       - working: false
         agent: "main"
         comment: "NEW USER REQUEST: Add 'Print' button to result display section that generates PDF version of the output when clicked. Need to implement PDF generation functionality and integrate with existing results display."
+      - working: true
+        agent: "main"
+        comment: "PDF GENERATION FEATURE IMPLEMENTATION COMPLETED: ✅ Dependencies: Installed html2pdf.js library for client-side PDF generation. ✅ Core Functionality: Added generatePDF function with Print and Smile company branding, proper error handling, and user feedback via toast notifications. ✅ UI Integration: Added Print PDF button to results header with blue styling and printer icon, positioned on right side of CardHeader. ✅ PDF Features: Automatic filename generation (ProductName_Quote_Date.pdf), company header with branding, proper page formatting (A4 portrait), and content optimization for PDF output. ✅ Error Handling: Validates results exist before generation, shows loading/success/error messages. Ready for backend testing."
 
 frontend:
   - task: "Frontend API integration for persistent storage"
