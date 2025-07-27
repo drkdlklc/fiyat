@@ -109,7 +109,7 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
   const addVariant = () => {
     setFormData({
       ...formData,
-      variants: [...formData.variants, { variantName: '', price: '' }]
+      variants: [...formData.variants, { variantName: '', price: '', currency: 'USD' }]
     });
   };
 
