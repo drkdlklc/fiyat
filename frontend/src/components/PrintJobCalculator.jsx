@@ -983,79 +983,183 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                 Extras & Finishing Options
               </h3>
               
-              <div className="space-y-3">
-                {extras.map((extra) => (
-                  <div key={extra.id} className="flex items-center justify-between p-3 border rounded bg-white">
-                    <div className="flex items-center space-x-3">
-                      <Checkbox
-                        id={`extra-${extra.id}`}
-                        checked={selectedExtras.some(se => se.extraId === extra.id)}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            setSelectedExtras([...selectedExtras, { extraId: extra.id }]);
-                          } else {
-                            setSelectedExtras(selectedExtras.filter(se => se.extraId !== extra.id));
-                          }
-                        }}
-                      />
-                      <div>
-                        <Label htmlFor={`extra-${extra.id}`} className="font-medium cursor-pointer">
-                          {extra.name}
-                        </Label>
-                        <p className="text-sm text-gray-600">
-                          ${extra.price.toFixed(2)} per {
-                            extra.pricingType === 'per_page' ? 'page' :
-                            extra.pricingType === 'per_booklet' ? (jobData.isBookletMode ? 'booklet' : 'unit') :
-                            'length (mm)'
-                          }
-                        </p>
+              {jobData.isBookletMode ? (
+                // Booklet Mode: Separate Cover and Inner Pages Extras
+                <div className="space-y-6">
+                  {/* Cover Extras */}
+                  {jobData.hasCover && (
+                    <div className="border rounded-lg p-4 bg-green-50">
+                      <h4 className="font-semibold text-green-800 mb-3 flex items-center gap-2">
+                        <FileText size={16} />
+                        Cover Extras
+                      </h4>
+                      <div className="space-y-3">
+                        {extras.map((extra) => (
+                          <div key={`cover-${extra.id}`} className="flex items-center justify-between p-3 border rounded bg-white">
+                            <div className="flex items-center space-x-3">
+                              <Checkbox
+                                id={`cover-extra-${extra.id}`}
+                                checked={selectedCoverExtras.some(se => se.extraId === extra.id)}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setSelectedCoverExtras([...selectedCoverExtras, { extraId: extra.id }]);
+                                  } else {
+                                    setSelectedCoverExtras(selectedCoverExtras.filter(se => se.extraId !== extra.id));
+                                  }
+                                }}
+                              />
+                              <div>
+                                <Label htmlFor={`cover-extra-${extra.id}`} className="font-medium cursor-pointer">
+                                  {extra.name}
+                                </Label>
+                                <p className="text-sm text-gray-600">
+                                  ${extra.price.toFixed(2)} per {
+                                    extra.pricingType === 'per_page' ? 'page' :
+                                    extra.pricingType === 'per_booklet' ? 'booklet' :
+                                    'length (mm)'
+                                  }
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        
+                        {extras.length === 0 && (
+                          <p className="text-sm text-gray-500 text-center py-2">No extras available</p>
+                        )}
+                        
+                        {selectedCoverExtras.some(se => {
+                          const extra = extras.find(e => e.id === se.extraId);
+                          return extra && extra.pricingType === 'per_length';
+                        }) && (
+                          <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded">
+                            <strong>Cover length-based pricing:</strong> Uses bound edge 
+                            ({jobData.bindingEdge === 'short' ? 'short edge (height)' : 'long edge (width)'})
+                          </div>
+                        )}
                       </div>
                     </div>
-                    
-                    {extra.pricingType === 'per_length' && !jobData.isBookletMode && 
-                     selectedExtras.some(se => se.extraId === extra.id) && (
-                      <div className="ml-4">
-                        <Label className="text-sm">Edge Selection:</Label>
-                        <Select 
-                          value={lengthBasedEdge} 
-                          onValueChange={setLengthBasedEdge}
-                        >
-                          <SelectTrigger className="w-32">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="long">Long Edge</SelectItem>
-                            <SelectItem value="short">Short Edge</SelectItem>
-                          </SelectContent>
-                        </Select>
+                  )}
+
+                  {/* Inner Pages Extras */}
+                  <div className="border rounded-lg p-4 bg-orange-50">
+                    <h4 className="font-semibold text-orange-800 mb-3 flex items-center gap-2">
+                      <FileText size={16} />
+                      Inner Pages Extras
+                    </h4>
+                    <div className="space-y-3">
+                      {extras.map((extra) => (
+                        <div key={`inner-${extra.id}`} className="flex items-center justify-between p-3 border rounded bg-white">
+                          <div className="flex items-center space-x-3">
+                            <Checkbox
+                              id={`inner-extra-${extra.id}`}
+                              checked={selectedInnerExtras.some(se => se.extraId === extra.id)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setSelectedInnerExtras([...selectedInnerExtras, { extraId: extra.id }]);
+                                } else {
+                                  setSelectedInnerExtras(selectedInnerExtras.filter(se => se.extraId !== extra.id));
+                                }
+                              }}
+                            />
+                            <div>
+                              <Label htmlFor={`inner-extra-${extra.id}`} className="font-medium cursor-pointer">
+                                {extra.name}
+                              </Label>
+                              <p className="text-sm text-gray-600">
+                                ${extra.price.toFixed(2)} per {
+                                  extra.pricingType === 'per_page' ? 'page' :
+                                  extra.pricingType === 'per_booklet' ? 'booklet' :
+                                  'length (mm)'
+                                }
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      
+                      {extras.length === 0 && (
+                        <p className="text-sm text-gray-500 text-center py-2">No extras available</p>
+                      )}
+                      
+                      {selectedInnerExtras.some(se => {
+                        const extra = extras.find(e => e.id === se.extraId);
+                        return extra && extra.pricingType === 'per_length';
+                      }) && (
+                        <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded">
+                          <strong>Inner pages length-based pricing:</strong> Uses bound edge 
+                          ({jobData.bindingEdge === 'short' ? 'short edge (height)' : 'long edge (width)'})
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                // Normal Mode: Single Extras Section
+                <div className="space-y-3">
+                  {extras.map((extra) => (
+                    <div key={extra.id} className="flex items-center justify-between p-3 border rounded bg-white">
+                      <div className="flex items-center space-x-3">
+                        <Checkbox
+                          id={`extra-${extra.id}`}
+                          checked={selectedExtras.some(se => se.extraId === extra.id)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedExtras([...selectedExtras, { extraId: extra.id }]);
+                            } else {
+                              setSelectedExtras(selectedExtras.filter(se => se.extraId !== extra.id));
+                            }
+                          }}
+                        />
+                        <div>
+                          <Label htmlFor={`extra-${extra.id}`} className="font-medium cursor-pointer">
+                            {extra.name}
+                          </Label>
+                          <p className="text-sm text-gray-600">
+                            ${extra.price.toFixed(2)} per {
+                              extra.pricingType === 'per_page' ? 'page' :
+                              extra.pricingType === 'per_booklet' ? 'unit' :
+                              'length (mm)'
+                            }
+                          </p>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                ))}
-                
-                {extras.length === 0 && (
-                  <div className="text-center py-4 text-gray-500">
-                    <Award className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                    <p>No extras available. Add some in the Extras tab.</p>
-                  </div>
-                )}
-                
-                {extras.length > 0 && selectedExtras.length === 0 && (
-                  <p className="text-sm text-purple-600">
-                    Select additional finishing options above to include in your cost calculation.
-                  </p>
-                )}
-                
-                {selectedExtras.some(se => {
-                  const extra = extras.find(e => e.id === se.extraId);
-                  return extra && extra.pricingType === 'per_length';
-                }) && jobData.isBookletMode && (
-                  <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded">
-                    <strong>Note:</strong> Length-based pricing in Booklet Mode uses the bound edge 
-                    ({jobData.bindingEdge === 'short' ? 'short edge (height)' : 'long edge (width)'}).
-                  </div>
-                )}
-              </div>
+                      
+                      {extra.pricingType === 'per_length' && 
+                       selectedExtras.some(se => se.extraId === extra.id) && (
+                        <div className="ml-4">
+                          <Label className="text-sm">Edge Selection:</Label>
+                          <Select 
+                            value={lengthBasedEdge} 
+                            onValueChange={setLengthBasedEdge}
+                          >
+                            <SelectTrigger className="w-32">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="long">Long Edge</SelectItem>
+                              <SelectItem value="short">Short Edge</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                  
+                  {extras.length === 0 && (
+                    <div className="text-center py-4 text-gray-500">
+                      <Award className="h-8 w-8 mx-auto mb-2 opacity-30" />
+                      <p>No extras available. Add some in the Extras tab.</p>
+                    </div>
+                  )}
+                  
+                  {extras.length > 0 && selectedExtras.length === 0 && (
+                    <p className="text-sm text-purple-600">
+                      Select additional finishing options above to include in your cost calculation.
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="flex gap-2">
