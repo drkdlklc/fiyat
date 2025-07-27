@@ -590,7 +590,7 @@ class BackendTester:
                                 incorrect_values.append(f"{name}: variants expected {expected_variants}, got {found_variants}")
                     
                     if not missing_extras and not incorrect_values:
-                        self.log_test("Extras Database Operations", True, f"All {len(expected_extras)} default extras properly initialized with correct variants and insideOutsideSame values")
+                        self.log_test("Extras Database Operations", True, f"All {len(expected_extras)} default extras properly initialized with correct variants and insideOutsideSame values including new per_print_sheet extra")
                     else:
                         error_msg = ""
                         if missing_extras:
