@@ -451,7 +451,12 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
     return machine ? machine.printSheetSizes : [];
   };
 
-  const displayResults = showOptimalOnly && results ? results.calculations.slice(0, 3) : results?.calculations || [];
+  // Only show the best option in Normal Mode, or apply filtering in Booklet Mode
+  const displayResults = results ? (
+    results.job.isBookletMode 
+      ? (showOptimalOnly ? results.calculations.slice(0, 3) : results.calculations) 
+      : [results.calculations[0]] // Normal Mode: only show the best option
+  ) : [];
 
   return (
     <div className="space-y-6">
