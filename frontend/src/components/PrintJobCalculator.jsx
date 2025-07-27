@@ -1588,6 +1588,60 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                 )}
               </div>
             )}
+
+            {/* Extras Results */}
+            {results.extrasResults && results.extrasResults.length > 0 && (
+              <div className="mt-6">
+                <div className="p-4 border rounded-lg bg-purple-50">
+                  <h3 className="text-lg font-semibold text-purple-800 mb-4 flex items-center gap-2">
+                    <Award size={18} />
+                    Extras & Finishing Costs
+                  </h3>
+                  
+                  <div className="space-y-3">
+                    {results.extrasResults.map((extra, index) => (
+                      <div key={index} className="p-3 border rounded-lg bg-white">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <h4 className="font-semibold">{extra.extraName}</h4>
+                            <div className="text-sm text-gray-600 mt-1">
+                              <p>
+                                {extra.pricingType === 'per_page' && `${extra.units} ${extra.unitType} × $${extra.pricePerUnit.toFixed(2)} per page`}
+                                {extra.pricingType === 'per_booklet' && `${extra.units} ${extra.unitType} × $${extra.pricePerUnit.toFixed(2)} per ${results.job.isBookletMode ? 'booklet' : 'unit'}`}
+                                {extra.pricingType === 'per_length' && (
+                                  <>
+                                    {extra.units} units × {extra.edgeLength}mm edge × $${extra.pricePerUnit.toFixed(2)} per mm
+                                    <br />
+                                    <span className="text-xs text-blue-600">
+                                      Using {results.job.isBookletMode ? 
+                                        `bound edge (${results.job.bindingEdge} edge)` : 
+                                        `${lengthBasedEdge} edge`
+                                      }
+                                    </span>
+                                  </>
+                                )}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-bold text-purple-600">${extra.totalCost.toFixed(2)}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    
+                    <div className="border-t pt-3 mt-4">
+                      <div className="flex justify-between items-center">
+                        <span className="font-bold text-lg text-gray-800">Total Extras Cost:</span>
+                        <span className="font-bold text-xl text-purple-600">
+                          ${results.extrasResults.reduce((sum, extra) => sum + extra.totalCost, 0).toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
