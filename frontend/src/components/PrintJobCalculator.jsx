@@ -814,7 +814,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
     } else {
       // Normal mode: single extras calculation
       extrasResults = selectedExtras.length > 0
-        ? calculateVariantExtrasCost(job, selectedExtras, lengthBasedEdge)
+        ? calculateVariantExtrasCost(job, selectedExtras, lengthBasedEdge, null, { calculations: calculationResults })
         : [];
     }
 
