@@ -657,27 +657,24 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
             console.log('job.isBookletMode:', job.isBookletMode);
             console.log('bookletSection:', bookletSection);
             
-            // Calculate print sheet count needed
+            // Calculate print sheet count needed (use same logic as main calculation)
             if (job.isBookletMode) {
-              // In booklet mode, estimate print sheets needed
-              const pagesPerSheet = 4; // Typical folding scenario  
               if (bookletSection === 'cover') {
-                // Cover always needs 1 sheet per booklet (covers 4 pages)
-                units = job.quantity; // 1 cover sheet per booklet
+                // Cover: 1 sheet per booklet (each cover sheet handles 4 pages)
+                units = job.quantity; // This should be the number of cover sheets, not booklets
                 unitType = 'cover print sheets';
               } else {
-                // Inner pages: (total pages - 4 cover pages) / 4 pages per sheet
+                // Inner pages: calculate sheets needed for inner pages only
                 const innerPagesPerBooklet = Math.max(0, job.totalPages - 4);
                 const innerSheetsPerBooklet = Math.ceil(innerPagesPerBooklet / 4);
                 units = innerSheetsPerBooklet * job.quantity;
                 unitType = 'inner print sheets';
               }
             } else {
-              // In normal mode, calculate print sheets needed
+              // In normal mode, calculate actual print sheets needed (not quantity of items)
+              const totalPages = (job.totalPages || 1) * job.quantity; // Total pages across all items
               const pagesPerSheet = job.isDoubleSided ? 2 : 1;
-              const totalPages = job.totalPages || 1;
-              const sheetsPerUnit = Math.ceil(totalPages / pagesPerSheet);
-              units = sheetsPerUnit * job.quantity;
+              units = Math.ceil(totalPages / pagesPerSheet); // Actual print sheets needed
               unitType = 'print sheets';
             }
             
