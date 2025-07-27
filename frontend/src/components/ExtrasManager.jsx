@@ -155,6 +155,24 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
                 />
               </div>
             </div>
+            
+            {/* Inside/Outside Same Checkbox */}
+            <div className="mt-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="insideOutsideSame"
+                  checked={formData.insideOutsideSame}
+                  onCheckedChange={(checked) => setFormData({ ...formData, insideOutsideSame: checked })}
+                />
+                <Label htmlFor="insideOutsideSame" className="text-sm">
+                  Inside/Outside = Same (if selected for both cover and inner, show only once under cover)
+                </Label>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Enable this for extras that apply to the entire booklet (e.g., binding, spiral coils)
+              </p>
+            </div>
+            
             <div className="flex gap-2 mt-4">
               <Button type="submit" size="sm">
                 <Save size={14} className="mr-1" />
