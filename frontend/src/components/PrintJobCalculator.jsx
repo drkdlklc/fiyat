@@ -216,9 +216,18 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
         ? calculateExtrasCost(job, selectedInnerExtras, extras, lengthBasedEdge, 'inner')
         : [];
       
+      // Handle consolidation of extras with insideOutsideSame flag
+      const { consolidatedCover, consolidatedInner } = consolidateExtrasForBooklet(
+        coverExtrasResults, 
+        innerExtrasResults, 
+        extras, 
+        selectedCoverExtras, 
+        selectedInnerExtras
+      );
+      
       extrasResults = {
-        coverExtras: coverExtrasResults,
-        innerExtras: innerExtrasResults
+        coverExtras: consolidatedCover,
+        innerExtras: consolidatedInner
       };
     } else {
       // Normal mode: single extras calculation
