@@ -282,7 +282,7 @@ function App() {
               </div>
               <div className="flex items-center space-x-4">
                 <div className="text-sm text-gray-600">
-                  Papers: {paperTypes.length} | Machines: {machines.length}
+                  Papers: {paperTypes.length} | Machines: {machines.length} | Extras: {extras.length}
                 </div>
               </div>
             </div>
