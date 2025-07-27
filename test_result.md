@@ -481,7 +481,7 @@ test_plan:
 
 agent_communication:
   - agent: "main"
-    message: "Starting implementation of multi-part printing feature for both Normal and Booklet modes. Will add toggles for different paper types and machines, with dynamic UI sections for each part and updated calculation logic."
+    message: "Starting PDF generation feature implementation. Added html2pdf.js library for client-side PDF generation with Print and Smile branding. Implementing Print button in results display header with proper error handling and user feedback."
   - agent: "main"
     message: "Successfully implemented complete multi-part printing feature with UI toggles, dynamic sections, calculation logic, and results display. Feature is working in both Normal and Booklet modes with limit of 3 parts per configuration."
   - agent: "main"
