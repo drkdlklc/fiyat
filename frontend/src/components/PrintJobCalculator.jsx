@@ -651,26 +651,43 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
           if (extra.applyToPrintSheet) {
             // Use print sheet count and dimensions when checkbox is checked
             console.log('Apply to Print Sheet is enabled');
+            console.log('job.quantity:', job.quantity);
+            console.log('job.totalPages:', job.totalPages);
+            console.log('job.isDoubleSided:', job.isDoubleSided);
+            console.log('job.isBookletMode:', job.isBookletMode);
+            console.log('bookletSection:', bookletSection);
             
             // Calculate print sheet count needed
             if (job.isBookletMode) {
               // In booklet mode, estimate print sheets needed
               const pagesPerSheet = 4; // Typical folding scenario  
-              const totalPages = bookletSection === 'cover' ? 4 : (job.totalPages - 4);
-              units = Math.ceil((totalPages * job.quantity) / pagesPerSheet);
-              unitType = bookletSection === 'cover' ? 'cover print sheets' : 'inner print sheets';
+              if (bookletSection === 'cover') {
+                // Cover always needs 1 sheet per booklet (covers 4 pages)
+                units = job.quantity; // 1 cover sheet per booklet
+                unitType = 'cover print sheets';
+              } else {
+                // Inner pages: (total pages - 4 cover pages) / 4 pages per sheet
+                const innerPagesPerBooklet = Math.max(0, job.totalPages - 4);
+                const innerSheetsPerBooklet = Math.ceil(innerPagesPerBooklet / 4);
+                units = innerSheetsPerBooklet * job.quantity;
+                unitType = 'inner print sheets';
+              }
             } else {
-              // In normal mode, estimate print sheets needed
+              // In normal mode, calculate print sheets needed
               const pagesPerSheet = job.isDoubleSided ? 2 : 1;
               const totalPages = job.totalPages || 1;
-              units = Math.ceil((totalPages * job.quantity) / pagesPerSheet);
+              const sheetsPerUnit = Math.ceil(totalPages / pagesPerSheet);
+              units = sheetsPerUnit * job.quantity;
               unitType = 'print sheets';
             }
             
             // Always use long side of print sheet (SRA3: 45cm long edge)
             edgeLength = 45.0; // SRA3 long edge in cm
             
-            console.log('Print sheet calculation - units:', units, 'edgeLength:', edgeLength);
+            console.log('Print sheet calculation results:');
+            console.log('- units (print sheets):', units);
+            console.log('- unitType:', unitType);
+            console.log('- edgeLength:', edgeLength);
           } else {
             // Use page dimensions (existing logic)
             // Job object now always has valid dimensions (with A4 defaults)
