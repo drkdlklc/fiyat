@@ -356,7 +356,6 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
                           {variant.price.toFixed(2)} {variant.currency || 'USD'}
                           {extra.pricingType === 'per_length' ? '/cm' : 
                            extra.pricingType === 'per_page' ? '/page' :
-                           extra.pricingType === 'per_print_sheet' ? '/sheet' :
                            '/unit'}
                         </span>
                       </div>
