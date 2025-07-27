@@ -16,6 +16,7 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
     pricingType: 'per_page', // 'per_page', 'per_booklet', 'per_length'
     insideOutsideSame: false,
     supportsDoubleSided: false,
+    applyToPrintSheet: false, // New field: apply pricing to print sheet dimensions
     variants: [{ variantName: '', price: '', currency: 'USD' }] // Array of variants with currency
   });
   const { toast } = useToast();
