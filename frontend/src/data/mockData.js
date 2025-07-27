@@ -669,18 +669,25 @@ export const calculateExtrasCost = (job, selectedExtras, extras, lengthBasedEdge
         // Calculate length based on binding edge
         let edgeLength = 0;
         
+        // Get valid dimensions
+        const validWidth = parseFloat(job.finalWidth) || 210;  // Default to A4 width in mm
+        const validHeight = parseFloat(job.finalHeight) || 297; // Default to A4 height in mm
+        
         if (job.isBookletMode) {
-          // In booklet mode, use bound edge
-          edgeLength = job.bindingEdge === 'short' ? job.finalHeight : job.finalWidth;
+          // In booklet mode, use bound edge (convert mm to cm)
+          edgeLength = job.bindingEdge === 'short' ? validHeight / 10 : validWidth / 10;
         } else {
-          // In normal mode, use user-selected edge
+          // In normal mode, use user-selected edge (convert mm to cm)
           edgeLength = lengthBasedEdge === 'long' 
-            ? Math.max(job.finalWidth, job.finalHeight)
-            : Math.min(job.finalWidth, job.finalHeight);
+            ? Math.max(validWidth, validHeight) / 10
+            : Math.min(validWidth, validHeight) / 10;
         }
 
+        // Ensure valid edge length
+        edgeLength = isNaN(edgeLength) || edgeLength <= 0 ? 21.0 : edgeLength; // Default to 21cm
+
         units = job.quantity;
-        unitType = `units × ${edgeLength}mm edge`;
+        unitType = `units × ${edgeLength.toFixed(1)}cm edge`;
         cost = units * edgeLength * extra.price;
         break;
 
