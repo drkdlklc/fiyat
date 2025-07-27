@@ -2983,7 +2983,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                             <p>Price per unit (EUR): {formatEURPrice(((displayResults[0]?.totalCost || 0) + 
                               (results.extrasResults ? results.extrasResults.reduce((sum, extra) => {
                                 const currency = extra.originalPrice?.currency || 'EUR';
-                                return sum + convertToEUR(extra.totalCost, currency);
+                                return sum + convertToEURSync(extra.totalCost, currency);
                               }, 0) : 0)) / 
                               results.job.quantity, 4)}
                             </p>
