@@ -1865,16 +1865,29 @@ if (innerResult) {
         
         # Data endpoints tests
         self.test_initialize_data_endpoint()
-        self.test_paper_types_endpoint()
-        self.test_machines_endpoint()
         
-        # New extras endpoints tests with variants support
-        print("🎯 Testing Extras Management System with Variants Support")
+        # NEW: Currency Support Tests
+        print("💰 Testing Currency Support Implementation")
+        print()
+        self.test_currency_fields_in_default_data()
+        self.test_currency_field_validation()
+        
+        # Paper types tests with currency
+        self.test_paper_types_endpoint()
+        self.test_paper_type_crud_with_currency()
+        
+        # Machines tests with currency
+        self.test_machines_endpoint()
+        self.test_machine_crud_with_currency()
+        
+        # New extras endpoints tests with variants support and currency
+        print("🎯 Testing Extras Management System with Variants Support and Currency")
         print()
         self.test_extras_get_endpoint()
         self.test_extras_post_endpoint()
         self.test_extras_put_endpoint()
         self.test_extras_delete_endpoint()
+        self.test_extras_crud_with_currency()
         self.test_extras_database_operations()
         
         # NEW: Single/Double-Sided Functionality Tests
