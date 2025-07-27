@@ -89,24 +89,38 @@ class MachineUpdate(BaseModel):
     printSheetSizes: Optional[List[PrintSheetSize]] = None
 
 # Extras Models
+class ExtraVariant(BaseModel):
+    id: int
+    variantName: str
+    price: float
+
 class Extra(BaseModel):
     id: int
     name: str
     pricingType: str  # 'per_page', 'per_booklet', 'per_length'
+    insideOutsideSame: bool = False
+    variants: List[ExtraVariant]
+
+class ExtraVariantCreate(BaseModel):
+    variantName: str
     price: float
-    insideOutsideSame: bool = False  # New field for inside/outside same option
 
 class ExtraCreate(BaseModel):
     name: str
     pricingType: str
-    price: float
     insideOutsideSame: bool = False
+    variants: List[ExtraVariantCreate]
+
+class ExtraVariantUpdate(BaseModel):
+    id: Optional[int] = None
+    variantName: Optional[str] = None
+    price: Optional[float] = None
 
 class ExtraUpdate(BaseModel):
     name: Optional[str] = None
     pricingType: Optional[str] = None
-    price: Optional[float] = None
     insideOutsideSame: Optional[bool] = None
+    variants: Optional[List[ExtraVariantUpdate]] = None
 
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
