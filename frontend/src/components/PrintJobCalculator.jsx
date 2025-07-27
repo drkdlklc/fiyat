@@ -1532,6 +1532,36 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                         )}
                       </div>
                       
+                      {/* Single/Double-Sided Selection */}
+                      {selectedInnerExtraId && selectedInnerVariantId && 
+                       extras.find(e => e.id === parseInt(selectedInnerExtraId))?.supportsDoubleSided && (
+                        <div className="p-3 border rounded bg-yellow-50">
+                          <Label className="text-sm font-semibold mb-2 block">Application Type:</Label>
+                          <div className="flex items-center space-x-4">
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="radio"
+                                id="inner-single"
+                                name="inner-sided"
+                                checked={!isInnerDoubleSided}
+                                onChange={() => setIsInnerDoubleSided(false)}
+                              />
+                              <Label htmlFor="inner-single" className="text-sm cursor-pointer">Single Side</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="radio"
+                                id="inner-double"
+                                name="inner-sided"
+                                checked={isInnerDoubleSided}
+                                onChange={() => setIsInnerDoubleSided(true)}
+                              />
+                              <Label htmlFor="inner-double" className="text-sm cursor-pointer">Both Sides (2x price)</Label>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
                       {/* Add Extra Button */}
                       {selectedInnerExtraId && selectedInnerVariantId && (
                         <Button
