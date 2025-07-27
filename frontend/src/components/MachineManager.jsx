@@ -381,7 +381,7 @@ const MachineManager = ({ machines, onAddMachine, onUpdateMachine, onDeleteMachi
                           <span className="text-gray-600">{sheetSize.width} × {sheetSize.height} mm</span>
                         </div>
                         <div>
-                          <span className="text-gray-600">${sheetSize.clickCost}/click</span>
+                          <span className="text-gray-600">{sheetSize.clickCost} {sheetSize.clickCostCurrency || 'USD'}/click</span>
                         </div>
                         <div>
                           {sheetSize.duplexSupport ? (
