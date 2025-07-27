@@ -349,6 +349,21 @@ metadata:
   test_sequence: 1
   run_ui: false
 
+  - task: "Fix incorrect exchange rates calculation"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "USER REPORTED: Exchange rates are incorrect. ISSUE IDENTIFIED: Backend was receiving dict objects from altinkaynak API but treating them as numeric values."
+      - working: true
+        agent: "main"
+        comment: "ISSUE RESOLVED: Fixed backend exchange rate calculation. The altinkaynak.get_rate() returns dict with 'sell', 'buy', 'datetime_utc' fields, not numeric values. Updated backend to extract 'sell' rate from dict. Current correct rates: 1 USD = 0.8527 EUR, 1 TRY = 0.0210 EUR, 1 EUR = 47.63 TRY, 1 USD = 40.61 TRY. API tested and confirmed working correctly."
+
   - task: "Display live exchange rates in Final Total Price section"
     implemented: true
     working: false
