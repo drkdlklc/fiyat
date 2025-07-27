@@ -191,6 +191,72 @@ function App() {
     }
   };
 
+  // Extras management
+  const loadExtras = async () => {
+    try {
+      const extrasData = await apiService.getExtras();
+      setExtras(extrasData);
+    } catch (error) {
+      console.error('Error loading extras:', error);
+    }
+  };
+
+  const handleAddExtra = async (extraData) => {
+    try {
+      const newExtra = await apiService.createExtra(extraData);
+      setExtras([...extras, newExtra]);
+      toast({
+        title: "Success",
+        description: "Extra added successfully.",
+      });
+    } catch (error) {
+      console.error('Error adding extra:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add extra.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleUpdateExtra = async (id, extraData) => {
+    try {
+      const updatedExtra = await apiService.updateExtra(id, extraData);
+      setExtras(extras.map(extra => 
+        extra.id === id ? updatedExtra : extra
+      ));
+      toast({
+        title: "Success",
+        description: "Extra updated successfully.",
+      });
+    } catch (error) {
+      console.error('Error updating extra:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update extra.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDeleteExtra = async (id) => {
+    try {
+      await apiService.deleteExtra(id);
+      setExtras(extras.filter(extra => extra.id !== id));
+      toast({
+        title: "Success",
+        description: "Extra deleted successfully.",
+      });
+    } catch (error) {
+      console.error('Error deleting extra:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete extra.",
+        variant: "destructive"
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
