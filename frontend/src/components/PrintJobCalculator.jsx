@@ -91,21 +91,34 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
       return;
     }
 
+    // Get the appropriate double-sided setting
+    let isDoubleSidedSelected = false;
+    if (section === 'normal') {
+      isDoubleSidedSelected = isDoubleSided;
+    } else if (section === 'cover') {
+      isDoubleSidedSelected = isCoverDoubleSided;
+    } else if (section === 'inner') {
+      isDoubleSidedSelected = isInnerDoubleSided;
+    }
+
     const newExtra = {
       extraId: extra.id,
       variantId: variant.id,
       variantName: variant.variantName,
-      price: variant.price
+      price: variant.price,
+      isDoubleSided: extra.supportsDoubleSided ? isDoubleSidedSelected : false
     };
 
     if (section === 'normal') {
       setSelectedExtras([...selectedExtras, newExtra]);
       setSelectedExtraId('');
       setSelectedVariantId('');
+      setIsDoubleSided(false); // Reset
     } else if (section === 'cover') {
       setSelectedCoverExtras([...selectedCoverExtras, newExtra]);
       setSelectedCoverExtraId('');
       setSelectedCoverVariantId('');
+      setIsCoverDoubleSided(false); // Reset
       
       // If this is an Inside/Outside Same extra, show info message
       if (extra.insideOutsideSame) {
@@ -119,11 +132,12 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
       setSelectedInnerExtras([...selectedInnerExtras, newExtra]);
       setSelectedInnerExtraId('');
       setSelectedInnerVariantId('');
+      setIsInnerDoubleSided(false); // Reset
     }
 
     toast({
       title: "Success",
-      description: `Added ${extra.name} - ${variant.variantName}`,
+      description: `Added ${extra.name} - ${variant.variantName}${newExtra.isDoubleSided ? ' (Double-Sided)' : ''}`,
     });
   };
 
