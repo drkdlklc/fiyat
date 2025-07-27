@@ -285,10 +285,18 @@ export const calculateProductsPerSheet = (sheetWidth, sheetHeight, productWidth,
   const usableWidth = sheetWidth - margins.left - margins.right;
   const usableHeight = sheetHeight - margins.top - margins.bottom;
   
-  const productsPerRow = Math.floor(usableWidth / productWidth);
-  const productsPerColumn = Math.floor(usableHeight / productHeight);
+  // Try both orientations of the product and return the maximum
+  // Orientation 1: productWidth × productHeight
+  const productsPerRow1 = Math.floor(usableWidth / productWidth);
+  const productsPerColumn1 = Math.floor(usableHeight / productHeight);
+  const orientation1 = productsPerRow1 * productsPerColumn1;
   
-  return productsPerRow * productsPerColumn;
+  // Orientation 2: productHeight × productWidth (rotated 90 degrees)
+  const productsPerRow2 = Math.floor(usableWidth / productHeight);
+  const productsPerColumn2 = Math.floor(usableHeight / productWidth);
+  const orientation2 = productsPerRow2 * productsPerColumn2;
+  
+  return Math.max(orientation1, orientation2);
 };
 
 export const calculateSheetsNeeded = (totalProducts, productsPerSheet) => {
