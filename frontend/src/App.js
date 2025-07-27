@@ -327,6 +327,7 @@ function App() {
                     <PrintJobCalculator 
                       paperTypes={paperTypes}
                       machines={machines}
+                      extras={extras}
                     />
                   </TabsContent>
 
