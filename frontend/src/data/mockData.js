@@ -618,7 +618,7 @@ export const findOptimalPrintSheetSize = (job, paperTypes, machines) => {
 };
 
 // Extras calculation functions
-export const calculateExtrasCost = (job, selectedExtras, extras, lengthBasedEdge) => {
+export const calculateExtrasCost = (job, selectedExtras, extras, lengthBasedEdge, bookletSection = null) => {
   if (!selectedExtras || selectedExtras.length === 0) {
     return [];
   }
@@ -635,11 +635,23 @@ export const calculateExtrasCost = (job, selectedExtras, extras, lengthBasedEdge
 
     switch (extra.pricingType) {
       case 'per_page':
-        if (job.isBookletMode) {
-          units = job.totalPages * job.quantity;
-          unitType = 'pages';
-          cost = units * extra.price;
+        if (job.isBookletMode && bookletSection) {
+          if (bookletSection === 'cover') {
+            // Cover pages: 4 pages per booklet
+            units = 4 * job.quantity;
+            unitType = 'cover pages';
+            cost = units * extra.price;
+          } else if (bookletSection === 'inner') {
+            // Inner pages: total pages - 4 cover pages (if has cover)
+            const innerPagesPerBooklet = job.hasCover 
+              ? Math.max(0, job.totalPages - 4) 
+              : job.totalPages;
+            units = innerPagesPerBooklet * job.quantity;
+            unitType = 'inner pages';
+            cost = units * extra.price;
+          }
         } else {
+          // Normal mode: all pages
           units = job.quantity;
           unitType = 'pages';
           cost = units * extra.price;
@@ -682,6 +694,7 @@ export const calculateExtrasCost = (job, selectedExtras, extras, lengthBasedEdge
       pricePerUnit: extra.price,
       units,
       unitType,
+      section: bookletSection, // 'cover', 'inner', or null for normal mode
       edgeLength: extra.pricingType === 'per_length' ? 
         (job.isBookletMode ? 
           (job.bindingEdge === 'short' ? job.finalHeight : job.finalWidth) :
