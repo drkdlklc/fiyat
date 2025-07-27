@@ -1996,13 +1996,24 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                 )}
               </div>
             </div>
-            <Button 
-              onClick={generatePDF}
-              className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
-            >
-              <Printer size={16} />
-              Print PDF
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                onClick={generatePDF}
+                className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+              >
+                <Printer size={16} />
+                Print PDF
+              </Button>
+              <Button 
+                onClick={generatePDFAlternative}
+                variant="outline"
+                className="flex items-center gap-2"
+                title="Alternative PDF method if main method fails"
+              >
+                <Printer size={16} />
+                Alt PDF
+              </Button>
+            </div>
           </CardHeader>
           <CardContent ref={resultsRef}>
             {results.job.isBookletMode ? (
