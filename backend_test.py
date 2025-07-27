@@ -304,13 +304,16 @@ class BackendTester:
             self.log_test("Extras GET Endpoint", False, f"Connection error: {str(e)}")
 
     def test_extras_post_endpoint(self):
-        """Test the POST /api/extras endpoint with new insideOutsideSame field"""
+        """Test the POST /api/extras endpoint with new variants structure"""
         try:
             test_extra = {
-                "name": "Test Lamination",
+                "name": "Test Lamination with Variants",
                 "pricingType": "per_page",
-                "price": 0.20,
-                "insideOutsideSame": True
+                "insideOutsideSame": True,
+                "variants": [
+                    {"variantName": "Standard", "price": 0.20},
+                    {"variantName": "Premium", "price": 0.35}
+                ]
             }
             
             response = requests.post(
@@ -324,11 +327,22 @@ class BackendTester:
                 data = response.json()
                 if (data.get("name") == test_extra["name"] and 
                     data.get("pricingType") == test_extra["pricingType"] and
-                    data.get("price") == test_extra["price"] and
                     data.get("insideOutsideSame") == test_extra["insideOutsideSame"] and
-                    "id" in data):
-                    self.log_test("Extras POST Endpoint", True, f"Extra creation successful with ID: {data.get('id')}, insideOutsideSame: {data.get('insideOutsideSame')}")
-                    return data.get("id")  # Return the created ID for cleanup
+                    "id" in data and "variants" in data):
+                    
+                    # Verify variants structure
+                    variants = data.get("variants", [])
+                    if len(variants) == 2:
+                        variant1, variant2 = variants[0], variants[1]
+                        if (variant1.get("variantName") == "Standard" and variant1.get("price") == 0.20 and
+                            variant2.get("variantName") == "Premium" and variant2.get("price") == 0.35 and
+                            "id" in variant1 and "id" in variant2):
+                            self.log_test("Extras POST Endpoint", True, f"Extra creation with variants successful. ID: {data.get('id')}, Variants: {len(variants)}")
+                            return data.get("id")  # Return the created ID for cleanup
+                        else:
+                            self.log_test("Extras POST Endpoint", False, f"Variant data mismatch: {variants}")
+                    else:
+                        self.log_test("Extras POST Endpoint", False, f"Expected 2 variants, got {len(variants)}")
                 else:
                     self.log_test("Extras POST Endpoint", False, f"Invalid response structure: {data}")
             else:
