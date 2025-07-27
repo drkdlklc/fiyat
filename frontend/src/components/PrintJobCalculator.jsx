@@ -2592,7 +2592,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                                     <div className="text-xs text-gray-600 mt-1">
                                       {results.extrasResults.coverExtras.map((extra, idx) => {
                                         const currency = extra.originalPrice?.currency || 'EUR';
-                                        const eurCost = convertToEUR(extra.totalCost, currency);
+                                        const eurCost = convertToEURSync(extra.totalCost, currency);
                                         return (
                                           <div key={idx}>
                                             • {extra.extraName} - {extra.variantName}: {formatEURPrice(eurCost)}
