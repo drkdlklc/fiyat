@@ -1863,40 +1863,49 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
 
       {results && (
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText size={20} />
-              Calculation Results for "{results.job.productName}"
-            </CardTitle>
-            <div className="flex items-center gap-4">
-              {results.job.isBookletMode && (
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="showOptimalOnly"
-                    checked={showOptimalOnly}
-                    onCheckedChange={setShowOptimalOnly}
-                  />
-                  <Label htmlFor="showOptimalOnly">Show only top 3 optimal solutions</Label>
-                </div>
-              )}
-              {results.job.isBookletMode && (
-                <span className="text-sm text-gray-600">
-                  {results.calculations.length} total options found
-                </span>
-              )}
-              <span className="text-sm text-blue-600 font-medium">
-                {results.job.isDoubleSided ? 'Double-sided' : 'Single-sided'} printing
-                {results.job.isBookletMode && ` | Booklet (${results.job.totalPages} pages, ${results.job.quantity} booklets)`}
-                {!results.job.isBookletMode && ` | Showing optimal solution`}
-              </span>
-              {results.selectedPaperType && (
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <FileText size={20} />
+                Calculation Results for "{results.job.productName}"
+              </CardTitle>
+              <div className="flex items-center gap-4 mt-2">
+                {results.job.isBookletMode && (
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="showOptimalOnly"
+                      checked={showOptimalOnly}
+                      onCheckedChange={setShowOptimalOnly}
+                    />
+                    <Label htmlFor="showOptimalOnly">Show only top 3 optimal solutions</Label>
+                  </div>
+                )}
+                {results.job.isBookletMode && (
+                  <span className="text-sm text-gray-600">
+                    {results.calculations.length} total options found
+                  </span>
+                )}
                 <span className="text-sm text-blue-600 font-medium">
-                  Paper Type: {results.selectedPaperType.name}
+                  {results.job.isDoubleSided ? 'Double-sided' : 'Single-sided'} printing
+                  {results.job.isBookletMode && ` | Booklet (${results.job.totalPages} pages, ${results.job.quantity} booklets)`}
+                  {!results.job.isBookletMode && ` | Showing optimal solution`}
                 </span>
-              )}
+                {results.selectedPaperType && (
+                  <span className="text-sm text-blue-600 font-medium">
+                    Paper Type: {results.selectedPaperType.name}
+                  </span>
+                )}
+              </div>
             </div>
+            <Button 
+              onClick={generatePDF}
+              className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+            >
+              <Printer size={16} />
+              Print PDF
+            </Button>
           </CardHeader>
-          <CardContent>
+          <CardContent ref={resultsRef}>
             {results.job.isBookletMode ? (
               <div className="space-y-6">
                 {results.coverResults && (
