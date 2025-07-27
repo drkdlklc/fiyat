@@ -433,7 +433,7 @@ class BackendTester:
             self.log_test("Extras DELETE Endpoint", False, f"Connection error: {str(e)}")
 
     def test_extras_database_operations(self):
-        """Test comprehensive extras database operations"""
+        """Test comprehensive extras database operations with insideOutsideSame field"""
         try:
             # Initialize data to ensure extras exist
             init_response = requests.post(f"{self.api_url}/initialize-data", timeout=10)
@@ -444,22 +444,33 @@ class BackendTester:
             if get_response.status_code == 200:
                 extras = get_response.json()
                 if isinstance(extras, list) and len(extras) > 0:
-                    # Verify default extras are properly initialized
-                    expected_extras = [
-                        "Cellophane Lamination",
-                        "Staple Binding", 
-                        "Spiral Binding",
-                        "Perfect Binding (American)",
-                        "UV Coating"
-                    ]
+                    # Verify default extras are properly initialized with insideOutsideSame values
+                    expected_extras = {
+                        "Cellophane Lamination": False,
+                        "Staple Binding": True, 
+                        "Spiral Binding": True,
+                        "Perfect Binding (American)": True,
+                        "UV Coating": False
+                    }
                     
-                    found_extras = [extra.get("name") for extra in extras]
+                    found_extras = {extra.get("name"): extra.get("insideOutsideSame") for extra in extras}
                     missing_extras = [name for name in expected_extras if name not in found_extras]
+                    incorrect_values = []
                     
-                    if not missing_extras:
-                        self.log_test("Extras Database Operations", True, f"All {len(expected_extras)} default extras properly initialized")
+                    for name, expected_value in expected_extras.items():
+                        if name in found_extras:
+                            if found_extras[name] != expected_value:
+                                incorrect_values.append(f"{name}: expected {expected_value}, got {found_extras[name]}")
+                    
+                    if not missing_extras and not incorrect_values:
+                        self.log_test("Extras Database Operations", True, f"All {len(expected_extras)} default extras properly initialized with correct insideOutsideSame values")
                     else:
-                        self.log_test("Extras Database Operations", False, f"Missing default extras: {missing_extras}")
+                        error_msg = ""
+                        if missing_extras:
+                            error_msg += f"Missing default extras: {missing_extras}. "
+                        if incorrect_values:
+                            error_msg += f"Incorrect insideOutsideSame values: {incorrect_values}"
+                        self.log_test("Extras Database Operations", False, error_msg)
                 else:
                     self.log_test("Extras Database Operations", False, "No extras found after initialization")
             else:
