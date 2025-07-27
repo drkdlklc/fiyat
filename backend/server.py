@@ -200,6 +200,44 @@ async def delete_machine(machine_id: int):
         raise HTTPException(status_code=404, detail="Machine not found")
     return {"message": "Machine deleted successfully"}
 
+# Extras CRUD operations
+@api_router.get("/extras", response_model=List[Extra])
+async def get_extras():
+    extras = []
+    async for extra in db.extras.find():
+        extras.append(Extra(**extra))
+    return extras
+
+@api_router.post("/extras", response_model=Extra)
+async def create_extra(extra: ExtraCreate):
+    # Generate new ID
+    existing_extras = await db.extras.find().sort("id", -1).limit(1).to_list(1)
+    new_id = 1 if not existing_extras else existing_extras[0]["id"] + 1
+    
+    extra_obj = Extra(id=new_id, **extra.dict())
+    await db.extras.insert_one(extra_obj.dict())
+    return extra_obj
+
+@api_router.put("/extras/{extra_id}", response_model=Extra)
+async def update_extra(extra_id: int, extra_update: ExtraUpdate):
+    existing_extra = await db.extras.find_one({"id": extra_id})
+    if not existing_extra:
+        raise HTTPException(status_code=404, detail="Extra not found")
+    
+    update_data = extra_update.dict(exclude_unset=True)
+    if update_data:
+        await db.extras.update_one({"id": extra_id}, {"$set": update_data})
+    
+    updated_extra = await db.extras.find_one({"id": extra_id})
+    return Extra(**updated_extra)
+
+@api_router.delete("/extras/{extra_id}")
+async def delete_extra(extra_id: int):
+    result = await db.extras.delete_one({"id": extra_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Extra not found")
+    return {"message": "Extra deleted successfully"}
+
 # Initialize default data endpoint
 @api_router.post("/initialize-data")
 async def initialize_default_data():
