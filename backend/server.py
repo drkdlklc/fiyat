@@ -448,8 +448,8 @@ async def initialize_default_data():
                 "insideOutsideSame": False,
                 "supportsDoubleSided": True,  # Can be applied to one or both sides
                 "variants": [
-                    {"id": 1, "variantName": "Standard", "price": 0.15},
-                    {"id": 2, "variantName": "Premium", "price": 0.25}
+                    {"id": 1, "variantName": "Standard", "price": 0.15, "currency": "USD"},
+                    {"id": 2, "variantName": "Premium", "price": 0.22, "currency": "EUR"}
                 ]
             },
             {
@@ -459,8 +459,8 @@ async def initialize_default_data():
                 "insideOutsideSame": True,
                 "supportsDoubleSided": False,  # Binding applies to whole booklet
                 "variants": [
-                    {"id": 3, "variantName": "2-Staple", "price": 2.50},
-                    {"id": 4, "variantName": "3-Staple", "price": 3.50}
+                    {"id": 3, "variantName": "2-Staple", "price": 2.50, "currency": "USD"},
+                    {"id": 4, "variantName": "3-Staple", "price": 95, "currency": "TRY"}
                 ]
             },
             {
@@ -470,8 +470,8 @@ async def initialize_default_data():
                 "insideOutsideSame": True,
                 "supportsDoubleSided": False,  # Binding applies to whole booklet
                 "variants": [
-                    {"id": 5, "variantName": "Plastic Coil", "price": 0.8},  # price per cm
-                    {"id": 6, "variantName": "Metal Wire", "price": 1.2}    # price per cm
+                    {"id": 5, "variantName": "Plastic Coil", "price": 0.8, "currency": "USD"},  # price per cm
+                    {"id": 6, "variantName": "Metal Wire", "price": 1.1, "currency": "EUR"}    # price per cm
                 ]
             },
             {
@@ -481,8 +481,8 @@ async def initialize_default_data():
                 "insideOutsideSame": True,
                 "supportsDoubleSided": False,  # Binding applies to whole booklet
                 "variants": [
-                    {"id": 7, "variantName": "Standard", "price": 15.00},
-                    {"id": 8, "variantName": "Premium", "price": 22.50}
+                    {"id": 7, "variantName": "Standard", "price": 15.00, "currency": "USD"},
+                    {"id": 8, "variantName": "Premium", "price": 620, "currency": "TRY"}
                 ]
             },
             {
@@ -492,8 +492,8 @@ async def initialize_default_data():
                 "insideOutsideSame": False,
                 "supportsDoubleSided": True,  # Can be applied to one or both sides
                 "variants": [
-                    {"id": 9, "variantName": "Matte", "price": 0.25},
-                    {"id": 10, "variantName": "Gloss", "price": 0.30}
+                    {"id": 9, "variantName": "Matte", "price": 0.23, "currency": "EUR"},
+                    {"id": 10, "variantName": "Gloss", "price": 8.5, "currency": "TRY"}
                 ]
             }
         ]
