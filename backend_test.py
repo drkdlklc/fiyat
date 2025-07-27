@@ -279,7 +279,7 @@ class BackendTester:
             self.log_test("Initialize Data Endpoint", False, f"Connection error: {str(e)}")
 
     def test_extras_get_endpoint(self):
-        """Test the GET /api/extras endpoint with new variants structure"""
+        """Test the GET /api/extras endpoint with currency field in variants"""
         try:
             response = requests.get(f"{self.api_url}/extras", timeout=10)
             
@@ -287,19 +287,20 @@ class BackendTester:
                 data = response.json()
                 if isinstance(data, list):
                     if len(data) > 0:
-                        # Verify structure of first extra including new variants field
+                        # Verify structure of first extra including currency field in variants
                         first_extra = data[0]
                         required_fields = ['id', 'name', 'pricingType', 'insideOutsideSame', 'variants']
                         if all(field in first_extra for field in required_fields):
                             # Check if insideOutsideSame is a boolean
                             if isinstance(first_extra.get('insideOutsideSame'), bool):
-                                # Check if variants is a list with proper structure
+                                # Check if variants is a list with proper structure including currency
                                 variants = first_extra.get('variants', [])
                                 if isinstance(variants, list) and len(variants) > 0:
                                     first_variant = variants[0]
-                                    variant_fields = ['id', 'variantName', 'price']
+                                    variant_fields = ['id', 'variantName', 'price', 'currency']
                                     if all(field in first_variant for field in variant_fields):
-                                        self.log_test("Extras GET Endpoint", True, f"Extras endpoint returned {len(data)} extras with correct variants structure. First extra has {len(variants)} variants")
+                                        variant_currency = first_variant.get('currency')
+                                        self.log_test("Extras GET Endpoint", True, f"Extras endpoint returned {len(data)} extras with correct variants structure including currency field. First variant currency: {variant_currency}. First extra has {len(variants)} variants")
                                     else:
                                         missing_variant_fields = [field for field in variant_fields if field not in first_variant]
                                         self.log_test("Extras GET Endpoint", False, f"Variant structure missing required fields: {missing_variant_fields}")
