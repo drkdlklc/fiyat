@@ -79,6 +79,105 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
   const [showOptimalOnly, setShowOptimalOnly] = useState(true);
   const { toast } = useToast();
 
+  // PDF Generation Function
+  const generatePDF = async () => {
+    if (!results || !resultsRef.current) {
+      toast({
+        title: "Error",
+        description: "No calculation results to print. Please calculate first.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // Show loading toast
+      toast({
+        title: "Generating PDF",
+        description: "Please wait while we generate your PDF..."
+      });
+
+      // Get current date for filename
+      const currentDate = new Date().toISOString().split('T')[0];
+      const productName = jobData.productName || 'PrintJob';
+      const filename = `${productName}_Quote_${currentDate}.pdf`;
+
+      // PDF Options
+      const opt = {
+        margin: [10, 10, 10, 10],
+        filename: filename,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+          scale: 2,
+          useCORS: true,
+          letterRendering: true,
+          width: resultsRef.current.scrollWidth,
+          height: resultsRef.current.scrollHeight
+        },
+        jsPDF: { 
+          unit: 'mm', 
+          format: 'a4', 
+          orientation: 'portrait' 
+        },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+      };
+
+      // Create a temporary wrapper with Print and Smile branding
+      const tempWrapper = document.createElement('div');
+      tempWrapper.style.backgroundColor = 'white';
+      tempWrapper.style.padding = '20px';
+      tempWrapper.style.fontFamily = 'Arial, sans-serif';
+      
+      // Add company header
+      const header = document.createElement('div');
+      header.innerHTML = `
+        <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #1e40af; padding-bottom: 15px;">
+          <h1 style="color: #1e40af; font-size: 28px; margin: 0; font-weight: bold;">Print and Smile</h1>
+          <p style="color: #6b7280; margin: 5px 0 0 0; font-size: 14px;">Professional Printing Solutions</p>
+          <p style="color: #6b7280; margin: 5px 0 0 0; font-size: 12px;">www.printandsmile.com.tr</p>
+        </div>
+        <div style="margin-bottom: 20px;">
+          <h2 style="color: #374151; font-size: 20px; margin: 0;">Printing Cost Calculation Quote</h2>
+          <p style="color: #6b7280; margin: 5px 0 0 0; font-size: 12px;">Generated on: ${new Date().toLocaleDateString()}</p>
+        </div>
+      `;
+      
+      // Clone the results content
+      const resultsClone = resultsRef.current.cloneNode(true);
+      
+      // Remove any interactive elements that shouldn't be in PDF
+      const buttons = resultsClone.querySelectorAll('button');
+      buttons.forEach(button => button.remove());
+      
+      // Append header and results to temp wrapper
+      tempWrapper.appendChild(header);
+      tempWrapper.appendChild(resultsClone);
+      
+      // Temporarily add to document for html2pdf
+      document.body.appendChild(tempWrapper);
+      
+      // Generate PDF
+      await html2pdf().set(opt).from(tempWrapper).save();
+      
+      // Clean up
+      document.body.removeChild(tempWrapper);
+      
+      toast({
+        title: "Success",
+        description: "PDF has been generated and downloaded successfully!",
+        variant: "default"
+      });
+      
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate PDF. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
   // Helper functions for the new extras workflow
   const addExtraWithVariant = (extraId, variantId, section = 'normal') => {
     const extra = extras.find(e => e.id === parseInt(extraId));
