@@ -1,4 +1,5 @@
 // Mock data for printing cost calculator
+import { convertToEURSync, fetchExchangeRates } from '../utils/currencyConverter';
 
 export const mockPaperTypes = [
   {
