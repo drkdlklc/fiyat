@@ -2551,11 +2551,11 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
 
                 {results.coverResults && (results.innerPagesResults || results.multiPartResults) && (
                   <div className="p-4 border-2 border-blue-500 rounded-lg bg-blue-50">
-                    <h3 className="text-lg font-semibold text-blue-800 mb-4">Total Booklet Cost Summary (All prices converted to USD)</h3>
+                    <h3 className="text-lg font-semibold text-blue-800 mb-4">Total Booklet Cost Summary (All prices converted to EUR)</h3>
                     
                     {(() => {
-                      // Calculate USD conversions
-                      const usdCosts = convertResultsCostsToUSD(results);
+                      // Calculate EUR conversions
+                      const eurCosts = convertResultsCostsToEUR(results);
                       
                       return (
                         <>
@@ -2569,34 +2569,34 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                               <p className="text-sm">{results.job.totalPages}</p>
                             </div>
                             <div>
-                              <span className="font-medium text-gray-700">Cover Cost (USD):</span>
-                              <p className="text-sm">{formatUSDPrice(usdCosts.coverCostUSD)}</p>
+                              <span className="font-medium text-gray-700">Cover Cost (EUR):</span>
+                              <p className="text-sm">{formatEURPrice(eurCosts.coverCostEUR)}</p>
                             </div>
                             <div>
-                              <span className="font-medium text-gray-700">Inner Pages Cost (USD):</span>
-                              <p className="text-sm">{formatUSDPrice(usdCosts.innerCostUSD)}</p>
+                              <span className="font-medium text-gray-700">Inner Pages Cost (EUR):</span>
+                              <p className="text-sm">{formatEURPrice(eurCosts.innerCostEUR)}</p>
                             </div>
                           </div>
 
-                          {/* Extras Cost Section with USD conversion */}
+                          {/* Extras Cost Section with EUR conversion */}
                           {results.extrasResults && (results.extrasResults.coverExtras?.length > 0 || results.extrasResults.innerExtras?.length > 0) && (
                             <div className="mb-4 p-3 border rounded-lg bg-purple-50">
-                              <h4 className="font-medium text-purple-800 mb-3">Extras Breakdown (USD)</h4>
+                              <h4 className="font-medium text-purple-800 mb-3">Extras Breakdown (EUR)</h4>
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {results.extrasResults.coverExtras?.length > 0 && (
                                   <div>
-                                    <span className="font-medium text-green-700">Cover Extras (USD):</span>
+                                    <span className="font-medium text-green-700">Cover Extras (EUR):</span>
                                     <p className="text-sm text-green-600">
-                                      {formatUSDPrice(usdCosts.coverExtrasUSD)}
+                                      {formatEURPrice(eurCosts.coverExtrasEUR)}
                                     </p>
                                     <div className="text-xs text-gray-600 mt-1">
                                       {results.extrasResults.coverExtras.map((extra, idx) => {
-                                        const currency = extra.originalPrice?.currency || 'USD';
-                                        const usdCost = convertToUSD(extra.totalCost, currency);
+                                        const currency = extra.originalPrice?.currency || 'EUR';
+                                        const eurCost = convertToEUR(extra.totalCost, currency);
                                         return (
                                           <div key={idx}>
-                                            • {extra.extraName} - {extra.variantName}: {formatUSDPrice(usdCost)}
-                                            {currency !== 'USD' && <span className="text-blue-500 ml-1">(converted from {currency})</span>}
+                                            • {extra.extraName} - {extra.variantName}: {formatEURPrice(eurCost)}
+                                            {currency !== 'EUR' && <span className="text-blue-500 ml-1">(converted from {currency})</span>}
                                           </div>
                                         );
                                       })}
@@ -2605,18 +2605,18 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                                 )}
                                 {results.extrasResults.innerExtras?.length > 0 && (
                                   <div>
-                                    <span className="font-medium text-orange-700">Inner Extras (USD):</span>
+                                    <span className="font-medium text-orange-700">Inner Extras (EUR):</span>
                                     <p className="text-sm text-orange-600">
-                                      {formatUSDPrice(usdCosts.innerExtrasUSD)}
+                                      {formatEURPrice(eurCosts.innerExtrasEUR)}
                                     </p>
                                     <div className="text-xs text-gray-600 mt-1">
                                       {results.extrasResults.innerExtras.map((extra, idx) => {
-                                        const currency = extra.originalPrice?.currency || 'USD';
-                                        const usdCost = convertToUSD(extra.totalCost, currency);
+                                        const currency = extra.originalPrice?.currency || 'EUR';
+                                        const eurCost = convertToEUR(extra.totalCost, currency);
                                         return (
                                           <div key={idx}>
-                                            • {extra.extraName} - {extra.variantName}: {formatUSDPrice(usdCost)}
-                                            {currency !== 'USD' && <span className="text-blue-500 ml-1">(converted from {currency})</span>}
+                                            • {extra.extraName} - {extra.variantName}: {formatEURPrice(eurCost)}
+                                            {currency !== 'EUR' && <span className="text-blue-500 ml-1">(converted from {currency})</span>}
                                           </div>
                                         );
                                       })}
@@ -2629,15 +2629,15 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
 
                           <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                             <div>
-                              <span className="font-bold text-xl text-gray-800">Total Cost (USD):</span>
+                              <span className="font-bold text-xl text-gray-800">Total Cost (EUR):</span>
                               <p className="text-2xl font-bold text-blue-600">
-                                {formatUSDPrice(usdCosts.totalUSD)}
+                                {formatEURPrice(eurCosts.totalEUR)}
                               </p>
                             </div>
                             <div>
-                              <span className="font-bold text-xl text-gray-800">Cost per Booklet (USD):</span>
+                              <span className="font-bold text-xl text-gray-800">Cost per Booklet (EUR):</span>
                               <p className="text-2xl font-bold text-green-600">
-                                {formatUSDPrice(usdCosts.totalUSD / results.job.quantity, 4)}
+                                {formatEURPrice(eurCosts.totalEUR / results.job.quantity, 4)}
                               </p>
                             </div>
                           </div>
