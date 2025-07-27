@@ -2343,7 +2343,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                                   {extra.pricingType === 'per_page' && `${extra.units} ${extra.unitType} × $${extra.pricePerUnit.toFixed(2)} per page`}
                                   {extra.pricingType === 'per_booklet' && `${extra.units} booklets × $${extra.pricePerUnit.toFixed(2)} per booklet`}
                                   {extra.pricingType === 'per_length' && (
-                                    `${extra.units} booklets × ${extra.edgeLength}cm edge × ${extra.pricePerUnit.toFixed(2)} ${extra.originalPrice ? extra.originalPrice.currency || 'USD' : 'USD'} per cm`
+                                    `${extra.units} booklets × ${extra.edgeLength?.toFixed(1) || '0.0'}cm edge × ${extra.pricePerUnit.toFixed(2)} ${extra.originalPrice ? extra.originalPrice.currency || 'USD' : 'USD'} per cm`
                                   )}
                                 </div>
                               </div>
