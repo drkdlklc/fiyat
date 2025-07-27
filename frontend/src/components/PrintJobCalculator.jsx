@@ -19,10 +19,10 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
     marginBottom: '3',
     marginLeft: '3',
     quantity: '',
-    isDoubleSided: false,
+    isDoubleSided: true, // Default to double-sided
     setupRequired: false,
     isBookletMode: false,
-    hasCover: true, // Default to true to maintain current behavior
+    hasCover: false, // Default to no cover
     coverSetupRequired: false,
     totalPages: '',
     useMultiPartConfiguration: false,
