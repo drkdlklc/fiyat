@@ -88,11 +88,36 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
     setFormData({
       name: extra.name,
       pricingType: extra.pricingType,
-      price: extra.price.toString(),
-      insideOutsideSame: extra.insideOutsideSame || false
+      insideOutsideSame: extra.insideOutsideSame || false,
+      variants: extra.variants?.map(v => ({
+        id: v.id,
+        variantName: v.variantName,
+        price: v.price.toString()
+      })) || [{ variantName: '', price: '' }]
     });
     setEditingId(extra.id);
     setIsAdding(true);
+  };
+
+  // Variant management functions
+  const addVariant = () => {
+    setFormData({
+      ...formData,
+      variants: [...formData.variants, { variantName: '', price: '' }]
+    });
+  };
+
+  const removeVariant = (index) => {
+    if (formData.variants.length > 1) {
+      const newVariants = formData.variants.filter((_, i) => i !== index);
+      setFormData({ ...formData, variants: newVariants });
+    }
+  };
+
+  const updateVariant = (index, field, value) => {
+    const newVariants = [...formData.variants];
+    newVariants[index][field] = value;
+    setFormData({ ...formData, variants: newVariants });
   };
 
   const handleDelete = (id) => {
