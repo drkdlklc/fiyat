@@ -70,7 +70,8 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
     setFormData({
       name: extra.name,
       pricingType: extra.pricingType,
-      price: extra.price.toString()
+      price: extra.price.toString(),
+      insideOutsideSame: extra.insideOutsideSame || false
     });
     setEditingId(extra.id);
     setIsAdding(true);
