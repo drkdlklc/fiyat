@@ -2561,7 +2561,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
 
                 {/* Final Total Price Section */}
                 {results && (
-                  <div className="mt-8 border-2 border-blue-200 rounded-lg bg-blue-50 p-6">
+                  <div className="mt-8 border-2 border-blue-200 rounded-lg bg-blue-50 p-6 final-total-price-section">
                     <h2 className="text-2xl font-bold text-blue-800 mb-4 text-center flex items-center justify-center gap-2">
                       <DollarSign size={24} />
                       Final Total Price
