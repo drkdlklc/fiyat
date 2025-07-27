@@ -329,13 +329,14 @@ class BackendTester:
         return None
 
     def test_extras_put_endpoint(self):
-        """Test the PUT /api/extras/{id} endpoint"""
+        """Test the PUT /api/extras/{id} endpoint with new insideOutsideSame field"""
         try:
             # First create an extra to update
             test_extra = {
                 "name": "Test Update Extra",
                 "pricingType": "per_booklet",
-                "price": 5.00
+                "price": 5.00,
+                "insideOutsideSame": False
             }
             
             create_response = requests.post(
@@ -352,10 +353,11 @@ class BackendTester:
             created_extra = create_response.json()
             extra_id = created_extra.get("id")
             
-            # Now update the extra
+            # Now update the extra including the insideOutsideSame field
             update_data = {
                 "name": "Updated Test Extra",
-                "price": 7.50
+                "price": 7.50,
+                "insideOutsideSame": True
             }
             
             update_response = requests.put(
@@ -369,8 +371,9 @@ class BackendTester:
                 updated_extra = update_response.json()
                 if (updated_extra.get("name") == update_data["name"] and
                     updated_extra.get("price") == update_data["price"] and
+                    updated_extra.get("insideOutsideSame") == update_data["insideOutsideSame"] and
                     updated_extra.get("pricingType") == test_extra["pricingType"]):  # Should remain unchanged
-                    self.log_test("Extras PUT Endpoint", True, f"Extra update successful for ID: {extra_id}")
+                    self.log_test("Extras PUT Endpoint", True, f"Extra update successful for ID: {extra_id}, insideOutsideSame updated to: {updated_extra.get('insideOutsideSame')}")
                 else:
                     self.log_test("Extras PUT Endpoint", False, f"Update data mismatch: {updated_extra}")
             else:
