@@ -48,18 +48,21 @@ class PaperType(BaseModel):
     name: str
     gsm: int
     pricePerTon: float
+    currency: str = "USD"  # New currency field
     stockSheetSizes: List[StockSheetSize]
 
 class PaperTypeCreate(BaseModel):
     name: str
     gsm: int
     pricePerTon: float
+    currency: str = "USD"  # New currency field
     stockSheetSizes: List[StockSheetSize]
 
 class PaperTypeUpdate(BaseModel):
     name: Optional[str] = None
     gsm: Optional[int] = None
     pricePerTon: Optional[float] = None
+    currency: Optional[str] = None  # New currency field
     stockSheetSizes: Optional[List[StockSheetSize]] = None
 
 # Machine Models
