@@ -557,40 +557,40 @@ async def get_exchange_rates():
         # Initialize Altinkaynak client
         altin = Altinkaynak()
         
-        # Get exchange rates
-        # We'll get rates to convert FROM other currencies TO EUR
-        usd_to_try = altin.get_rate("USD", "TRY")  
-        eur_to_try = altin.get_rate("EUR", "TRY")
+        # Get exchange rates - these return dict objects with sell/buy rates
+        usd_to_try_data = altin.get_rate("USD", "TRY")  
+        eur_to_try_data = altin.get_rate("EUR", "TRY")
         
-        if usd_to_try and eur_to_try:
-            # Calculate conversion rates with EUR as base
-            # If 1 EUR = X TRY and 1 USD = Y TRY, then 1 USD = Y/X EUR
-            usd_to_eur = usd_to_try / eur_to_try
-            try_to_eur = 1 / eur_to_try
+        if usd_to_try_data and eur_to_try_data:
+            # Extract the 'sell' rate as the main exchange rate
+            usd_to_try = usd_to_try_data.get('sell', usd_to_try_data.get('buy', 0))
+            eur_to_try = eur_to_try_data.get('sell', eur_to_try_data.get('buy', 0))
             
-            exchange_rates = {
-                "base_currency": "EUR",
-                "timestamp": datetime.now().isoformat(),
-                "rates": {
-                    "EUR": 1.0,  # Base currency
-                    "USD": usd_to_eur,  # 1 USD = X EUR
-                    "TRY": try_to_eur   # 1 TRY = X EUR
+            if usd_to_try > 0 and eur_to_try > 0:
+                # Calculate conversion rates with EUR as base
+                # If 1 EUR = X TRY and 1 USD = Y TRY, then 1 USD = Y/X EUR
+                usd_to_eur = usd_to_try / eur_to_try
+                try_to_eur = 1 / eur_to_try
+                
+                exchange_rates = {
+                    "base_currency": "EUR",
+                    "timestamp": datetime.now().isoformat(),
+                    "rates": {
+                        "EUR": 1.0,  # Base currency
+                        "USD": usd_to_eur,  # 1 USD = X EUR
+                        "TRY": try_to_eur   # 1 TRY = X EUR
+                    },
+                    "source_rates": {
+                        "USD_to_TRY": usd_to_try,
+                        "EUR_to_TRY": eur_to_try
+                    }
                 }
-            }
-            
-            return exchange_rates
+                
+                return exchange_rates
+            else:
+                raise ValueError("Invalid rate values received")
         else:
-            # Fallback to default rates if API fails
-            return {
-                "base_currency": "EUR", 
-                "timestamp": datetime.now().isoformat(),
-                "rates": {
-                    "EUR": 1.0,
-                    "USD": 0.95,  # Approximate fallback
-                    "TRY": 0.028  # Approximate fallback
-                },
-                "fallback": True
-            }
+            raise ValueError("No rate data received from API")
             
     except Exception as e:
         print(f"Error fetching exchange rates: {e}")
