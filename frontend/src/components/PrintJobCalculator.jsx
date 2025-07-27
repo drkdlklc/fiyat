@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Checkbox } from './ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Calculator, FileText, Award, Settings, CheckCircle, Plus, Minus, DollarSign, X } from 'lucide-react';
+import { Calculator, FileText, Award, Settings, CheckCircle, Plus, Minus, DollarSign, X, Printer } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
 import { findOptimalPrintSheetSize, calculateOptimalForPaperType, calculateCoverCost, calculateInnerPagesCost, calculateMultiPartCost, calculateMultiPartInnerPagesCost, calculateExtrasCost } from '../data/mockData';
+import html2pdf from 'html2pdf.js';
 
 const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
   const [jobData, setJobData] = useState({
