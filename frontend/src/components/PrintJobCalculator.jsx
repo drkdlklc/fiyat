@@ -1390,6 +1390,11 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                             <div key={index} className="flex justify-between items-center p-2 border rounded bg-white">
                               <div className="flex-1">
                                 <span className="font-medium">{extra.extraName}</span>
+                                {extra.isConsolidated && (
+                                  <span className="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                                    Cover + Inner Combined
+                                  </span>
+                                )}
                                 <div className="text-xs text-gray-600 mt-1">
                                   {extra.pricingType === 'per_page' && `${extra.units} ${extra.unitType} × $${extra.pricePerUnit.toFixed(2)} per page`}
                                   {extra.pricingType === 'per_booklet' && `${extra.units} booklets × $${extra.pricePerUnit.toFixed(2)} per booklet`}
