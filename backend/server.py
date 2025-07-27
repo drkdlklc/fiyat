@@ -307,6 +307,8 @@ async def update_extra(extra_id: int, extra_update: ExtraUpdate):
                         updated_variant["variantName"] = variant_update.variantName
                     if variant_update.price is not None:
                         updated_variant["price"] = variant_update.price
+                    if variant_update.currency is not None:
+                        updated_variant["currency"] = variant_update.currency
                     updated_variants.append(updated_variant)
             else:
                 # New variant
@@ -314,7 +316,8 @@ async def update_extra(extra_id: int, extra_update: ExtraUpdate):
                 new_variant = {
                     "id": max_variant_id,
                     "variantName": variant_update.variantName,
-                    "price": variant_update.price
+                    "price": variant_update.price,
+                    "currency": variant_update.currency or "USD"
                 }
                 updated_variants.append(new_variant)
         
