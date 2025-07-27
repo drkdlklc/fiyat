@@ -2914,10 +2914,11 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                           Current Exchange Rates
                         </h4>
                         <div className="flex flex-wrap gap-4 text-xs text-gray-600">
-                          <span>1 EUR = {(1/exchangeRates.EUR).toFixed(4)} TRY</span>
-                          <span>1 USD = {(exchangeRates.USD/exchangeRates.EUR).toFixed(4)} EUR</span>
-                          <span>1 USD = {(exchangeRates.USD/exchangeRates.TRY).toFixed(4)} TRY</span>
-                          <span className="text-blue-600">• Rates from altinkaynak.com</span>
+                          <span>1 USD = {exchangeRates.USD.toFixed(4)} EUR</span>
+                          <span>1 TRY = {exchangeRates.TRY.toFixed(4)} EUR</span>
+                          <span>1 EUR = {(1/exchangeRates.TRY).toFixed(2)} TRY</span>
+                          <span>1 USD = {(exchangeRates.USD/exchangeRates.TRY).toFixed(2)} TRY</span>
+                          <span className="text-blue-600">• Live rates from altinkaynak.com</span>
                         </div>
                       </div>
                     )}
