@@ -652,16 +652,30 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
             }
           } else {
             // Use page dimensions (existing logic)
+            // Debug: Check if job dimensions are valid
+            const jobWidth = parseFloat(job.width) || 0;
+            const jobHeight = parseFloat(job.height) || 0;
+            
+            // Fallback to default dimensions if invalid
+            const defaultWidth = 210; // A4 width in mm
+            const defaultHeight = 297; // A4 height in mm
+            
+            const validWidth = jobWidth > 0 ? jobWidth : defaultWidth;
+            const validHeight = jobHeight > 0 ? jobHeight : defaultHeight;
+            
             if (job.isBookletMode) {
               if (bookletSection === 'cover') {
-                edgeLength = coverBindingEdge === 'short' ? job.height / 10 : job.width / 10; // mm to cm
+                edgeLength = coverBindingEdge === 'short' ? validHeight / 10 : validWidth / 10; // mm to cm
               } else {
-                edgeLength = innerBindingEdge === 'short' ? job.height / 10 : job.width / 10; // mm to cm
+                edgeLength = innerBindingEdge === 'short' ? validHeight / 10 : validWidth / 10; // mm to cm
               }
             } else {
-              edgeLength = lengthBasedEdge === 'short' ? job.height / 10 : job.width / 10; // mm to cm
+              edgeLength = lengthBasedEdge === 'short' ? validHeight / 10 : validWidth / 10; // mm to cm
             }
           }
+          
+          // Ensure edgeLength is a valid number
+          edgeLength = isNaN(edgeLength) || edgeLength <= 0 ? 21.0 : edgeLength; // Default to 21cm (A4 width)
           
           units = job.quantity;
           unitType = job.isBookletMode ? 'booklets' : 'units';
