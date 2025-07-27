@@ -261,7 +261,49 @@ async def update_extra(extra_id: int, extra_update: ExtraUpdate):
     if not existing_extra:
         raise HTTPException(status_code=404, detail="Extra not found")
     
-    update_data = extra_update.dict(exclude_unset=True)
+    update_data = {}
+    
+    # Update basic fields
+    if extra_update.name is not None:
+        update_data["name"] = extra_update.name
+    if extra_update.pricingType is not None:
+        update_data["pricingType"] = extra_update.pricingType
+    if extra_update.insideOutsideSame is not None:
+        update_data["insideOutsideSame"] = extra_update.insideOutsideSame
+    
+    # Handle variants update
+    if extra_update.variants is not None:
+        # Get max variant ID from all extras to ensure uniqueness
+        all_extras = await db.extras.find().to_list(None)
+        max_variant_id = 0
+        for e in all_extras:
+            for variant in e.get("variants", []):
+                max_variant_id = max(max_variant_id, variant.get("id", 0))
+        
+        updated_variants = []
+        for variant_update in extra_update.variants:
+            if variant_update.id is not None:
+                # Update existing variant
+                existing_variant = next((v for v in existing_extra["variants"] if v["id"] == variant_update.id), None)
+                if existing_variant:
+                    updated_variant = existing_variant.copy()
+                    if variant_update.variantName is not None:
+                        updated_variant["variantName"] = variant_update.variantName
+                    if variant_update.price is not None:
+                        updated_variant["price"] = variant_update.price
+                    updated_variants.append(updated_variant)
+            else:
+                # New variant
+                max_variant_id += 1
+                new_variant = {
+                    "id": max_variant_id,
+                    "variantName": variant_update.variantName,
+                    "price": variant_update.price
+                }
+                updated_variants.append(new_variant)
+        
+        update_data["variants"] = updated_variants
+    
     if update_data:
         await db.extras.update_one({"id": extra_id}, {"$set": update_data})
     
