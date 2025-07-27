@@ -23,8 +23,8 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
     setFormData({
       name: '',
       pricingType: 'per_page',
-      price: '',
-      insideOutsideSame: false
+      insideOutsideSame: false,
+      variants: [{ variantName: '', price: '' }]
     });
     setIsAdding(false);
     setEditingId(null);
