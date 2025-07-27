@@ -105,7 +105,7 @@ class ExtraVariant(BaseModel):
 class Extra(BaseModel):
     id: int
     name: str
-    pricingType: str  # 'per_page', 'per_booklet', 'per_length', 'per_print_sheet'
+    pricingType: str  # 'per_page', 'per_booklet', 'per_length'
     insideOutsideSame: bool = False
     supportsDoubleSided: bool = False  # New field for single/double-sided application
     variants: List[ExtraVariant]
