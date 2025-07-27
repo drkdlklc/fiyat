@@ -1616,8 +1616,8 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                 </Select>
                 <p className="text-sm text-blue-600 mt-1">
                   {lengthBasedEdge === 'short' 
-                    ? `Selected edge: ${jobData.height}mm (height) will be used for extras pricing`
-                    : `Selected edge: ${jobData.width}mm (width) will be used for extras pricing`
+                    ? `Selected edge: ${jobData.finalHeight}mm (height) will be used for extras pricing`
+                    : `Selected edge: ${jobData.finalWidth}mm (width) will be used for extras pricing`
                   }
                 </p>
               </div>
