@@ -580,13 +580,14 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
       return;
     }
 
-  // Wrapper function to handle variant-based extras calculation
+  // Calculate extras cost for variants
   const calculateVariantExtrasCost = (job, selectedVariantExtras, lengthBasedEdge, bookletSection = null) => {
+    const extrasResults = [];
+    let edgeLength = 0; // Declare at function level to persist across switch cases
+
     if (!selectedVariantExtras || selectedVariantExtras.length === 0) {
       return [];
     }
-
-    const extrasResults = [];
 
     selectedVariantExtras.forEach(selectedExtra => {
       const extra = extras.find(e => e.id === selectedExtra.extraId);
