@@ -70,6 +70,7 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
       pricingType: formData.pricingType,
       insideOutsideSame: formData.insideOutsideSame,
       supportsDoubleSided: formData.supportsDoubleSided,
+      applyToPrintSheet: formData.applyToPrintSheet,
       variants: variants
     };
 
