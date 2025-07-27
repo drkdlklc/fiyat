@@ -25,6 +25,7 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
       name: '',
       pricingType: 'per_page',
       insideOutsideSame: false,
+      supportsDoubleSided: false,
       variants: [{ variantName: '', price: '' }]
     });
     setIsAdding(false);
