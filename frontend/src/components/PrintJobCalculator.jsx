@@ -14,6 +14,50 @@ import jsPDF from 'jspdf';
 import { convertToUSD, formatUSDPrice, convertExtraCostToUSD } from '../utils/currencyConverter';
 
 const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
+  // Currency conversion helper functions
+  const convertResultsCostsToUSD = (results) => {
+    let coverCostUSD = 0;
+    let innerCostUSD = 0;
+    let coverExtrasUSD = 0;
+    let innerExtrasUSD = 0;
+
+    // Convert cover costs to USD
+    if (results.coverResults) {
+      // For now, assume cover results are already in USD or get currency from selected paper/machine
+      // This would need access to the selected cover paper type and machine for accurate conversion
+      coverCostUSD = results.coverResults.totalCost; // TODO: Add proper currency conversion
+    }
+
+    // Convert inner pages costs to USD  
+    if (results.innerPagesResults) {
+      innerCostUSD = results.innerPagesResults.totalCost; // TODO: Add proper currency conversion
+    } else if (results.multiPartResults) {
+      innerCostUSD = results.multiPartResults.totalCost; // TODO: Add proper currency conversion
+    }
+
+    // Convert extras costs to USD
+    if (results.extrasResults?.coverExtras) {
+      coverExtrasUSD = results.extrasResults.coverExtras.reduce((sum, extra) => {
+        const currency = extra.originalPrice?.currency || 'USD';
+        return sum + convertToUSD(extra.totalCost, currency);
+      }, 0);
+    }
+
+    if (results.extrasResults?.innerExtras) {
+      innerExtrasUSD = results.extrasResults.innerExtras.reduce((sum, extra) => {
+        const currency = extra.originalPrice?.currency || 'USD';
+        return sum + convertToUSD(extra.totalCost, currency);
+      }, 0);
+    }
+
+    return {
+      coverCostUSD,
+      innerCostUSD, 
+      coverExtrasUSD,
+      innerExtrasUSD,
+      totalUSD: coverCostUSD + innerCostUSD + coverExtrasUSD + innerExtrasUSD
+    };
+  };
   const resultsRef = useRef(null);
   const [jobData, setJobData] = useState({
     productName: '',
