@@ -349,6 +349,18 @@ metadata:
   test_sequence: 1
   run_ui: false
 
+  - task: "Fix Final Total Price not showing in booklet mode"
+    implemented: false
+    working: false
+    file: "frontend/src/components/PrintJobCalculator.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "USER REPORTED: Final Total Price section is missing in booklet mode despite code existing. TROUBLESHOOT ANALYSIS: Final Total Price section has nested conditionals requiring both coverResults and innerPagesResults to be valid. If either is missing due to incomplete paper type/machine selections or failed calculations, the respective sections won't render. Need to add fallback display logic and better validation for booklet mode calculations."
+
   - task: "Fix extras calculation to use actual print sheets instead of job quantity"
     implemented: true
     working: false
