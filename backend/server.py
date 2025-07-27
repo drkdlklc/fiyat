@@ -100,6 +100,7 @@ class ExtraVariant(BaseModel):
     id: int
     variantName: str
     price: float
+    currency: str = "USD"  # New currency field for each variant
 
 class Extra(BaseModel):
     id: int
@@ -112,6 +113,7 @@ class Extra(BaseModel):
 class ExtraVariantCreate(BaseModel):
     variantName: str
     price: float
+    currency: str = "USD"  # New currency field for each variant
 
 class ExtraCreate(BaseModel):
     name: str
@@ -124,6 +126,7 @@ class ExtraVariantUpdate(BaseModel):
     id: Optional[int] = None
     variantName: Optional[str] = None
     price: Optional[float] = None
+    currency: Optional[str] = None  # New currency field for each variant
 
 class ExtraUpdate(BaseModel):
     name: Optional[str] = None
