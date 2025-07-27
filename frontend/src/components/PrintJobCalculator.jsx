@@ -86,6 +86,30 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
       return;
     }
 
+    // Check for Inside/Outside Same consolidation in booklet mode
+    if (section === 'inner' && extra.insideOutsideSame) {
+      // Check if this extra is already selected for cover
+      const isAlreadyInCover = selectedCoverExtras.some(ce => ce.extraId === extra.id);
+      if (isAlreadyInCover) {
+        toast({
+          title: "Info",
+          description: `${extra.name} is marked as "Inside/Outside Same" and is already selected for the cover. It will automatically apply to both sections.`,
+          variant: "default"
+        });
+        return;
+      }
+    }
+
+    if (section === 'cover' && extra.insideOutsideSame) {
+      // Remove from inner if already there
+      setSelectedInnerExtras(prev => prev.filter(ie => ie.extraId !== extra.id));
+      toast({
+        title: "Info", 
+        description: `${extra.name} is marked as "Inside/Outside Same" and will apply to both cover and inner pages.`,
+        variant: "default"
+      });
+    }
+
     const newExtra = {
       extraId: extra.id,
       variantId: variant.id,
