@@ -10,6 +10,8 @@ import { useToast } from '../hooks/use-toast';
 const MachineManager = ({ machines, onAddMachine, onUpdateMachine, onDeleteMachine }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [editingSheetSizeId, setEditingSheetSizeId] = useState(null);
+  const [editingMachineId, setEditingMachineId] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     setupCost: '',
@@ -24,6 +26,13 @@ const MachineManager = ({ machines, onAddMachine, onUpdateMachine, onDeleteMachi
     clickCostCurrency: 'USD'
   });
   const [isAddingSheetSize, setIsAddingSheetSize] = useState(false);
+  const [editingSheetSizeData, setEditingSheetSizeData] = useState({
+    name: '',
+    width: '',
+    height: '',
+    clickCost: '',
+    clickCostCurrency: 'USD'
+  });
   const { toast } = useToast();
 
   const resetForm = () => {
