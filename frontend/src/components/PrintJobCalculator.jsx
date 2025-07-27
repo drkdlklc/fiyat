@@ -628,11 +628,10 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
           break;
 
         case 'per_booklet':
+          units = job.quantity;
           if (job.isBookletMode) {
-            units = job.quantity;
-            unitType = bookletSection || 'booklets';
+            unitType = bookletSection ? `${bookletSection} sections` : 'booklets';
           } else {
-            units = job.quantity;
             unitType = 'units';
           }
           cost = units * basePrice;
