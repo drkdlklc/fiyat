@@ -1810,6 +1810,17 @@ if (innerResult) {
         self.test_extras_delete_endpoint()
         self.test_extras_database_operations()
         
+        # NEW: Single/Double-Sided Functionality Tests
+        print("🔄 Testing Single/Double-Sided Functionality (supportsDoubleSided)")
+        print()
+        self.test_supports_double_sided_field_in_get()
+        self.test_supports_double_sided_field_in_post()
+        self.test_supports_double_sided_field_in_put()
+        self.test_default_extras_supports_double_sided_values()
+        self.test_supports_double_sided_field_validation()
+        self.test_supports_double_sided_with_variants_compatibility()
+        self.test_no_regressions_in_existing_functionality()
+        
         # Variants-specific tests
         print("🔧 Testing Variants Functionality")
         print()
