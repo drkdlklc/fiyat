@@ -349,6 +349,18 @@ metadata:
   test_sequence: 1
   run_ui: false
 
+  - task: "Change currency display from USD to EUR"
+    implemented: true
+    working: false
+    file: "frontend/src/utils/currencyConverter.js, frontend/src/components/PrintJobCalculator.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "USER REQUEST: Change display prices from USD to EUR. IMPLEMENTATION COMPLETED: Updated currencyConverter.js with EUR as base currency (1 EUR = 1.0, 1 USD = 0.95 EUR, 1 TRY = 0.028 EUR). Updated all function names and references from USD to EUR throughout PrintJobCalculator.jsx. Changed all display labels, formatting functions, and conversion text to show EUR. Updated Total Booklet Cost Summary and Final Total Price sections to display all prices in EUR with proper conversion indicators."
+
   - task: "Implement currency conversion to USD for all prices"
     implemented: true
     working: false
