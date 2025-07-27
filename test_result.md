@@ -351,7 +351,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Fix edge length NaN calculation and add edit buttons for machine print sheet sizes"
+    - "Fix incorrect extras price calculations"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
