@@ -669,9 +669,9 @@ export const calculateExtrasCost = (job, selectedExtras, extras, lengthBasedEdge
         // Calculate length based on binding edge
         let edgeLength = 0;
         
-        // Get valid dimensions
-        const validWidth = parseFloat(job.finalWidth) || 210;  // Default to A4 width in mm
-        const validHeight = parseFloat(job.finalHeight) || 297; // Default to A4 height in mm
+        // Job object now has validated dimensions (with A4 defaults)
+        const validWidth = job.finalWidth;   // Already validated
+        const validHeight = job.finalHeight; // Already validated
         
         // Debug logging
         console.log('MockData edge calculation debug:', {
@@ -693,7 +693,7 @@ export const calculateExtrasCost = (job, selectedExtras, extras, lengthBasedEdge
             : Math.min(validWidth, validHeight) / 10;
         }
 
-        // Ensure valid edge length
+        // Ensure valid edge length (this should now always be valid)
         edgeLength = isNaN(edgeLength) || edgeLength <= 0 ? 21.0 : edgeLength; // Default to 21cm
 
         units = job.quantity;
