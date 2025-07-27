@@ -339,7 +339,7 @@ const MachineManager = ({ machines, onAddMachine, onUpdateMachine, onDeleteMachi
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <h3 className="font-semibold text-lg">{machine.name}</h3>
-                  <p className="text-sm text-gray-600">Setup Cost: ${machine.setupCost}</p>
+                  <p className="text-sm text-gray-600">Setup Cost: {machine.setupCost} {machine.setupCostCurrency || 'USD'}</p>
                 </div>
                 <div className="flex gap-2">
                   <Button
