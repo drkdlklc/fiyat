@@ -273,6 +273,8 @@ async def update_extra(extra_id: int, extra_update: ExtraUpdate):
         update_data["pricingType"] = extra_update.pricingType
     if extra_update.insideOutsideSame is not None:
         update_data["insideOutsideSame"] = extra_update.insideOutsideSame
+    if extra_update.supportsDoubleSided is not None:
+        update_data["supportsDoubleSided"] = extra_update.supportsDoubleSided
     
     # Handle variants update
     if extra_update.variants is not None:
