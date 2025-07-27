@@ -138,7 +138,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
     
     if (job.isBookletMode) {
       // Booklet mode - calculate cover and inner pages separately
-      if (selectedCoverPaperType && selectedCoverMachine) {
+      if (job.hasCover && selectedCoverPaperType && selectedCoverMachine) {
         const coverPaperType = paperTypes.find(p => p.id === selectedCoverPaperType);
         const coverMachine = machines.find(m => m.id === selectedCoverMachine);
         coverResults = calculateCoverCost(job, coverPaperType, coverMachine);
@@ -151,7 +151,12 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
         // Single inner paper type and machine
         const innerPaperType = paperTypes.find(p => p.id === selectedInnerPaperType);
         const innerMachine = machines.find(m => m.id === selectedInnerMachine);
-        innerPagesResults = calculateInnerPagesCost(job, innerPaperType, innerMachine);
+        // Modify job to treat all pages as inner pages when no cover
+        const modifiedJob = { ...job };
+        if (!job.hasCover) {
+          modifiedJob.totalPages = job.totalPages; // All pages are inner pages
+        }
+        innerPagesResults = calculateInnerPagesCost(modifiedJob, innerPaperType, innerMachine);
       }
       
       // For booklet mode, we don't use the normal calculation results
