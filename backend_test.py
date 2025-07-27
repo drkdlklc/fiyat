@@ -477,7 +477,7 @@ class BackendTester:
             self.log_test("Extras DELETE Endpoint", False, f"Connection error: {str(e)}")
 
     def test_extras_database_operations(self):
-        """Test comprehensive extras database operations with insideOutsideSame field"""
+        """Test comprehensive extras database operations with variants structure"""
         try:
             # Initialize data to ensure extras exist
             init_response = requests.post(f"{self.api_url}/initialize-data", timeout=10)
@@ -488,32 +488,47 @@ class BackendTester:
             if get_response.status_code == 200:
                 extras = get_response.json()
                 if isinstance(extras, list) and len(extras) > 0:
-                    # Verify default extras are properly initialized with insideOutsideSame values
+                    # Verify default extras are properly initialized with variants and insideOutsideSame values
                     expected_extras = {
-                        "Cellophane Lamination": False,
-                        "Staple Binding": True, 
-                        "Spiral Binding": True,
-                        "Perfect Binding (American)": True,
-                        "UV Coating": False
+                        "Cellophane Lamination": {"insideOutsideSame": False, "variants": ["Standard", "Premium"]},
+                        "Staple Binding": {"insideOutsideSame": True, "variants": ["2-Staple", "3-Staple"]}, 
+                        "Spiral Binding": {"insideOutsideSame": True, "variants": ["Plastic Coil", "Metal Wire"]},
+                        "Perfect Binding (American)": {"insideOutsideSame": True, "variants": ["Standard", "Premium"]},
+                        "UV Coating": {"insideOutsideSame": False, "variants": ["Matte", "Gloss"]}
                     }
                     
-                    found_extras = {extra.get("name"): extra.get("insideOutsideSame") for extra in extras}
+                    found_extras = {}
+                    for extra in extras:
+                        name = extra.get("name")
+                        variants = [v.get("variantName") for v in extra.get("variants", [])]
+                        found_extras[name] = {
+                            "insideOutsideSame": extra.get("insideOutsideSame"),
+                            "variants": variants
+                        }
+                    
                     missing_extras = [name for name in expected_extras if name not in found_extras]
                     incorrect_values = []
                     
-                    for name, expected_value in expected_extras.items():
+                    for name, expected_data in expected_extras.items():
                         if name in found_extras:
-                            if found_extras[name] != expected_value:
-                                incorrect_values.append(f"{name}: expected {expected_value}, got {found_extras[name]}")
+                            found_data = found_extras[name]
+                            if found_data["insideOutsideSame"] != expected_data["insideOutsideSame"]:
+                                incorrect_values.append(f"{name}: insideOutsideSame expected {expected_data['insideOutsideSame']}, got {found_data['insideOutsideSame']}")
+                            
+                            # Check variants
+                            expected_variants = set(expected_data["variants"])
+                            found_variants = set(found_data["variants"])
+                            if expected_variants != found_variants:
+                                incorrect_values.append(f"{name}: variants expected {expected_variants}, got {found_variants}")
                     
                     if not missing_extras and not incorrect_values:
-                        self.log_test("Extras Database Operations", True, f"All {len(expected_extras)} default extras properly initialized with correct insideOutsideSame values")
+                        self.log_test("Extras Database Operations", True, f"All {len(expected_extras)} default extras properly initialized with correct variants and insideOutsideSame values")
                     else:
                         error_msg = ""
                         if missing_extras:
                             error_msg += f"Missing default extras: {missing_extras}. "
                         if incorrect_values:
-                            error_msg += f"Incorrect insideOutsideSame values: {incorrect_values}"
+                            error_msg += f"Incorrect values: {incorrect_values}"
                         self.log_test("Extras Database Operations", False, error_msg)
                 else:
                     self.log_test("Extras Database Operations", False, "No extras found after initialization")
@@ -522,6 +537,277 @@ class BackendTester:
                 
         except requests.exceptions.RequestException as e:
             self.log_test("Extras Database Operations", False, f"Connection error: {str(e)}")
+
+    def test_variants_cm_based_pricing(self):
+        """Test that length-based pricing is in centimeters (cm) instead of millimeters (mm)"""
+        try:
+            # Initialize data to ensure default extras exist
+            init_response = requests.post(f"{self.api_url}/initialize-data", timeout=10)
+            
+            # Get all extras
+            get_response = requests.get(f"{self.api_url}/extras", timeout=10)
+            
+            if get_response.status_code == 200:
+                extras = get_response.json()
+                spiral_binding = None
+                
+                # Find Spiral Binding extra
+                for extra in extras:
+                    if extra.get("name") == "Spiral Binding":
+                        spiral_binding = extra
+                        break
+                
+                if spiral_binding:
+                    variants = spiral_binding.get("variants", [])
+                    if len(variants) >= 2:
+                        # Check if pricing is per cm (0.8/cm, 1.2/cm) instead of per mm
+                        plastic_coil = next((v for v in variants if v.get("variantName") == "Plastic Coil"), None)
+                        metal_wire = next((v for v in variants if v.get("variantName") == "Metal Wire"), None)
+                        
+                        if plastic_coil and metal_wire:
+                            plastic_price = plastic_coil.get("price")
+                            metal_price = metal_wire.get("price")
+                            
+                            # Expect cm-based pricing: 0.8/cm and 1.2/cm
+                            if plastic_price == 0.8 and metal_price == 1.2:
+                                self.log_test("CM-Based Length Pricing", True, f"Spiral Binding uses cm-based pricing: Plastic Coil {plastic_price}/cm, Metal Wire {metal_price}/cm")
+                            else:
+                                self.log_test("CM-Based Length Pricing", False, f"Expected cm-based pricing (0.8, 1.2), got: Plastic Coil {plastic_price}, Metal Wire {metal_price}")
+                        else:
+                            self.log_test("CM-Based Length Pricing", False, "Could not find Plastic Coil and Metal Wire variants")
+                    else:
+                        self.log_test("CM-Based Length Pricing", False, f"Spiral Binding should have 2 variants, found {len(variants)}")
+                else:
+                    self.log_test("CM-Based Length Pricing", False, "Spiral Binding extra not found")
+            else:
+                self.log_test("CM-Based Length Pricing", False, f"Failed to retrieve extras: {get_response.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("CM-Based Length Pricing", False, f"Connection error: {str(e)}")
+
+    def test_variants_model_validation(self):
+        """Test ExtraVariant, ExtraCreate, ExtraUpdate models work correctly"""
+        try:
+            # Test creating extra with multiple variants
+            test_extra = {
+                "name": "Test Multi-Variant Extra",
+                "pricingType": "per_page",
+                "insideOutsideSame": False,
+                "variants": [
+                    {"variantName": "Basic", "price": 0.15},
+                    {"variantName": "Standard", "price": 0.25},
+                    {"variantName": "Premium", "price": 0.40}
+                ]
+            }
+            
+            create_response = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if create_response.status_code == 200:
+                created_extra = create_response.json()
+                variants = created_extra.get("variants", [])
+                
+                if len(variants) == 3:
+                    # Verify all variants have proper structure and IDs
+                    all_valid = True
+                    variant_ids = []
+                    
+                    for variant in variants:
+                        if not all(field in variant for field in ["id", "variantName", "price"]):
+                            all_valid = False
+                            break
+                        variant_ids.append(variant.get("id"))
+                    
+                    # Check that all variant IDs are unique
+                    if all_valid and len(set(variant_ids)) == len(variant_ids):
+                        self.log_test("Variants Model Validation", True, f"Multi-variant extra created successfully with {len(variants)} variants, all with unique IDs")
+                        
+                        # Test updating variants
+                        extra_id = created_extra.get("id")
+                        first_variant_id = variants[0].get("id")
+                        
+                        update_data = {
+                            "variants": [
+                                {"id": first_variant_id, "variantName": "Updated Basic", "price": 0.18},
+                                {"variantName": "New Deluxe", "price": 0.55}
+                            ]
+                        }
+                        
+                        update_response = requests.put(
+                            f"{self.api_url}/extras/{extra_id}",
+                            json=update_data,
+                            headers={"Content-Type": "application/json"},
+                            timeout=10
+                        )
+                        
+                        if update_response.status_code == 200:
+                            updated_extra = update_response.json()
+                            updated_variants = updated_extra.get("variants", [])
+                            
+                            if len(updated_variants) == 2:
+                                updated_variant = next((v for v in updated_variants if v.get("id") == first_variant_id), None)
+                                new_variant = next((v for v in updated_variants if v.get("variantName") == "New Deluxe"), None)
+                                
+                                if (updated_variant and updated_variant.get("variantName") == "Updated Basic" and
+                                    new_variant and new_variant.get("price") == 0.55):
+                                    self.log_test("Variants Update Validation", True, "Variant update successful: existing variant updated, new variant added")
+                                else:
+                                    self.log_test("Variants Update Validation", False, f"Variant update failed: {updated_variants}")
+                            else:
+                                self.log_test("Variants Update Validation", False, f"Expected 2 variants after update, got {len(updated_variants)}")
+                        else:
+                            self.log_test("Variants Update Validation", False, f"Variant update failed: {update_response.status_code}")
+                    else:
+                        self.log_test("Variants Model Validation", False, f"Variant validation failed: all_valid={all_valid}, unique_ids={len(set(variant_ids)) == len(variant_ids)}")
+                else:
+                    self.log_test("Variants Model Validation", False, f"Expected 3 variants, got {len(variants)}")
+            else:
+                self.log_test("Variants Model Validation", False, f"Failed to create multi-variant extra: {create_response.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Variants Model Validation", False, f"Connection error: {str(e)}")
+
+    def test_variants_backward_compatibility(self):
+        """Test that the new variants system maintains backward compatibility"""
+        try:
+            # Get all existing extras to verify they have variants structure
+            get_response = requests.get(f"{self.api_url}/extras", timeout=10)
+            
+            if get_response.status_code == 200:
+                extras = get_response.json()
+                if len(extras) > 0:
+                    compatibility_issues = []
+                    
+                    for extra in extras:
+                        name = extra.get("name", "Unknown")
+                        
+                        # Check that all extras have variants field
+                        if "variants" not in extra:
+                            compatibility_issues.append(f"{name}: missing variants field")
+                            continue
+                        
+                        variants = extra.get("variants", [])
+                        if not isinstance(variants, list):
+                            compatibility_issues.append(f"{name}: variants is not a list")
+                            continue
+                        
+                        if len(variants) == 0:
+                            compatibility_issues.append(f"{name}: variants list is empty")
+                            continue
+                        
+                        # Check that all variants have required fields
+                        for i, variant in enumerate(variants):
+                            if not all(field in variant for field in ["id", "variantName", "price"]):
+                                compatibility_issues.append(f"{name} variant {i}: missing required fields")
+                    
+                    if not compatibility_issues:
+                        self.log_test("Variants Backward Compatibility", True, f"All {len(extras)} existing extras have proper variants structure")
+                    else:
+                        self.log_test("Variants Backward Compatibility", False, f"Compatibility issues found: {compatibility_issues}")
+                else:
+                    self.log_test("Variants Backward Compatibility", True, "No existing extras to test compatibility")
+            else:
+                self.log_test("Variants Backward Compatibility", False, f"Failed to retrieve extras: {get_response.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Variants Backward Compatibility", False, f"Connection error: {str(e)}")
+
+    def test_variants_complex_crud_operations(self):
+        """Test complex CRUD operations for extras with multiple variants"""
+        try:
+            # Create an extra with multiple variants
+            test_extra = {
+                "name": "Complex CRUD Test Extra",
+                "pricingType": "per_length",
+                "insideOutsideSame": True,
+                "variants": [
+                    {"variantName": "Type A", "price": 1.0},
+                    {"variantName": "Type B", "price": 1.5},
+                    {"variantName": "Type C", "price": 2.0}
+                ]
+            }
+            
+            # CREATE
+            create_response = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if create_response.status_code != 200:
+                self.log_test("Complex CRUD Operations", False, "Failed to create test extra")
+                return
+            
+            created_extra = create_response.json()
+            extra_id = created_extra.get("id")
+            original_variants = created_extra.get("variants", [])
+            
+            # READ - Verify creation
+            get_response = requests.get(f"{self.api_url}/extras", timeout=10)
+            if get_response.status_code == 200:
+                all_extras = get_response.json()
+                found_extra = next((e for e in all_extras if e.get("id") == extra_id), None)
+                
+                if not found_extra or len(found_extra.get("variants", [])) != 3:
+                    self.log_test("Complex CRUD Operations", False, "Created extra not found or variants missing")
+                    return
+            
+            # UPDATE - Complex variant operations
+            type_a_id = next((v.get("id") for v in original_variants if v.get("variantName") == "Type A"), None)
+            type_b_id = next((v.get("id") for v in original_variants if v.get("variantName") == "Type B"), None)
+            
+            update_data = {
+                "name": "Updated Complex Extra",
+                "variants": [
+                    {"id": type_a_id, "variantName": "Updated Type A", "price": 1.1},  # Update existing
+                    {"variantName": "New Type D", "price": 2.5},  # Add new
+                    # Remove Type B and Type C by not including them
+                ]
+            }
+            
+            update_response = requests.put(
+                f"{self.api_url}/extras/{extra_id}",
+                json=update_data,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if update_response.status_code == 200:
+                updated_extra = update_response.json()
+                updated_variants = updated_extra.get("variants", [])
+                
+                # Verify update results
+                if (len(updated_variants) == 2 and
+                    updated_extra.get("name") == "Updated Complex Extra"):
+                    
+                    updated_type_a = next((v for v in updated_variants if v.get("id") == type_a_id), None)
+                    new_type_d = next((v for v in updated_variants if v.get("variantName") == "New Type D"), None)
+                    
+                    if (updated_type_a and updated_type_a.get("variantName") == "Updated Type A" and
+                        updated_type_a.get("price") == 1.1 and new_type_d and 
+                        new_type_d.get("price") == 2.5):
+                        
+                        # DELETE - Clean up
+                        delete_response = requests.delete(f"{self.api_url}/extras/{extra_id}", timeout=10)
+                        
+                        if delete_response.status_code == 200:
+                            self.log_test("Complex CRUD Operations", True, "Complex CRUD operations successful: Create (3 variants) → Update (modify 1, add 1, remove 2) → Delete")
+                        else:
+                            self.log_test("Complex CRUD Operations", False, "Delete operation failed")
+                    else:
+                        self.log_test("Complex CRUD Operations", False, f"Update verification failed: {updated_variants}")
+                else:
+                    self.log_test("Complex CRUD Operations", False, f"Update failed: expected 2 variants, got {len(updated_variants)}")
+            else:
+                self.log_test("Complex CRUD Operations", False, f"Update operation failed: {update_response.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Complex CRUD Operations", False, f"Connection error: {str(e)}")
 
     def test_extras_inside_outside_same_field_validation(self):
         """Test the insideOutsideSame field validation and optional behavior"""
