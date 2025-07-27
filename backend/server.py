@@ -108,6 +108,7 @@ class Extra(BaseModel):
     pricingType: str  # 'per_page', 'per_booklet', 'per_length'
     insideOutsideSame: bool = False
     supportsDoubleSided: bool = False  # New field for single/double-sided application
+    applyToPrintSheet: bool = False  # New field: apply pricing to print sheet dimensions
     variants: List[ExtraVariant]
 
 class ExtraVariantCreate(BaseModel):
