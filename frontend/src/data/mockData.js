@@ -803,13 +803,17 @@ export const calculateOptimalForPaperType = (job, paperType, machines, selectedM
         const stockSheetsNeeded = Math.ceil(printSheetsNeeded / printSheetsPerStockSheet);
         
         const paperWeight = calculatePaperWeight(stockSheetSize.width, stockSheetSize.height, paperType.gsm, stockSheetsNeeded);
-        const paperCost = calculatePaperCost(paperWeight, paperType.pricePerTon);
+        const paperCost = calculatePaperCost(paperWeight, paperType.pricePerTon, paperType.currency);
         
         // Calculate click cost based on double-sided printing
-        const clickMultiplier = job.isDoubleSided ? 2 : 1;
-        const clickCost = printSheetsNeeded * printSheetSize.clickCost * clickMultiplier;
+        // Convert machine costs to EUR
+        const clickCostEUR = convertToEURSync(printSheetSize.clickCost, printSheetSize.clickCostCurrency || 'EUR');
+        const setupCostEUR = convertToEURSync(machine.setupCost, machine.setupCostCurrency || 'EUR');
         
-        const setupCost = job.setupRequired ? machine.setupCost : 0;
+        const clickMultiplier = job.isDoubleSided ? 2 : 1;
+        const clickCost = printSheetsNeeded * clickCostEUR * clickMultiplier;
+        
+        const setupCost = job.setupRequired ? setupCostEUR : 0;
         const totalCost = paperCost + clickCost + setupCost;
         const costPerUnit = totalCost / job.quantity;
         
