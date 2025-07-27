@@ -1657,6 +1657,36 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                       )}
                     </div>
                     
+                    {/* Single/Double-Sided Selection */}
+                    {selectedExtraId && selectedVariantId && 
+                     extras.find(e => e.id === parseInt(selectedExtraId))?.supportsDoubleSided && (
+                      <div className="p-3 border rounded bg-yellow-50">
+                        <Label className="text-sm font-semibold mb-2 block">Application Type:</Label>
+                        <div className="flex items-center space-x-4">
+                          <div className="flex items-center space-x-2">
+                            <input
+                              type="radio"
+                              id="normal-single"
+                              name="normal-sided"
+                              checked={!isDoubleSided}
+                              onChange={() => setIsDoubleSided(false)}
+                            />
+                            <Label htmlFor="normal-single" className="text-sm cursor-pointer">Single Side</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <input
+                              type="radio"
+                              id="normal-double"
+                              name="normal-sided"
+                              checked={isDoubleSided}
+                              onChange={() => setIsDoubleSided(true)}
+                            />
+                            <Label htmlFor="normal-double" className="text-sm cursor-pointer">Both Sides (2x price)</Label>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
                     {/* Add Extra Button */}
                     {selectedExtraId && selectedVariantId && (
                       <Button
