@@ -22,6 +22,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
     isDoubleSided: false,
     setupRequired: false,
     isBookletMode: false,
+    hasCover: true, // Default to true to maintain current behavior
     coverSetupRequired: false,
     totalPages: '',
     useMultiPartConfiguration: false,
