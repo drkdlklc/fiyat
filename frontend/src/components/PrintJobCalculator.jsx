@@ -5,7 +5,7 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Checkbox } from './ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Calculator, FileText, Award, Settings, CheckCircle, Plus, Minus } from 'lucide-react';
+import { Calculator, FileText, Award, Settings, CheckCircle, Plus, Minus, DollarSign } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
 import { findOptimalPrintSheetSize, calculateOptimalForPaperType, calculateCoverCost, calculateInnerPagesCost, calculateMultiPartCost, calculateMultiPartInnerPagesCost, calculateExtrasCost } from '../data/mockData';
 
