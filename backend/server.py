@@ -227,11 +227,31 @@ async def get_extras():
 
 @api_router.post("/extras", response_model=Extra)
 async def create_extra(extra: ExtraCreate):
-    # Generate new ID
+    # Generate new ID for extra
     existing_extras = await db.extras.find().sort("id", -1).limit(1).to_list(1)
     new_id = 1 if not existing_extras else existing_extras[0]["id"] + 1
     
-    extra_obj = Extra(id=new_id, **extra.dict())
+    # Generate IDs for variants
+    all_extras = await db.extras.find().to_list(None)
+    max_variant_id = 0
+    for e in all_extras:
+        for variant in e.get("variants", []):
+            max_variant_id = max(max_variant_id, variant.get("id", 0))
+    
+    # Assign IDs to variants
+    variants_with_ids = []
+    for i, variant in enumerate(extra.variants):
+        variant_dict = variant.dict()
+        variant_dict["id"] = max_variant_id + i + 1
+        variants_with_ids.append(variant_dict)
+    
+    extra_obj = Extra(
+        id=new_id, 
+        name=extra.name,
+        pricingType=extra.pricingType,
+        insideOutsideSame=extra.insideOutsideSame,
+        variants=variants_with_ids
+    )
     await db.extras.insert_one(extra_obj.dict())
     return extra_obj
 
