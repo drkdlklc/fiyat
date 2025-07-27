@@ -336,7 +336,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Display cover and inner pages extras separately in Booklet Mode"
+    - "Integrate extras within paper sections and show only best option in Normal Mode"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
