@@ -408,7 +408,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Add final 'Total Price' at bottom and explicit binding edge selection"
+    - "Add multiple variants support for extras with shared properties and cm-based length pricing"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
