@@ -5,7 +5,7 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Checkbox } from './ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Plus, Edit2, Trash2, Save, X, Scissors } from 'lucide-react';
+import { Plus, Edit2, Trash2, Save, X, Scissors, Minus } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
 
 const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => {
