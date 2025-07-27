@@ -683,6 +683,15 @@ export const calculateExtrasCost = (job, selectedExtras, extras, lengthBasedEdge
         cost = units * edgeLength * extra.price;
         break;
 
+      case 'per_print_sheet':
+        // For per_print_sheet pricing, we need the print sheets count
+        // This will be passed as part of the selectedExtra object
+        const printSheetsNeeded = selectedExtra.printSheetsNeeded || 1;
+        units = printSheetsNeeded;
+        unitType = 'print sheets';
+        cost = units * extra.price;
+        break;
+
       default:
         return;
     }
