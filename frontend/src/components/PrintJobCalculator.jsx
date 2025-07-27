@@ -204,7 +204,28 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
     }
 
     // Calculate extras costs
-    const extrasResults = calculateExtrasCost(job, selectedExtras, extras, lengthBasedEdge);
+    let extrasResults = null;
+    
+    if (job.isBookletMode) {
+      // Booklet mode: separate cover and inner page extras
+      const coverExtrasResults = job.hasCover && selectedCoverExtras.length > 0 
+        ? calculateExtrasCost(job, selectedCoverExtras, extras, lengthBasedEdge, 'cover')
+        : [];
+      
+      const innerExtrasResults = selectedInnerExtras.length > 0
+        ? calculateExtrasCost(job, selectedInnerExtras, extras, lengthBasedEdge, 'inner')
+        : [];
+      
+      extrasResults = {
+        coverExtras: coverExtrasResults,
+        innerExtras: innerExtrasResults
+      };
+    } else {
+      // Normal mode: single extras calculation
+      extrasResults = selectedExtras.length > 0
+        ? calculateExtrasCost(job, selectedExtras, extras, lengthBasedEdge)
+        : [];
+    }
 
     setResults({ 
       job, 
