@@ -65,6 +65,99 @@ const MachineManager = ({ machines, onAddMachine, onUpdateMachine, onDeleteMachi
     setIsAddingSheetSize(false);
   };
 
+  const resetEditingSheetSizeForm = () => {
+    setEditingSheetSizeData({
+      name: '',
+      width: '',
+      height: '',
+      clickCost: '',
+      clickCostCurrency: 'USD'
+    });
+    setEditingSheetSizeId(null);
+    setEditingMachineId(null);
+  };
+
+  const handleEditSheetSize = (machineId, sheetSize) => {
+    setEditingSheetSizeData({
+      name: sheetSize.name,
+      width: sheetSize.width.toString(),
+      height: sheetSize.height.toString(),
+      clickCost: sheetSize.clickCost.toString(),
+      clickCostCurrency: sheetSize.clickCostCurrency || 'USD'
+    });
+    setEditingSheetSizeId(sheetSize.id);
+    setEditingMachineId(machineId);
+  };
+
+  const handleSaveSheetSize = () => {
+    if (!editingSheetSizeData.name || !editingSheetSizeData.width || !editingSheetSizeData.height || !editingSheetSizeData.clickCost) {
+      toast({
+        title: "Error",
+        description: "Please fill in all sheet size fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const machine = machines.find(m => m.id === editingMachineId);
+    if (!machine) return;
+
+    const updatedPrintSheetSizes = machine.printSheetSizes.map(size => {
+      if (size.id === editingSheetSizeId) {
+        return {
+          ...size,
+          name: editingSheetSizeData.name,
+          width: parseFloat(editingSheetSizeData.width),
+          height: parseFloat(editingSheetSizeData.height),
+          clickCost: parseFloat(editingSheetSizeData.clickCost),
+          clickCostCurrency: editingSheetSizeData.clickCostCurrency
+        };
+      }
+      return size;
+    });
+
+    const updatedMachine = {
+      ...machine,
+      printSheetSizes: updatedPrintSheetSizes
+    };
+
+    onUpdateMachine(editingMachineId, updatedMachine);
+    resetEditingSheetSizeForm();
+    
+    toast({
+      title: "Success",
+      description: "Print sheet size updated successfully"
+    });
+  };
+
+  const handleDeleteSheetSize = (machineId, sheetSizeId) => {
+    const machine = machines.find(m => m.id === machineId);
+    if (!machine) return;
+
+    if (machine.printSheetSizes.length <= 1) {
+      toast({
+        title: "Error",
+        description: "Cannot delete the last print sheet size. Each machine must have at least one print sheet size.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const updatedPrintSheetSizes = machine.printSheetSizes.filter(size => size.id !== sheetSizeId);
+    
+    const updatedMachine = {
+      ...machine,
+      printSheetSizes: updatedPrintSheetSizes
+    };
+
+    onUpdateMachine(machineId, updatedMachine);
+    
+    toast({
+      title: "Success",
+      description: "Print sheet size deleted successfully"
+    });
+  };
+
   const handleAddSheetSize = () => {
     if (!sheetSizeForm.name || !sheetSizeForm.width || !sheetSizeForm.height || !sheetSizeForm.clickCost) {
       toast({
