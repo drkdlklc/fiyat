@@ -617,6 +617,83 @@ export const findOptimalPrintSheetSize = (job, paperTypes, machines) => {
   return results.sort((a, b) => a.totalCost - b.totalCost);
 };
 
+// Extras calculation functions
+export const calculateExtrasCost = (job, selectedExtras, extras, lengthBasedEdge) => {
+  if (!selectedExtras || selectedExtras.length === 0) {
+    return [];
+  }
+
+  const extrasResults = [];
+
+  selectedExtras.forEach(selectedExtra => {
+    const extra = extras.find(e => e.id === selectedExtra.extraId);
+    if (!extra) return;
+
+    let cost = 0;
+    let units = 0;
+    let unitType = '';
+
+    switch (extra.pricingType) {
+      case 'per_page':
+        if (job.isBookletMode) {
+          units = job.totalPages * job.quantity;
+          unitType = 'pages';
+          cost = units * extra.price;
+        } else {
+          units = job.quantity;
+          unitType = 'pages';
+          cost = units * extra.price;
+        }
+        break;
+
+      case 'per_booklet':
+        units = job.quantity;
+        unitType = job.isBookletMode ? 'booklets' : 'units';
+        cost = units * extra.price;
+        break;
+
+      case 'per_length':
+        // Calculate length based on binding edge
+        let edgeLength = 0;
+        
+        if (job.isBookletMode) {
+          // In booklet mode, use bound edge
+          edgeLength = job.bindingEdge === 'short' ? job.finalHeight : job.finalWidth;
+        } else {
+          // In normal mode, use user-selected edge
+          edgeLength = lengthBasedEdge === 'long' 
+            ? Math.max(job.finalWidth, job.finalHeight)
+            : Math.min(job.finalWidth, job.finalHeight);
+        }
+
+        units = job.quantity;
+        unitType = `units × ${edgeLength}mm edge`;
+        cost = units * edgeLength * extra.price;
+        break;
+
+      default:
+        return;
+    }
+
+    extrasResults.push({
+      extraId: extra.id,
+      extraName: extra.name,
+      pricingType: extra.pricingType,
+      pricePerUnit: extra.price,
+      units,
+      unitType,
+      edgeLength: extra.pricingType === 'per_length' ? 
+        (job.isBookletMode ? 
+          (job.bindingEdge === 'short' ? job.finalHeight : job.finalWidth) :
+          (lengthBasedEdge === 'long' ? Math.max(job.finalWidth, job.finalHeight) : Math.min(job.finalWidth, job.finalHeight))
+        ) : null,
+      totalCost: cost
+    });
+  });
+
+  return extrasResults;
+};
+
 export const calculateOptimalForPaperType = (job, paperType, machines, selectedMachine = null, selectedPrintSheetSize = null) => {
   const results = [];
   
