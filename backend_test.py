@@ -289,7 +289,7 @@ class BackendTester:
                     if len(data) > 0:
                         # Verify structure of first extra including currency field in variants
                         first_extra = data[0]
-                        required_fields = ['id', 'name', 'pricingType', 'insideOutsideSame', 'variants']
+                        required_fields = ['id', 'name', 'pricingType', 'insideOutsideSame', 'applyToPrintSheet', 'variants']
                         if all(field in first_extra for field in required_fields):
                             # Check if insideOutsideSame is a boolean
                             if isinstance(first_extra.get('insideOutsideSame'), bool):
