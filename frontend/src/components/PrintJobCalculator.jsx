@@ -201,13 +201,17 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
       return;
     }
 
+    // Calculate extras costs
+    const extrasResults = calculateExtrasCost(job, selectedExtras, extras, lengthBasedEdge);
+
     setResults({ 
       job, 
       calculations: calculationResults, 
       selectedPaperType: selectedPaperType ? paperTypes.find(p => p.id === selectedPaperType) : null,
       coverResults,
       innerPagesResults,
-      multiPartResults
+      multiPartResults,
+      extrasResults
     });
     
     toast({
