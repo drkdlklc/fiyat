@@ -1278,6 +1278,501 @@ if (innerResult) {
         except Exception as e:
             self.log_test("Inner Pages Calculation Logic", False, f"Test execution error: {str(e)}")
 
+    def test_supports_double_sided_field_in_get(self):
+        """Test that GET /api/extras returns supportsDoubleSided field"""
+        try:
+            # Initialize data to ensure default extras exist
+            init_response = requests.post(f"{self.api_url}/initialize-data", timeout=10)
+            
+            response = requests.get(f"{self.api_url}/extras", timeout=10)
+            
+            if response.status_code == 200:
+                extras = response.json()
+                if isinstance(extras, list) and len(extras) > 0:
+                    # Check that all extras have supportsDoubleSided field
+                    all_have_field = True
+                    field_values = []
+                    
+                    for extra in extras:
+                        name = extra.get("name", "Unknown")
+                        if "supportsDoubleSided" not in extra:
+                            all_have_field = False
+                            self.log_test("SupportsDoubleSided Field in GET", False, f"Extra '{name}' missing supportsDoubleSided field")
+                            return
+                        
+                        supports_double_sided = extra.get("supportsDoubleSided")
+                        if not isinstance(supports_double_sided, bool):
+                            all_have_field = False
+                            self.log_test("SupportsDoubleSided Field in GET", False, f"Extra '{name}' supportsDoubleSided is not boolean: {type(supports_double_sided)}")
+                            return
+                        
+                        field_values.append(f"{name}: {supports_double_sided}")
+                    
+                    if all_have_field:
+                        self.log_test("SupportsDoubleSided Field in GET", True, f"All {len(extras)} extras have supportsDoubleSided field. Values: {field_values}")
+                    else:
+                        self.log_test("SupportsDoubleSided Field in GET", False, "Some extras missing supportsDoubleSided field")
+                else:
+                    self.log_test("SupportsDoubleSided Field in GET", True, "No extras found (empty database)")
+            else:
+                self.log_test("SupportsDoubleSided Field in GET", False, f"HTTP {response.status_code}: {response.text}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("SupportsDoubleSided Field in GET", False, f"Connection error: {str(e)}")
+
+    def test_supports_double_sided_field_in_post(self):
+        """Test creating extras with supportsDoubleSided field"""
+        try:
+            # Test 1: Create extra with supportsDoubleSided = True
+            test_extra_true = {
+                "name": "Test Double Sided True",
+                "pricingType": "per_page",
+                "insideOutsideSame": False,
+                "supportsDoubleSided": True,
+                "variants": [
+                    {"variantName": "Standard", "price": 0.20}
+                ]
+            }
+            
+            response1 = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra_true,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if response1.status_code == 200:
+                data1 = response1.json()
+                if data1.get("supportsDoubleSided") == True:
+                    self.log_test("SupportsDoubleSided POST True", True, f"Extra created with supportsDoubleSided=True: {data1.get('name')}")
+                else:
+                    self.log_test("SupportsDoubleSided POST True", False, f"Expected True, got: {data1.get('supportsDoubleSided')}")
+            else:
+                self.log_test("SupportsDoubleSided POST True", False, f"HTTP {response1.status_code}: {response1.text}")
+            
+            # Test 2: Create extra with supportsDoubleSided = False
+            test_extra_false = {
+                "name": "Test Double Sided False",
+                "pricingType": "per_booklet",
+                "insideOutsideSame": True,
+                "supportsDoubleSided": False,
+                "variants": [
+                    {"variantName": "Standard", "price": 5.00}
+                ]
+            }
+            
+            response2 = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra_false,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if response2.status_code == 200:
+                data2 = response2.json()
+                if data2.get("supportsDoubleSided") == False:
+                    self.log_test("SupportsDoubleSided POST False", True, f"Extra created with supportsDoubleSided=False: {data2.get('name')}")
+                else:
+                    self.log_test("SupportsDoubleSided POST False", False, f"Expected False, got: {data2.get('supportsDoubleSided')}")
+            else:
+                self.log_test("SupportsDoubleSided POST False", False, f"HTTP {response2.status_code}: {response2.text}")
+            
+            # Test 3: Create extra without supportsDoubleSided field (should default to False)
+            test_extra_default = {
+                "name": "Test Double Sided Default",
+                "pricingType": "per_length",
+                "insideOutsideSame": False,
+                "variants": [
+                    {"variantName": "Standard", "price": 0.10}
+                ]
+            }
+            
+            response3 = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra_default,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if response3.status_code == 200:
+                data3 = response3.json()
+                if data3.get("supportsDoubleSided") == False:
+                    self.log_test("SupportsDoubleSided POST Default", True, f"Extra created with default supportsDoubleSided=False: {data3.get('name')}")
+                else:
+                    self.log_test("SupportsDoubleSided POST Default", False, f"Expected False default, got: {data3.get('supportsDoubleSided')}")
+            else:
+                self.log_test("SupportsDoubleSided POST Default", False, f"HTTP {response3.status_code}: {response3.text}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("SupportsDoubleSided POST Tests", False, f"Connection error: {str(e)}")
+
+    def test_supports_double_sided_field_in_put(self):
+        """Test updating extras with supportsDoubleSided field"""
+        try:
+            # First create an extra to update
+            test_extra = {
+                "name": "Test Update Double Sided",
+                "pricingType": "per_page",
+                "insideOutsideSame": False,
+                "supportsDoubleSided": False,
+                "variants": [
+                    {"variantName": "Standard", "price": 0.15}
+                ]
+            }
+            
+            create_response = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if create_response.status_code != 200:
+                self.log_test("SupportsDoubleSided PUT Test", False, "Failed to create test extra for update")
+                return
+            
+            created_extra = create_response.json()
+            extra_id = created_extra.get("id")
+            
+            # Test 1: Update supportsDoubleSided from False to True
+            update_data = {
+                "supportsDoubleSided": True
+            }
+            
+            update_response = requests.put(
+                f"{self.api_url}/extras/{extra_id}",
+                json=update_data,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if update_response.status_code == 200:
+                updated_extra = update_response.json()
+                if (updated_extra.get("supportsDoubleSided") == True and
+                    updated_extra.get("name") == test_extra["name"] and
+                    updated_extra.get("pricingType") == test_extra["pricingType"]):
+                    self.log_test("SupportsDoubleSided PUT Update", True, f"Successfully updated supportsDoubleSided to True for ID: {extra_id}")
+                else:
+                    self.log_test("SupportsDoubleSided PUT Update", False, f"Update failed or other fields changed: {updated_extra}")
+            else:
+                self.log_test("SupportsDoubleSided PUT Update", False, f"HTTP {update_response.status_code}: {update_response.text}")
+            
+            # Test 2: Update supportsDoubleSided back to False
+            update_data2 = {
+                "supportsDoubleSided": False
+            }
+            
+            update_response2 = requests.put(
+                f"{self.api_url}/extras/{extra_id}",
+                json=update_data2,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if update_response2.status_code == 200:
+                updated_extra2 = update_response2.json()
+                if updated_extra2.get("supportsDoubleSided") == False:
+                    self.log_test("SupportsDoubleSided PUT Revert", True, f"Successfully reverted supportsDoubleSided to False for ID: {extra_id}")
+                else:
+                    self.log_test("SupportsDoubleSided PUT Revert", False, f"Revert failed: {updated_extra2.get('supportsDoubleSided')}")
+            else:
+                self.log_test("SupportsDoubleSided PUT Revert", False, f"HTTP {update_response2.status_code}: {update_response2.text}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("SupportsDoubleSided PUT Tests", False, f"Connection error: {str(e)}")
+
+    def test_default_extras_supports_double_sided_values(self):
+        """Test that default extras have correct supportsDoubleSided values"""
+        try:
+            # Initialize data to ensure default extras exist
+            init_response = requests.post(f"{self.api_url}/initialize-data", timeout=10)
+            
+            response = requests.get(f"{self.api_url}/extras", timeout=10)
+            
+            if response.status_code == 200:
+                extras = response.json()
+                if isinstance(extras, list) and len(extras) > 0:
+                    # Expected values based on the review request
+                    expected_values = {
+                        "Cellophane Lamination": True,  # Can be single/double-sided
+                        "UV Coating": True,             # Can be single/double-sided
+                        "Staple Binding": False,        # Binding applies to whole booklet
+                        "Spiral Binding": False,        # Binding applies to whole booklet
+                        "Perfect Binding (American)": False  # Binding applies to whole booklet
+                    }
+                    
+                    found_extras = {}
+                    for extra in extras:
+                        name = extra.get("name")
+                        supports_double_sided = extra.get("supportsDoubleSided")
+                        found_extras[name] = supports_double_sided
+                    
+                    incorrect_values = []
+                    missing_extras = []
+                    
+                    for name, expected_value in expected_values.items():
+                        if name in found_extras:
+                            actual_value = found_extras[name]
+                            if actual_value != expected_value:
+                                incorrect_values.append(f"{name}: expected {expected_value}, got {actual_value}")
+                        else:
+                            missing_extras.append(name)
+                    
+                    if not incorrect_values and not missing_extras:
+                        self.log_test("Default Extras SupportsDoubleSided Values", True, 
+                                    f"All default extras have correct supportsDoubleSided values: {found_extras}")
+                    else:
+                        error_msg = ""
+                        if missing_extras:
+                            error_msg += f"Missing extras: {missing_extras}. "
+                        if incorrect_values:
+                            error_msg += f"Incorrect values: {incorrect_values}"
+                        self.log_test("Default Extras SupportsDoubleSided Values", False, error_msg)
+                else:
+                    self.log_test("Default Extras SupportsDoubleSided Values", False, "No extras found after initialization")
+            else:
+                self.log_test("Default Extras SupportsDoubleSided Values", False, f"HTTP {response.status_code}: {response.text}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Default Extras SupportsDoubleSided Values", False, f"Connection error: {str(e)}")
+
+    def test_supports_double_sided_field_validation(self):
+        """Test supportsDoubleSided field validation and data types"""
+        try:
+            # Test 1: Try to create extra with invalid supportsDoubleSided value (string instead of boolean)
+            test_extra_invalid = {
+                "name": "Test Invalid Double Sided",
+                "pricingType": "per_page",
+                "insideOutsideSame": False,
+                "supportsDoubleSided": "true",  # String instead of boolean
+                "variants": [
+                    {"variantName": "Standard", "price": 0.20}
+                ]
+            }
+            
+            response1 = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra_invalid,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            # This should either fail validation or convert the string to boolean
+            if response1.status_code == 200:
+                data1 = response1.json()
+                supports_double_sided = data1.get("supportsDoubleSided")
+                if isinstance(supports_double_sided, bool):
+                    self.log_test("SupportsDoubleSided Validation String", True, 
+                                f"String 'true' converted to boolean: {supports_double_sided}")
+                else:
+                    self.log_test("SupportsDoubleSided Validation String", False, 
+                                f"String not converted to boolean: {type(supports_double_sided)}")
+            elif response1.status_code == 422:
+                self.log_test("SupportsDoubleSided Validation String", True, 
+                            "Correctly rejected invalid string value with 422 validation error")
+            else:
+                self.log_test("SupportsDoubleSided Validation String", False, 
+                            f"Unexpected response: {response1.status_code}")
+            
+            # Test 2: Create extra with valid boolean values and verify field persistence
+            test_extra_valid = {
+                "name": "Test Valid Double Sided",
+                "pricingType": "per_page",
+                "insideOutsideSame": False,
+                "supportsDoubleSided": True,
+                "variants": [
+                    {"variantName": "Standard", "price": 0.25}
+                ]
+            }
+            
+            response2 = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra_valid,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if response2.status_code == 200:
+                created_extra = response2.json()
+                extra_id = created_extra.get("id")
+                
+                # Verify the field persists by retrieving the extra
+                get_response = requests.get(f"{self.api_url}/extras", timeout=10)
+                if get_response.status_code == 200:
+                    all_extras = get_response.json()
+                    found_extra = next((e for e in all_extras if e.get("id") == extra_id), None)
+                    
+                    if found_extra and found_extra.get("supportsDoubleSided") == True:
+                        self.log_test("SupportsDoubleSided Field Persistence", True, 
+                                    f"Field correctly persisted in database for extra ID: {extra_id}")
+                    else:
+                        self.log_test("SupportsDoubleSided Field Persistence", False, 
+                                    f"Field not persisted correctly: {found_extra.get('supportsDoubleSided') if found_extra else 'Extra not found'}")
+                else:
+                    self.log_test("SupportsDoubleSided Field Persistence", False, 
+                                f"Could not retrieve extras to verify persistence: {get_response.status_code}")
+            else:
+                self.log_test("SupportsDoubleSided Field Persistence", False, 
+                            f"Failed to create valid extra: {response2.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("SupportsDoubleSided Field Validation", False, f"Connection error: {str(e)}")
+
+    def test_supports_double_sided_with_variants_compatibility(self):
+        """Test that supportsDoubleSided field works correctly with existing variants system"""
+        try:
+            # Create an extra with both variants and supportsDoubleSided
+            test_extra = {
+                "name": "Test Variants + DoubleSided",
+                "pricingType": "per_page",
+                "insideOutsideSame": False,
+                "supportsDoubleSided": True,
+                "variants": [
+                    {"variantName": "Basic", "price": 0.15},
+                    {"variantName": "Premium", "price": 0.30},
+                    {"variantName": "Deluxe", "price": 0.45}
+                ]
+            }
+            
+            create_response = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if create_response.status_code == 200:
+                created_extra = create_response.json()
+                extra_id = created_extra.get("id")
+                
+                # Verify both variants and supportsDoubleSided are present
+                variants = created_extra.get("variants", [])
+                supports_double_sided = created_extra.get("supportsDoubleSided")
+                
+                if (len(variants) == 3 and supports_double_sided == True and
+                    all("id" in v and "variantName" in v and "price" in v for v in variants)):
+                    
+                    # Test updating variants while preserving supportsDoubleSided
+                    first_variant_id = variants[0].get("id")
+                    update_data = {
+                        "variants": [
+                            {"id": first_variant_id, "variantName": "Updated Basic", "price": 0.18},
+                            {"variantName": "New Super", "price": 0.60}
+                        ]
+                    }
+                    
+                    update_response = requests.put(
+                        f"{self.api_url}/extras/{extra_id}",
+                        json=update_data,
+                        headers={"Content-Type": "application/json"},
+                        timeout=10
+                    )
+                    
+                    if update_response.status_code == 200:
+                        updated_extra = update_response.json()
+                        updated_variants = updated_extra.get("variants", [])
+                        updated_supports_double_sided = updated_extra.get("supportsDoubleSided")
+                        
+                        if (len(updated_variants) == 2 and updated_supports_double_sided == True):
+                            self.log_test("SupportsDoubleSided + Variants Compatibility", True, 
+                                        f"Variants and supportsDoubleSided work together correctly. Updated variants: {len(updated_variants)}, supportsDoubleSided preserved: {updated_supports_double_sided}")
+                        else:
+                            self.log_test("SupportsDoubleSided + Variants Compatibility", False, 
+                                        f"Update failed: variants={len(updated_variants)}, supportsDoubleSided={updated_supports_double_sided}")
+                    else:
+                        self.log_test("SupportsDoubleSided + Variants Compatibility", False, 
+                                    f"Variant update failed: {update_response.status_code}")
+                else:
+                    self.log_test("SupportsDoubleSided + Variants Compatibility", False, 
+                                f"Creation failed: variants={len(variants)}, supportsDoubleSided={supports_double_sided}")
+            else:
+                self.log_test("SupportsDoubleSided + Variants Compatibility", False, 
+                            f"Failed to create test extra: {create_response.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("SupportsDoubleSided + Variants Compatibility", False, f"Connection error: {str(e)}")
+
+    def test_no_regressions_in_existing_functionality(self):
+        """Test that adding supportsDoubleSided field doesn't break existing functionality"""
+        try:
+            # Test 1: Verify all core API endpoints still work
+            endpoints_to_test = [
+                ("/", "GET", None, "Root endpoint"),
+                ("/status", "GET", None, "Status GET endpoint"),
+                ("/status", "POST", {"client_name": "regression_test"}, "Status POST endpoint"),
+                ("/paper-types", "GET", None, "Paper types endpoint"),
+                ("/machines", "GET", None, "Machines endpoint"),
+                ("/initialize-data", "POST", None, "Initialize data endpoint")
+            ]
+            
+            all_endpoints_working = True
+            failed_endpoints = []
+            
+            for endpoint, method, data, description in endpoints_to_test:
+                try:
+                    if method == "GET":
+                        response = requests.get(f"{self.api_url}{endpoint}", timeout=10)
+                    elif method == "POST":
+                        response = requests.post(f"{self.api_url}{endpoint}", 
+                                               json=data, 
+                                               headers={"Content-Type": "application/json"} if data else None,
+                                               timeout=10)
+                    
+                    if response.status_code not in [200, 201]:
+                        all_endpoints_working = False
+                        failed_endpoints.append(f"{description}: {response.status_code}")
+                        
+                except requests.exceptions.RequestException as e:
+                    all_endpoints_working = False
+                    failed_endpoints.append(f"{description}: {str(e)}")
+            
+            if all_endpoints_working:
+                self.log_test("No Regressions - Core Endpoints", True, 
+                            f"All {len(endpoints_to_test)} core API endpoints working correctly")
+            else:
+                self.log_test("No Regressions - Core Endpoints", False, 
+                            f"Failed endpoints: {failed_endpoints}")
+            
+            # Test 2: Verify existing extras functionality (insideOutsideSame, variants) still works
+            test_extra = {
+                "name": "Regression Test Extra",
+                "pricingType": "per_booklet",
+                "insideOutsideSame": True,
+                "variants": [
+                    {"variantName": "Standard", "price": 5.00},
+                    {"variantName": "Premium", "price": 8.00}
+                ]
+            }
+            
+            create_response = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if create_response.status_code == 200:
+                created_extra = create_response.json()
+                
+                # Verify all existing fields work correctly
+                if (created_extra.get("name") == test_extra["name"] and
+                    created_extra.get("pricingType") == test_extra["pricingType"] and
+                    created_extra.get("insideOutsideSame") == test_extra["insideOutsideSame"] and
+                    len(created_extra.get("variants", [])) == 2 and
+                    "supportsDoubleSided" in created_extra):  # New field should be present with default
+                    
+                    self.log_test("No Regressions - Existing Fields", True, 
+                                "All existing extras functionality works correctly with new supportsDoubleSided field")
+                else:
+                    self.log_test("No Regressions - Existing Fields", False, 
+                                f"Existing functionality broken: {created_extra}")
+            else:
+                self.log_test("No Regressions - Existing Fields", False, 
+                            f"Failed to create test extra: {create_response.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("No Regressions Tests", False, f"Connection error: {str(e)}")
+
     def test_invalid_endpoints(self):
         """Test behavior with invalid endpoints"""
         try:
