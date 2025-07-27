@@ -99,6 +99,7 @@ class Extra(BaseModel):
     name: str
     pricingType: str  # 'per_page', 'per_booklet', 'per_length'
     insideOutsideSame: bool = False
+    supportsDoubleSided: bool = False  # New field for single/double-sided application
     variants: List[ExtraVariant]
 
 class ExtraVariantCreate(BaseModel):
@@ -109,6 +110,7 @@ class ExtraCreate(BaseModel):
     name: str
     pricingType: str
     insideOutsideSame: bool = False
+    supportsDoubleSided: bool = False
     variants: List[ExtraVariantCreate]
 
 class ExtraVariantUpdate(BaseModel):
@@ -120,6 +122,7 @@ class ExtraUpdate(BaseModel):
     name: Optional[str] = None
     pricingType: Optional[str] = None
     insideOutsideSame: Optional[bool] = None
+    supportsDoubleSided: Optional[bool] = None
     variants: Optional[List[ExtraVariantUpdate]] = None
 
 # Add your routes to the router instead of directly to app
