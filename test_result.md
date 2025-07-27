@@ -349,16 +349,28 @@ metadata:
   test_sequence: 1
   run_ui: false
 
+  - task: "Fix extras calculation to use actual print sheets instead of job quantity"
+    implemented: true
+    working: false
+    file: "frontend/src/components/PrintJobCalculator.jsx"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "IMPLEMENTATION COMPLETED: Modified calculateVariantExtrasCost function to accept calculationResults parameter and use actual print sheets needed from calculation results instead of job.quantity when applyToPrintSheet is true. Updated function calls to pass coverResults, innerPagesResults, and calculations. For booklet mode: cover uses coverResults.printSheetsNeeded, inner uses innerPagesResults.printSheetsNeeded. For normal mode: uses calculations[0].printSheetsNeeded. Added fallback calculations if results not available."
+
 test_plan:
   current_focus:
-    - "Fix incorrect extras price calculations"
+    - "Fix extras calculation to use actual print sheets instead of job quantity"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
-  - agent: "testing"
-    message: "COMPREHENSIVE CURRENCY SUPPORT TESTING COMPLETED: ✅ Backend API endpoints working correctly after implementing currency support. ✅ Currency fields successfully added to all models: PaperType (currency), Machine (setupCostCurrency), PrintSheetSize (clickCostCurrency), ExtraVariant (currency). ✅ All CRUD operations working with currency fields - CREATE, READ, UPDATE, DELETE operations tested successfully. ✅ Currency field validation working correctly with USD defaults when not provided. ✅ Database persistence verified for all currency fields. ✅ Default data properly defined with mixed currencies (USD, EUR, TRY) in server.py. ✅ Model validation working correctly for all new currency fields. ✅ Backend test success rate: 83% (44/53 tests passed). ✅ All core API health endpoints working correctly. MINOR ISSUES (non-blocking): Some tests failed due to existing database content preventing fresh default data initialization (expected behavior), CORS config headers (doesn't affect functionality), and frontend calculation function tests (not backend API issues). The currency support implementation is fully functional and ready for production use."
+  - agent: "main"
+    message: "IMPLEMENTATION COMPLETED for extras calculation fix: Modified calculateVariantExtrasCost function to receive calculationResults parameter and use actual print sheets from results instead of job.quantity when applyToPrintSheet checkbox is checked. The function now uses coverResults.printSheetsNeeded for cover extras and innerPagesResults.printSheetsNeeded for inner extras in booklet mode, and calculations[0].printSheetsNeeded for normal mode. This should resolve the issue where extras were showing inflated costs due to using job quantity (100) instead of actual print sheets needed (4)."
 
 backend:
   - task: "Corrected calculation system implementation"
