@@ -321,7 +321,7 @@ const PaperTypeManager = ({ paperTypes, onAddPaperType, onUpdatePaperType, onDel
                   <h3 className="font-semibold text-lg">{paper.name}</h3>
                   <div className="flex gap-4 mt-1 text-sm text-gray-600">
                     <span><strong>GSM:</strong> {paper.gsm}</span>
-                    <span><strong>Price:</strong> {paper.pricePerTon} {paper. currency || 'USD'}/ton</span>
+                    <span><strong>Price:</strong> {paper.pricePerTon} {paper.currency || 'USD'}/ton</span>
                   </div>
                 </div>
                 <div className="flex gap-2">
