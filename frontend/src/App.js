@@ -5,14 +5,16 @@ import { Toaster } from './components/ui/toaster';
 import { useToast } from './hooks/use-toast';
 import PaperTypeManager from './components/PaperTypeManager';
 import MachineManager from './components/MachineManager';
+import ExtrasManager from './components/ExtrasManager';
 import PrintJobCalculator from './components/PrintJobCalculator';
 import { apiService } from './services/api';
-import { Calculator, FileText, Settings, Printer, RefreshCw } from 'lucide-react';
+import { Calculator, FileText, Settings, Printer, RefreshCw, Scissors } from 'lucide-react';
 import './App.css';
 
 function App() {
   const [paperTypes, setPaperTypes] = useState([]);
   const [machines, setMachines] = useState([]);
+  const [extras, setExtras] = useState([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
