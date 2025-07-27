@@ -126,6 +126,20 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
   const [showOptimalOnly, setShowOptimalOnly] = useState(true);
   const { toast } = useToast();
 
+  // Fetch exchange rates on component mount
+  useEffect(() => {
+    const initializeExchangeRates = async () => {
+      try {
+        await fetchExchangeRates();
+        console.log('Exchange rates initialized');
+      } catch (error) {
+        console.warn('Failed to initialize exchange rates:', error);
+      }
+    };
+    
+    initializeExchangeRates();
+  }, []);
+
   // Alternative PDF Generation Function using html2canvas + jsPDF
   const generatePDFAlternative = async () => {
     if (!results || !resultsRef.current) {
