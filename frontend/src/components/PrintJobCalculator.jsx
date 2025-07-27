@@ -652,30 +652,50 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
             // Use print sheet count and dimensions when checkbox is checked
             console.log('Apply to Print Sheet is enabled');
             console.log('job.quantity:', job.quantity);
-            console.log('job.totalPages:', job.totalPages);
-            console.log('job.isDoubleSided:', job.isDoubleSided);
+            console.log('calculationResults:', calculationResults);
             console.log('job.isBookletMode:', job.isBookletMode);
             console.log('bookletSection:', bookletSection);
             
-            // Calculate print sheet count needed (use same logic as main calculation)
+            // Use actual print sheets needed from calculation results
             if (job.isBookletMode) {
-              if (bookletSection === 'cover') {
-                // Cover: 1 sheet per booklet (each cover sheet handles 4 pages)
-                units = job.quantity; // This should be the number of cover sheets, not booklets
+              if (bookletSection === 'cover' && calculationResults && calculationResults.coverResults) {
+                // Use actual cover print sheets from calculation
+                units = calculationResults.coverResults.printSheetsNeeded;
                 unitType = 'cover print sheets';
-              } else {
-                // Inner pages: calculate sheets needed for inner pages only
-                const innerPagesPerBooklet = Math.max(0, job.totalPages - 4);
-                const innerSheetsPerBooklet = Math.ceil(innerPagesPerBooklet / 4);
-                units = innerSheetsPerBooklet * job.quantity;
+                console.log('Using cover print sheets from calculation:', units);
+              } else if (bookletSection === 'inner' && calculationResults && calculationResults.innerPagesResults) {
+                // Use actual inner print sheets from calculation  
+                units = calculationResults.innerPagesResults.printSheetsNeeded;
                 unitType = 'inner print sheets';
+                console.log('Using inner print sheets from calculation:', units);
+              } else {
+                // Fallback to old calculation if results not available
+                if (bookletSection === 'cover') {
+                  units = job.quantity; // Fallback: 1 sheet per booklet
+                  unitType = 'cover print sheets (fallback)';
+                } else {
+                  const innerPagesPerBooklet = Math.max(0, job.totalPages - 4);
+                  const innerSheetsPerBooklet = Math.ceil(innerPagesPerBooklet / 4);
+                  units = innerSheetsPerBooklet * job.quantity;
+                  unitType = 'inner print sheets (fallback)';
+                }
+                console.log('Using fallback calculation for', bookletSection, ':', units);
               }
             } else {
-              // In normal mode, calculate actual print sheets needed (not quantity of items)
-              const totalPages = (job.totalPages || 1) * job.quantity; // Total pages across all items
-              const pagesPerSheet = job.isDoubleSided ? 2 : 1;
-              units = Math.ceil(totalPages / pagesPerSheet); // Actual print sheets needed
-              unitType = 'print sheets';
+              // Normal mode: use calculation results if available
+              if (calculationResults && calculationResults.calculations && calculationResults.calculations.length > 0) {
+                // Use print sheets from the first (optimal) calculation result
+                units = calculationResults.calculations[0].printSheetsNeeded;
+                unitType = 'print sheets';
+                console.log('Using normal mode print sheets from calculation:', units);
+              } else {
+                // Fallback calculation for normal mode
+                const totalPages = (job.totalPages || 1) * job.quantity;
+                const pagesPerSheet = job.isDoubleSided ? 2 : 1;
+                units = Math.ceil(totalPages / pagesPerSheet);
+                unitType = 'print sheets (fallback)';
+                console.log('Using fallback calculation for normal mode:', units);
+              }
             }
             
             // Always use long side of print sheet (SRA3: 45cm long edge)
