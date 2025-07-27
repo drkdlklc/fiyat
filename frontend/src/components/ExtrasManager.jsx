@@ -283,12 +283,30 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <h4 className="font-semibold text-lg">{extra.name}</h4>
-                  <p className="text-sm text-gray-600">
-                    {getPricingTypeLabel(extra.pricingType)} - ${extra.price.toFixed(2)}
+                  <p className="text-sm text-gray-600 mb-2">
+                    {getPricingTypeLabel(extra.pricingType)}
                   </p>
+                  
+                  {/* Display Variants */}
+                  <div className="space-y-1 mb-2">
+                    {extra.variants?.map((variant, index) => (
+                      <div key={variant.id || index} className="text-sm bg-gray-100 px-2 py-1 rounded flex justify-between">
+                        <span className="font-medium">{variant.variantName}</span>
+                        <span className="text-gray-600">
+                          ${variant.price.toFixed(2)}
+                          {extra.pricingType === 'per_length' ? '/cm' : 
+                           extra.pricingType === 'per_page' ? '/page' : 
+                           '/unit'}
+                        </span>
+                      </div>
+                    )) || (
+                      <p className="text-sm text-red-500">No variants available</p>
+                    )}
+                  </div>
+                  
                   {extra.pricingType === 'per_length' && (
                     <p className="text-xs text-blue-600 mt-1">
-                      Length-based pricing: Uses bound edge in Booklet Mode, user-selected edge in Normal Mode
+                      Length-based pricing (cm): Uses bound edge in Booklet Mode, user-selected edge in Normal Mode
                     </p>
                   )}
                   {extra.insideOutsideSame && (
