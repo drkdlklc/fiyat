@@ -328,7 +328,96 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
       return;
     }
 
-    // Calculate extras costs
+  // Wrapper function to handle variant-based extras calculation
+  const calculateVariantExtrasCost = (job, selectedVariantExtras, lengthBasedEdge, bookletSection = null) => {
+    if (!selectedVariantExtras || selectedVariantExtras.length === 0) {
+      return [];
+    }
+
+    const extrasResults = [];
+
+    selectedVariantExtras.forEach(selectedExtra => {
+      const extra = extras.find(e => e.id === selectedExtra.extraId);
+      const variant = extra?.variants?.find(v => v.id === selectedExtra.variantId);
+      
+      if (!extra || !variant) return;
+
+      let cost = 0;
+      let units = 0;
+      let unitType = '';
+      let edgeLength = 0;
+
+      switch (extra.pricingType) {
+        case 'per_page':
+          if (job.isBookletMode && bookletSection) {
+            if (bookletSection === 'cover') {
+              // Cover pages: 4 pages per booklet
+              units = job.quantity * 4;
+              unitType = 'cover pages';
+            } else {
+              // Inner pages
+              const innerPages = job.totalPages - 4; // Subtract cover pages
+              units = job.quantity * innerPages;
+              unitType = 'inner pages';
+            }
+          } else {
+            // Normal mode
+            units = job.quantity * job.totalPages;
+            unitType = 'pages';
+          }
+          cost = units * variant.price;
+          break;
+
+        case 'per_booklet':
+          if (job.isBookletMode) {
+            units = job.quantity;
+            unitType = bookletSection || 'booklets';
+          } else {
+            units = job.quantity;
+            unitType = 'units';
+          }
+          cost = units * variant.price;
+          break;
+
+        case 'per_length':
+          // Calculate length based on binding edge (convert mm to cm)
+          if (job.isBookletMode) {
+            if (bookletSection === 'cover') {
+              edgeLength = coverBindingEdge === 'short' ? job.height / 10 : job.width / 10; // mm to cm
+            } else {
+              edgeLength = innerBindingEdge === 'short' ? job.height / 10 : job.width / 10; // mm to cm
+            }
+          } else {
+            edgeLength = lengthBasedEdge === 'short' ? job.height / 10 : job.width / 10; // mm to cm
+          }
+          
+          units = job.quantity;
+          unitType = job.isBookletMode ? 'booklets' : 'units';
+          cost = units * edgeLength * variant.price;
+          break;
+
+        default:
+          return;
+      }
+
+      extrasResults.push({
+        extraId: extra.id,
+        variantId: selectedExtra.variantId,
+        extraName: extra.name,
+        variantName: selectedExtra.variantName,
+        pricingType: extra.pricingType,
+        pricePerUnit: variant.price,
+        units,
+        unitType,
+        edgeLength: extra.pricingType === 'per_length' ? edgeLength : 0,
+        totalCost: cost
+      });
+    });
+
+    return extrasResults;
+  };
+
+  // Calculate extras costs
     let extrasResults = null;
     
     if (job.isBookletMode) {
