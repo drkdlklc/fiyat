@@ -380,6 +380,11 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
                       ✓ Supports Double-Sided - Can be applied to one or both sides of a page
                     </p>
                   )}
+                  {extra.applyToPrintSheet && (
+                    <p className="text-xs text-purple-600 mt-1 flex items-center gap-1">
+                      ✓ Print Sheet Dimensions - Uses print sheet size for calculations
+                    </p>
+                  )}
                 </div>
                 <div className="flex gap-2">
                   <Button
