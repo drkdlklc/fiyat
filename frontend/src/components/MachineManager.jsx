@@ -50,7 +50,8 @@ const MachineManager = ({ machines, onAddMachine, onUpdateMachine, onDeleteMachi
       name: '',
       width: '',
       height: '',
-      clickCost: ''
+      clickCost: '',
+      clickCostCurrency: 'USD'
     });
     setIsAddingSheetSize(false);
   };
