@@ -2786,19 +2786,34 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                       {results.job.isBookletMode ? (
                         // Booklet Mode Total Breakdown
                         <div className="space-y-3">
-                          {results.job.hasCover && results.coverResults && (
-                            <div className="flex justify-between items-center p-3 bg-green-50 rounded border border-green-200">
-                              <span className="font-semibold text-green-800">Cover Total Cost:</span>
-                              <span className="font-bold text-green-700">
-                                ${(results.coverResults.totalCost + 
-                                  (results.extrasResults?.coverExtras ? 
-                                    results.extrasResults.coverExtras.reduce((sum, extra) => sum + extra.totalCost, 0) : 0)
-                                ).toFixed(2)}
-                              </span>
-                            </div>
-                          )}
+                          {/* Debug logging for troubleshooting */}
+                          {console.log('Booklet Final Total Debug:', {
+                            hasCover: results.job.hasCover,
+                            coverResults: results.coverResults,
+                            innerPagesResults: results.innerPagesResults,
+                            extrasResults: results.extrasResults
+                          })}
                           
-                          {results.innerPagesResults && (
+                          {results.job.hasCover ? (
+                            results.coverResults ? (
+                              <div className="flex justify-between items-center p-3 bg-green-50 rounded border border-green-200">
+                                <span className="font-semibold text-green-800">Cover Total Cost:</span>
+                                <span className="font-bold text-green-700">
+                                  ${(results.coverResults.totalCost + 
+                                    (results.extrasResults?.coverExtras ? 
+                                      results.extrasResults.coverExtras.reduce((sum, extra) => sum + extra.totalCost, 0) : 0)
+                                  ).toFixed(2)}
+                                </span>
+                              </div>
+                            ) : (
+                              <div className="flex justify-between items-center p-3 bg-yellow-50 rounded border border-yellow-200">
+                                <span className="font-semibold text-yellow-800">Cover Total Cost:</span>
+                                <span className="font-medium text-yellow-700">Please select cover paper type and machine</span>
+                              </div>
+                            )
+                          ) : null}
+                          
+                          {results.innerPagesResults ? (
                             <div className="flex justify-between items-center p-3 bg-orange-50 rounded border border-orange-200">
                               <span className="font-semibold text-orange-800">Inner Pages Total Cost:</span>
                               <span className="font-bold text-orange-700">
@@ -2808,8 +2823,14 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                                 ).toFixed(2)}
                               </span>
                             </div>
+                          ) : (
+                            <div className="flex justify-between items-center p-3 bg-yellow-50 rounded border border-yellow-200">
+                              <span className="font-semibold text-yellow-800">Inner Pages Total Cost:</span>
+                              <span className="font-medium text-yellow-700">Please select inner pages paper type and machine</span>
+                            </div>
                           )}
                           
+                          {/* Always show Grand Total section, even if some parts are missing */}
                           <div className="flex justify-between items-center p-4 bg-blue-100 rounded-lg border-2 border-blue-300">
                             <span className="text-xl font-bold text-blue-900">Grand Total:</span>
                             <span className="text-2xl font-bold text-blue-800">
