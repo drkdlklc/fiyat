@@ -126,6 +126,7 @@ const PrintJobCalculator = ({ paperTypes, machines }) => {
       isDoubleSided: jobData.isDoubleSided,
       setupRequired: jobData.setupRequired,
       isBookletMode: jobData.isBookletMode,
+      hasCover: jobData.hasCover,
       coverSetupRequired: jobData.coverSetupRequired,
       totalPages: jobData.totalPages ? parseInt(jobData.totalPages) : 0,
       bindingEdge: jobData.bindingEdge // Add missing binding edge
