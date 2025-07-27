@@ -350,6 +350,12 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
       let units = 0;
       let unitType = '';
       let edgeLength = 0;
+      let basePrice = variant.price;
+
+      // Apply double-sided multiplier if applicable
+      if (extra.supportsDoubleSided && selectedExtra.isDoubleSided) {
+        basePrice = basePrice * 2;
+      }
 
       switch (extra.pricingType) {
         case 'per_page':
@@ -369,7 +375,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
             units = job.quantity * job.totalPages;
             unitType = 'pages';
           }
-          cost = units * variant.price;
+          cost = units * basePrice;
           break;
 
         case 'per_booklet':
@@ -380,7 +386,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
             units = job.quantity;
             unitType = 'units';
           }
-          cost = units * variant.price;
+          cost = units * basePrice;
           break;
 
         case 'per_length':
@@ -397,7 +403,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
           
           units = job.quantity;
           unitType = job.isBookletMode ? 'booklets' : 'units';
-          cost = units * edgeLength * variant.price;
+          cost = units * edgeLength * basePrice;
           break;
 
         default:
@@ -410,7 +416,10 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
         extraName: extra.name,
         variantName: selectedExtra.variantName,
         pricingType: extra.pricingType,
-        pricePerUnit: variant.price,
+        pricePerUnit: basePrice, // This now includes double-sided multiplier if applicable
+        originalPrice: variant.price, // Keep original price for display
+        isDoubleSided: selectedExtra.isDoubleSided || false,
+        supportsDoubleSided: extra.supportsDoubleSided,
         units,
         unitType,
         edgeLength: extra.pricingType === 'per_length' ? edgeLength : 0,
