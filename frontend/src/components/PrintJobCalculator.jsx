@@ -1355,7 +1355,9 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                                 <SelectValue placeholder="Select an extra..." />
                               </SelectTrigger>
                               <SelectContent>
-                                {extras.map((extra) => (
+                                {extras
+                                  .filter(extra => !extra.insideOutsideSame) // Only show non-consolidated extras in inner section
+                                  .map((extra) => (
                                   <SelectItem key={extra.id} value={extra.id.toString()}>
                                     {extra.name} ({extra.pricingType === 'per_page' ? 'Per Page' : 
                                                     extra.pricingType === 'per_booklet' ? 'Per Booklet' : 
