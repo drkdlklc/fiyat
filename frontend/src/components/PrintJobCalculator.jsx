@@ -654,16 +654,9 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
             }
           } else {
             // Use page dimensions (existing logic)
-            // Debug: Check if job dimensions are valid - use finalWidth/finalHeight
-            const jobWidth = parseFloat(job.finalWidth) || 0;
-            const jobHeight = parseFloat(job.finalHeight) || 0;
-            
-            // Fallback to default dimensions if invalid
-            const defaultWidth = 210; // A4 width in mm
-            const defaultHeight = 297; // A4 height in mm
-            
-            const validWidth = jobWidth > 0 ? jobWidth : defaultWidth;
-            const validHeight = jobHeight > 0 ? jobHeight : defaultHeight;
+            // Job object now always has valid dimensions (with A4 defaults)
+            const validWidth = job.finalWidth;  // Already validated in job construction
+            const validHeight = job.finalHeight; // Already validated in job construction
             
             // Debug logging (will help us understand what's happening)
             console.log('Edge calculation debug:', {
