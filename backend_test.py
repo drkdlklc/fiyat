@@ -262,7 +262,7 @@ class BackendTester:
             self.log_test("Initialize Data Endpoint", False, f"Connection error: {str(e)}")
 
     def test_extras_get_endpoint(self):
-        """Test the GET /api/extras endpoint"""
+        """Test the GET /api/extras endpoint with new insideOutsideSame field"""
         try:
             response = requests.get(f"{self.api_url}/extras", timeout=10)
             
@@ -270,13 +270,18 @@ class BackendTester:
                 data = response.json()
                 if isinstance(data, list):
                     if len(data) > 0:
-                        # Verify structure of first extra
+                        # Verify structure of first extra including new field
                         first_extra = data[0]
-                        required_fields = ['id', 'name', 'pricingType', 'price']
+                        required_fields = ['id', 'name', 'pricingType', 'price', 'insideOutsideSame']
                         if all(field in first_extra for field in required_fields):
-                            self.log_test("Extras GET Endpoint", True, f"Extras endpoint returned {len(data)} extras with correct structure")
+                            # Check if insideOutsideSame is a boolean
+                            if isinstance(first_extra.get('insideOutsideSame'), bool):
+                                self.log_test("Extras GET Endpoint", True, f"Extras endpoint returned {len(data)} extras with correct structure including insideOutsideSame field")
+                            else:
+                                self.log_test("Extras GET Endpoint", False, f"insideOutsideSame field is not boolean: {type(first_extra.get('insideOutsideSame'))}")
                         else:
-                            self.log_test("Extras GET Endpoint", False, f"Extra structure missing required fields: {required_fields}")
+                            missing_fields = [field for field in required_fields if field not in first_extra]
+                            self.log_test("Extras GET Endpoint", False, f"Extra structure missing required fields: {missing_fields}")
                     else:
                         self.log_test("Extras GET Endpoint", True, "Extras endpoint returned empty list (no extras initialized yet)")
                 else:
