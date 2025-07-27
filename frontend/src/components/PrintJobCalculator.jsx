@@ -666,12 +666,10 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
             const validHeight = jobHeight > 0 ? jobHeight : defaultHeight;
             
             if (job.isBookletMode) {
-              if (bookletSection === 'cover') {
-                edgeLength = coverBindingEdge === 'short' ? validHeight / 10 : validWidth / 10; // mm to cm
-              } else {
-                edgeLength = innerBindingEdge === 'short' ? validHeight / 10 : validWidth / 10; // mm to cm
-              }
+              // In booklet mode, use the passed binding edge parameter (which is already the correct edge for the section)
+              edgeLength = lengthBasedEdge === 'short' ? validHeight / 10 : validWidth / 10; // mm to cm
             } else {
+              // In normal mode, use the passed binding edge parameter
               edgeLength = lengthBasedEdge === 'short' ? validHeight / 10 : validWidth / 10; // mm to cm
             }
           }
