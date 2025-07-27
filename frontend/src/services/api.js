@@ -133,6 +133,65 @@ class ApiService {
       throw error;
     }
   }
+
+  // Extras API
+  async getExtras() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/extras`);
+      if (!response.ok) throw new Error('Failed to fetch extras');
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching extras:', error);
+      throw error;
+    }
+  }
+
+  async createExtra(extra) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/extras`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(extra),
+      });
+      if (!response.ok) throw new Error('Failed to create extra');
+      return await response.json();
+    } catch (error) {
+      console.error('Error creating extra:', error);
+      throw error;
+    }
+  }
+
+  async updateExtra(id, extra) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/extras/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(extra),
+      });
+      if (!response.ok) throw new Error('Failed to update extra');
+      return await response.json();
+    } catch (error) {
+      console.error('Error updating extra:', error);
+      throw error;
+    }
+  }
+
+  async deleteExtra(id) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/extras/${id}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Failed to delete extra');
+      return await response.json();
+    } catch (error) {
+      console.error('Error deleting extra:', error);
+      throw error;
+    }
+  }
 }
 
 export const apiService = new ApiService();
