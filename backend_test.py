@@ -224,20 +224,35 @@ class BackendTester:
             self.log_test("Paper Types GET Endpoint", False, f"Connection error: {str(e)}")
 
     def test_machines_endpoint(self):
-        """Test the GET /api/machines endpoint"""
+        """Test the GET /api/machines endpoint with currency fields"""
         try:
             response = requests.get(f"{self.api_url}/machines", timeout=10)
             
             if response.status_code == 200:
                 data = response.json()
                 if isinstance(data, list) and len(data) > 0:
-                    # Verify structure of first machine
+                    # Verify structure of first machine including currency fields
                     first_machine = data[0]
-                    required_fields = ['id', 'name', 'setupCost', 'printSheetSizes']
+                    required_fields = ['id', 'name', 'setupCost', 'setupCostCurrency', 'printSheetSizes']
                     if all(field in first_machine for field in required_fields):
-                        self.log_test("Machines GET Endpoint", True, f"Machines endpoint returned {len(data)} machines with correct structure")
+                        setup_currency = first_machine.get('setupCostCurrency')
+                        
+                        # Check print sheet sizes for clickCostCurrency
+                        print_sheets = first_machine.get('printSheetSizes', [])
+                        if len(print_sheets) > 0:
+                            first_print_sheet = print_sheets[0]
+                            print_sheet_fields = ['id', 'name', 'width', 'height', 'clickCost', 'clickCostCurrency']
+                            if all(field in first_print_sheet for field in print_sheet_fields):
+                                click_currency = first_print_sheet.get('clickCostCurrency')
+                                self.log_test("Machines GET Endpoint", True, f"Machines endpoint returned {len(data)} machines with correct structure including currency fields. Setup currency: {setup_currency}, Click currency: {click_currency}")
+                            else:
+                                missing_print_fields = [field for field in print_sheet_fields if field not in first_print_sheet]
+                                self.log_test("Machines GET Endpoint", False, f"Print sheet structure missing required fields: {missing_print_fields}")
+                        else:
+                            self.log_test("Machines GET Endpoint", False, "No print sheet sizes found in machine")
                     else:
-                        self.log_test("Machines GET Endpoint", False, f"Machine structure missing required fields: {required_fields}")
+                        missing_fields = [field for field in required_fields if field not in first_machine]
+                        self.log_test("Machines GET Endpoint", False, f"Machine structure missing required fields: {missing_fields}")
                 else:
                     self.log_test("Machines GET Endpoint", False, f"Expected non-empty list, got: {type(data)} with length {len(data) if isinstance(data, list) else 'N/A'}")
             else:
