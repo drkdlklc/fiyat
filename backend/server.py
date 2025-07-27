@@ -72,6 +72,7 @@ class PrintSheetSize(BaseModel):
     width: float
     height: float
     clickCost: float
+    clickCostCurrency: str = "USD"  # New currency field for click cost
     duplexSupport: Optional[bool] = False  # Make optional with default
     unit: str = "mm"
 
@@ -79,16 +80,19 @@ class Machine(BaseModel):
     id: int
     name: str
     setupCost: float
+    setupCostCurrency: str = "USD"  # New currency field for setup cost
     printSheetSizes: List[PrintSheetSize]
 
 class MachineCreate(BaseModel):
     name: str
     setupCost: float
+    setupCostCurrency: str = "USD"  # New currency field for setup cost
     printSheetSizes: List[PrintSheetSize]
 
 class MachineUpdate(BaseModel):
     name: Optional[str] = None
     setupCost: Optional[float] = None
+    setupCostCurrency: Optional[str] = None  # New currency field for setup cost
     printSheetSizes: Optional[List[PrintSheetSize]] = None
 
 # Extras Models
