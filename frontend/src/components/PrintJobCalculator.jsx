@@ -81,6 +81,87 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
   const [showOptimalOnly, setShowOptimalOnly] = useState(true);
   const { toast } = useToast();
 
+  // Alternative PDF Generation Function using html2canvas + jsPDF
+  const generatePDFAlternative = async () => {
+    if (!results || !resultsRef.current) {
+      toast({
+        title: "Error",
+        description: "No calculation results to print. Please calculate first.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      toast({
+        title: "Generating PDF",
+        description: "Please wait while we generate your PDF..."
+      });
+
+      const element = resultsRef.current;
+      
+      // Take screenshot using html2canvas
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        width: element.scrollWidth,
+        height: element.scrollHeight
+      });
+
+      // Create PDF
+      const imgData = canvas.toDataURL('image/jpeg', 0.8);
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      
+      // Add company header
+      pdf.setFontSize(20);
+      pdf.setTextColor(30, 64, 175); // Blue color
+      pdf.text('Print and Smile', 105, 20, { align: 'center' });
+      
+      pdf.setFontSize(10);
+      pdf.setTextColor(107, 114, 128); // Gray color
+      pdf.text('www.printandsmile.com.tr - Professional Printing Solutions', 105, 28, { align: 'center' });
+      pdf.text(`Quote Generated: ${new Date().toLocaleDateString()}`, 105, 34, { align: 'center' });
+      
+      // Add the screenshot
+      const imgWidth = 190; // A4 width minus margins
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      // Scale down if too tall for page
+      let finalHeight = imgHeight;
+      let yPosition = 45;
+      
+      if (imgHeight > 250) { // If taller than page allows
+        finalHeight = 250;
+        yPosition = 45;
+      }
+      
+      pdf.addImage(imgData, 'JPEG', 10, yPosition, imgWidth, finalHeight);
+      
+      // Save PDF
+      const currentDate = new Date().toISOString().split('T')[0];
+      const productName = jobData.productName || 'PrintJob';
+      const filename = `${productName}_Quote_${currentDate}.pdf`;
+      
+      pdf.save(filename);
+      
+      toast({
+        title: "Success",
+        description: "PDF generated successfully using alternative method!",
+        variant: "default"
+      });
+      
+    } catch (error) {
+      console.error('Alternative PDF generation error:', error);
+      toast({
+        title: "Error",
+        description: `Alternative PDF generation failed: ${error.message}`,
+        variant: "destructive"
+      });
+    }
+  };
+
   // PDF Generation Function
   const generatePDF = async () => {
     if (!results || !resultsRef.current) {
@@ -159,10 +240,16 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
       
       console.log('About to generate PDF...');
       
-      // Generate PDF using the wrapper
-      await html2pdf().set(opt).from(wrapper).save();
-      
-      console.log('PDF generation completed');
+      // Try the html2pdf method first, if it fails, try the alternative
+      try {
+        await html2pdf().set(opt).from(wrapper).save();
+        console.log('PDF generation completed with html2pdf');
+      } catch (htmlToPdfError) {
+        console.log('html2pdf failed, trying alternative method...');
+        document.body.removeChild(wrapper);
+        await generatePDFAlternative();
+        return;
+      }
       
       // Remove from body
       document.body.removeChild(wrapper);
@@ -180,6 +267,13 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
         description: `PDF generation failed: ${error.message}`,
         variant: "destructive"
       });
+      
+      // Try alternative method as fallback
+      try {
+        await generatePDFAlternative();
+      } catch (altError) {
+        console.error('Alternative PDF method also failed:', altError);
+      }
     }
   };
 
