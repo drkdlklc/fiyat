@@ -349,6 +349,18 @@ metadata:
   test_sequence: 1
   run_ui: false
 
+  - task: "Add extras to Total Booklet Cost Summary"
+    implemented: true
+    working: false
+    file: "frontend/src/components/PrintJobCalculator.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "USER REQUEST: Add extras to Total Booklet Cost Summary section in booklet mode. IMPLEMENTATION COMPLETED: Added comprehensive extras breakdown section with separate display for cover extras and inner extras. Updated Total Cost and Cost per Booklet calculations to include extras costs from both cover and inner sections. Added detailed breakdown showing individual extra names, variants, and costs. The summary now provides complete cost visibility including paper costs, machine costs, and all extras."
+
   - task: "Fix Final Total Price not showing in booklet mode"
     implemented: true
     working: false
