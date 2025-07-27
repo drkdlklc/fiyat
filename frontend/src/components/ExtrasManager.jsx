@@ -200,6 +200,11 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
                       Length-based pricing: Uses bound edge in Booklet Mode, user-selected edge in Normal Mode
                     </p>
                   )}
+                  {extra.insideOutsideSame && (
+                    <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
+                      ✓ Inside/Outside Same - Shows once when selected for both cover and inner
+                    </p>
+                  )}
                 </div>
                 <div className="flex gap-2">
                   <Button
