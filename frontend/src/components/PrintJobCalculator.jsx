@@ -981,8 +981,8 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                       <div className="mt-2 p-2 bg-orange-50 rounded text-sm">
                         <p className="font-medium text-orange-800">
                           {innerBindingEdge === 'short' 
-                            ? '📖 Inner Pages: Books open like a standard portrait book' 
-                            : '📋 Inner Pages: Books open like a landscape calendar or flip chart'
+                            ? '📋 Inner Pages: Books open like a landscape calendar or flip chart' 
+                            : '📖 Inner Pages: Books open like a standard portrait book'
                           }
                         </p>
                         <p className="text-orange-600 text-xs mt-1">
