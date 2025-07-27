@@ -1327,6 +1327,43 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                         <p className="text-sm font-bold text-gray-900">${results.coverResults.totalCost.toFixed(2)}</p>
                       </div>
                     </div>
+
+                    {/* Cover Extras within Cover Section */}
+                    {results.extrasResults && results.extrasResults.coverExtras && results.extrasResults.coverExtras.length > 0 && (
+                      <div className="mt-4 pt-4 border-t">
+                        <h4 className="font-semibold text-green-800 mb-3 flex items-center gap-2">
+                          <Award size={16} />
+                          Cover Extras & Finishing
+                        </h4>
+                        
+                        <div className="space-y-2">
+                          {results.extrasResults.coverExtras.map((extra, index) => (
+                            <div key={index} className="flex justify-between items-center p-2 border rounded bg-white">
+                              <div className="flex-1">
+                                <span className="font-medium">{extra.extraName}</span>
+                                <div className="text-xs text-gray-600 mt-1">
+                                  {extra.pricingType === 'per_page' && `${extra.units} ${extra.unitType} × $${extra.pricePerUnit.toFixed(2)} per page`}
+                                  {extra.pricingType === 'per_booklet' && `${extra.units} booklets × $${extra.pricePerUnit.toFixed(2)} per booklet`}
+                                  {extra.pricingType === 'per_length' && (
+                                    `${extra.units} booklets × ${extra.edgeLength}mm edge × $${extra.pricePerUnit.toFixed(2)} per mm`
+                                  )}
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <span className="font-semibold text-green-600">${extra.totalCost.toFixed(2)}</span>
+                              </div>
+                            </div>
+                          ))}
+                          
+                          <div className="flex justify-between items-center pt-2 border-t">
+                            <span className="font-semibold text-green-800">Cover Extras Total:</span>
+                            <span className="font-bold text-green-600">
+                              ${results.extrasResults.coverExtras.reduce((sum, extra) => sum + extra.totalCost, 0).toFixed(2)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
