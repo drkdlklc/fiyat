@@ -164,7 +164,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
       if (extraData && extraData.insideOutsideSame && isAlsoInCover) {
         // This extra should be consolidated - skip adding to inner, already in cover
         // But we need to update the cover extra to include both costs
-        const coverExtraIndex = consolidatedCover.findIndex(ce => ce.extraId === innerExtra.extraId);
+        const coverExtraIndex = consolidatedCover.findIndex(ce => ce.extraId === innerExtra.extraId && ce.variantId === innerExtra.variantId);
         if (coverExtraIndex >= 0) {
           // Combine the costs and update description
           const combinedCost = consolidatedCover[coverExtraIndex].totalCost + innerExtra.totalCost;
