@@ -39,14 +39,14 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
     if (results.extrasResults?.coverExtras) {
       coverExtrasEUR = results.extrasResults.coverExtras.reduce((sum, extra) => {
         const currency = extra.originalPrice?.currency || 'EUR';
-        return sum + convertToEUR(extra.totalCost, currency);
+        return sum + convertToEURSync(extra.totalCost, currency);
       }, 0);
     }
 
     if (results.extrasResults?.innerExtras) {
       innerExtrasEUR = results.extrasResults.innerExtras.reduce((sum, extra) => {
         const currency = extra.originalPrice?.currency || 'EUR';
-        return sum + convertToEUR(extra.totalCost, currency);
+        return sum + convertToEURSync(extra.totalCost, currency);
       }, 0);
     }
 
