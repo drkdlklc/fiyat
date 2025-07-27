@@ -2946,38 +2946,48 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                           })()}
                         </div>
                       ) : (
-                        // Normal Mode Total
+                        // Normal Mode Total with USD conversion
                         <div className="space-y-3">
                           <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
-                            <span className="font-semibold text-gray-800">Print Job Cost:</span>
+                            <span className="font-semibold text-gray-800">Print Job Cost (USD):</span>
                             <span className="font-bold text-gray-700">
-                              ${displayResults[0]?.totalCost.toFixed(2) || '0.00'}
+                              {displayResults[0]?.totalCost ? formatUSDPrice(displayResults[0].totalCost) : '$0.00'}
                             </span>
                           </div>
                           
                           {results.extrasResults && results.extrasResults.length > 0 && (
                             <div className="flex justify-between items-center p-3 bg-purple-50 rounded border border-purple-200">
-                              <span className="font-semibold text-purple-800">Extras Cost:</span>
+                              <span className="font-semibold text-purple-800">Extras Cost (USD):</span>
                               <span className="font-bold text-purple-700">
-                                ${results.extrasResults.reduce((sum, extra) => sum + extra.totalCost, 0).toFixed(2)}
+                                {formatUSDPrice(results.extrasResults.reduce((sum, extra) => {
+                                  const currency = extra.originalPrice?.currency || 'USD';
+                                  return sum + convertToUSD(extra.totalCost, currency);
+                                }, 0))}
                               </span>
                             </div>
                           )}
                           
                           <div className="flex justify-between items-center p-4 bg-blue-100 rounded-lg border-2 border-blue-300">
-                            <span className="text-xl font-bold text-blue-900">Grand Total:</span>
+                            <span className="text-xl font-bold text-blue-900">Grand Total (USD):</span>
                             <span className="text-2xl font-bold text-blue-800">
-                              ${((displayResults[0]?.totalCost || 0) + 
-                                (results.extrasResults ? results.extrasResults.reduce((sum, extra) => sum + extra.totalCost, 0) : 0)
-                              ).toFixed(2)}
+                              {formatUSDPrice((displayResults[0]?.totalCost || 0) + 
+                                (results.extrasResults ? results.extrasResults.reduce((sum, extra) => {
+                                  const currency = extra.originalPrice?.currency || 'USD';
+                                  return sum + convertToUSD(extra.totalCost, currency);
+                                }, 0) : 0)
+                              )}
                             </span>
                           </div>
                           
                           <div className="text-center text-sm text-gray-600 mt-3">
-                            <p>Price per unit: ${(((displayResults[0]?.totalCost || 0) + 
-                              (results.extrasResults ? results.extrasResults.reduce((sum, extra) => sum + extra.totalCost, 0) : 0)) / 
-                              results.job.quantity).toFixed(4)}
+                            <p>Price per unit (USD): {formatUSDPrice(((displayResults[0]?.totalCost || 0) + 
+                              (results.extrasResults ? results.extrasResults.reduce((sum, extra) => {
+                                const currency = extra.originalPrice?.currency || 'USD';
+                                return sum + convertToUSD(extra.totalCost, currency);
+                              }, 0) : 0)) / 
+                              results.job.quantity, 4)}
                             </p>
+                            <p className="text-xs text-blue-600 mt-1">* All prices converted to USD using current exchange rates</p>
                           </div>
                         </div>
                       )}
