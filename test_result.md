@@ -471,7 +471,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Add single/double-sided option for extras with price doubling"
+    - "Add Print button for PDF generation of results"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
