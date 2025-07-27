@@ -1423,78 +1423,102 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                 </div>
               ) : (
                 // Normal Mode: Single Extras Section
-                <div className="space-y-3">
-                  {extras.map((extra) => (
-                    <div key={extra.id} className="flex items-center justify-between p-3 border rounded bg-white">
-                      <div className="flex items-center space-x-3">
-                        <Checkbox
-                          id={`extra-${extra.id}`}
-                          checked={selectedExtras.some(se => se.extraId === extra.id)}
-                          onCheckedChange={(checked) => {
-                            if (checked) {
-                              setSelectedExtras([...selectedExtras, { extraId: extra.id }]);
-                            } else {
-                              setSelectedExtras(selectedExtras.filter(se => se.extraId !== extra.id));
-                            }
-                          }}
-                        />
-                        <div>
-                          <Label htmlFor={`extra-${extra.id}`} className="font-medium cursor-pointer">
-                            {extra.name}
-                          </Label>
-                          <div className="text-sm text-gray-600">
-                            {extra.variants?.length > 0 ? (
-                              <div className="space-y-1">
-                                {extra.variants.map((variant, idx) => (
-                                  <div key={idx} className="flex justify-between">
-                                    <span>{variant.variantName}:</span>
-                                    <span>${variant.price.toFixed(2)} per {
-                                      extra.pricingType === 'per_page' ? 'page' :
-                                      extra.pricingType === 'per_booklet' ? 'unit' :
-                                      'length (cm)'
-                                    }</span>
-                                  </div>
-                                ))}
-                              </div>
-                            ) : (
-                              <span className="text-red-500">No variants available</span>
-                            )}
-                          </div>
-                        </div>
+                <div>
+                  <div className="space-y-3 mb-4">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label>Choose Extra</Label>
+                        <Select value={selectedExtraId} onValueChange={(value) => {
+                          setSelectedExtraId(value);
+                          setSelectedVariantId(''); // Reset variant selection
+                        }}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select an extra..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {extras.map((extra) => (
+                              <SelectItem key={extra.id} value={extra.id.toString()}>
+                                {extra.name} ({extra.pricingType === 'per_page' ? 'Per Page' : 
+                                                extra.pricingType === 'per_booklet' ? 'Per Booklet' : 
+                                                'Per Length (cm)'})
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                       
-                      {extra.pricingType === 'per_length' && 
-                       selectedExtras.some(se => se.extraId === extra.id) && (
-                        <div className="ml-4">
-                          <Label className="text-sm">Edge Selection:</Label>
-                          <Select 
-                            value={lengthBasedEdge} 
-                            onValueChange={setLengthBasedEdge}
-                          >
-                            <SelectTrigger className="w-32">
-                              <SelectValue />
+                      {/* Variant Selection */}
+                      {selectedExtraId && (
+                        <div>
+                          <Label>Choose Type/Variant</Label>
+                          <Select value={selectedVariantId} onValueChange={setSelectedVariantId}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select variant..." />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="long">Long Edge</SelectItem>
-                              <SelectItem value="short">Short Edge</SelectItem>
+                              {extras.find(e => e.id === parseInt(selectedExtraId))?.variants?.map((variant) => (
+                                <SelectItem key={variant.id} value={variant.id.toString()}>
+                                  {variant.variantName} - ${variant.price.toFixed(2)}
+                                </SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                         </div>
                       )}
                     </div>
-                  ))}
+                    
+                    {/* Add Extra Button */}
+                    {selectedExtraId && selectedVariantId && (
+                      <Button
+                        type="button"
+                        onClick={() => addExtraWithVariant(selectedExtraId, selectedVariantId, 'normal')}
+                        className="flex items-center gap-2"
+                      >
+                        <Plus size={16} />
+                        Add Extra
+                      </Button>
+                    )}
+                  </div>
+                  
+                  {/* Selected Extras List */}
+                  {selectedExtras.length > 0 && (
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold">Selected Extras:</Label>
+                      {selectedExtras.map((selected, index) => {
+                        const extra = extras.find(e => e.id === selected.extraId);
+                        return (
+                          <div key={index} className="flex items-center justify-between p-2 bg-white border rounded">
+                            <span className="font-medium">
+                              {extra?.name} - {selected.variantName}
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm text-gray-600">
+                                ${selected.price.toFixed(2)} per {
+                                  extra?.pricingType === 'per_page' ? 'page' :
+                                  extra?.pricingType === 'per_booklet' ? 'unit' :
+                                  'cm'
+                                }
+                              </span>
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => removeExtraFromSection(selected.extraId, selected.variantId, 'normal')}
+                              >
+                                <X size={14} />
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                   
                   {extras.length === 0 && (
                     <div className="text-center py-4 text-gray-500">
                       <Award className="h-8 w-8 mx-auto mb-2 opacity-30" />
                       <p>No extras available. Add some in the Extras tab.</p>
                     </div>
-                  )}
-                  
-                  {extras.length > 0 && selectedExtras.length === 0 && (
-                    <p className="text-sm text-purple-600">
-                      Select additional finishing options above to include in your cost calculation.
-                    </p>
                   )}
                 </div>
               )}
