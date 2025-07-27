@@ -351,7 +351,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Add currency selection support for paper types, machines, and extras"
+    - "Add 'Per Print Sheet' pricing type for extras and fix extras duplication"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
