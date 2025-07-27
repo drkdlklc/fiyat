@@ -1209,20 +1209,25 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
               Calculation Results for "{results.job.productName}"
             </CardTitle>
             <div className="flex items-center gap-4">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="showOptimalOnly"
-                  checked={showOptimalOnly}
-                  onCheckedChange={setShowOptimalOnly}
-                />
-                <Label htmlFor="showOptimalOnly">Show only top 3 optimal solutions</Label>
-              </div>
-              <span className="text-sm text-gray-600">
-                {results.calculations.length} total options found
-              </span>
+              {results.job.isBookletMode && (
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="showOptimalOnly"
+                    checked={showOptimalOnly}
+                    onCheckedChange={setShowOptimalOnly}
+                  />
+                  <Label htmlFor="showOptimalOnly">Show only top 3 optimal solutions</Label>
+                </div>
+              )}
+              {results.job.isBookletMode && (
+                <span className="text-sm text-gray-600">
+                  {results.calculations.length} total options found
+                </span>
+              )}
               <span className="text-sm text-blue-600 font-medium">
                 {results.job.isDoubleSided ? 'Double-sided' : 'Single-sided'} printing
                 {results.job.isBookletMode && ` | Booklet (${results.job.totalPages} pages, ${results.job.quantity} booklets)`}
+                {!results.job.isBookletMode && ` | Showing optimal solution`}
               </span>
               {results.selectedPaperType && (
                 <span className="text-sm text-blue-600 font-medium">
