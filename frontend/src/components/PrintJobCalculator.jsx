@@ -2551,90 +2551,99 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
 
                 {results.coverResults && (results.innerPagesResults || results.multiPartResults) && (
                   <div className="p-4 border-2 border-blue-500 rounded-lg bg-blue-50">
-                    <h3 className="text-lg font-semibold text-blue-800 mb-4">Total Booklet Cost Summary</h3>
+                    <h3 className="text-lg font-semibold text-blue-800 mb-4">Total Booklet Cost Summary (All prices converted to USD)</h3>
                     
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                      <div>
-                        <span className="font-medium text-gray-700">Number of Booklets:</span>
-                        <p className="text-sm">{results.job.quantity}</p>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700">Pages per Booklet:</span>
-                        <p className="text-sm">{results.job.totalPages}</p>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700">Cover Cost:</span>
-                        <p className="text-sm">${results.coverResults.totalCost.toFixed(2)}</p>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700">Inner Pages Cost:</span>
-                        <p className="text-sm">
-                          ${(results.innerPagesResults ? results.innerPagesResults.totalCost : results.multiPartResults.totalCost).toFixed(2)}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Extras Cost Section */}
-                    {results.extrasResults && (results.extrasResults.coverExtras?.length > 0 || results.extrasResults.innerExtras?.length > 0) && (
-                      <div className="mb-4 p-3 border rounded-lg bg-purple-50">
-                        <h4 className="font-medium text-purple-800 mb-3">Extras Breakdown</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {results.extrasResults.coverExtras?.length > 0 && (
+                    {(() => {
+                      // Calculate USD conversions
+                      const usdCosts = convertResultsCostsToUSD(results);
+                      
+                      return (
+                        <>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                             <div>
-                              <span className="font-medium text-green-700">Cover Extras:</span>
-                              <p className="text-sm text-green-600">
-                                ${results.extrasResults.coverExtras.reduce((sum, extra) => sum + extra.totalCost, 0).toFixed(2)}
-                              </p>
-                              <div className="text-xs text-gray-600 mt-1">
-                                {results.extrasResults.coverExtras.map((extra, idx) => (
-                                  <div key={idx}>• {extra.extraName} - {extra.variantName}: ${extra.totalCost.toFixed(2)}</div>
-                                ))}
+                              <span className="font-medium text-gray-700">Number of Booklets:</span>
+                              <p className="text-sm">{results.job.quantity}</p>
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">Pages per Booklet:</span>
+                              <p className="text-sm">{results.job.totalPages}</p>
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">Cover Cost (USD):</span>
+                              <p className="text-sm">{formatUSDPrice(usdCosts.coverCostUSD)}</p>
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">Inner Pages Cost (USD):</span>
+                              <p className="text-sm">{formatUSDPrice(usdCosts.innerCostUSD)}</p>
+                            </div>
+                          </div>
+
+                          {/* Extras Cost Section with USD conversion */}
+                          {results.extrasResults && (results.extrasResults.coverExtras?.length > 0 || results.extrasResults.innerExtras?.length > 0) && (
+                            <div className="mb-4 p-3 border rounded-lg bg-purple-50">
+                              <h4 className="font-medium text-purple-800 mb-3">Extras Breakdown (USD)</h4>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {results.extrasResults.coverExtras?.length > 0 && (
+                                  <div>
+                                    <span className="font-medium text-green-700">Cover Extras (USD):</span>
+                                    <p className="text-sm text-green-600">
+                                      {formatUSDPrice(usdCosts.coverExtrasUSD)}
+                                    </p>
+                                    <div className="text-xs text-gray-600 mt-1">
+                                      {results.extrasResults.coverExtras.map((extra, idx) => {
+                                        const currency = extra.originalPrice?.currency || 'USD';
+                                        const usdCost = convertToUSD(extra.totalCost, currency);
+                                        return (
+                                          <div key={idx}>
+                                            • {extra.extraName} - {extra.variantName}: {formatUSDPrice(usdCost)}
+                                            {currency !== 'USD' && <span className="text-blue-500 ml-1">(converted from {currency})</span>}
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                )}
+                                {results.extrasResults.innerExtras?.length > 0 && (
+                                  <div>
+                                    <span className="font-medium text-orange-700">Inner Extras (USD):</span>
+                                    <p className="text-sm text-orange-600">
+                                      {formatUSDPrice(usdCosts.innerExtrasUSD)}
+                                    </p>
+                                    <div className="text-xs text-gray-600 mt-1">
+                                      {results.extrasResults.innerExtras.map((extra, idx) => {
+                                        const currency = extra.originalPrice?.currency || 'USD';
+                                        const usdCost = convertToUSD(extra.totalCost, currency);
+                                        return (
+                                          <div key={idx}>
+                                            • {extra.extraName} - {extra.variantName}: {formatUSDPrice(usdCost)}
+                                            {currency !== 'USD' && <span className="text-blue-500 ml-1">(converted from {currency})</span>}
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           )}
-                          {results.extrasResults.innerExtras?.length > 0 && (
-                            <div>
-                              <span className="font-medium text-orange-700">Inner Extras:</span>
-                              <p className="text-sm text-orange-600">
-                                ${results.extrasResults.innerExtras.reduce((sum, extra) => sum + extra.totalCost, 0).toFixed(2)}
-                              </p>
-                              <div className="text-xs text-gray-600 mt-1">
-                                {results.extrasResults.innerExtras.map((extra, idx) => (
-                                  <div key={idx}>• {extra.extraName} - {extra.variantName}: ${extra.totalCost.toFixed(2)}</div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
 
-                    <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-                      <div>
-                        <span className="font-bold text-xl text-gray-800">Total Cost:</span>
-                        <p className="text-2xl font-bold text-blue-600">
-                          ${(results.coverResults.totalCost + 
-                            (results.innerPagesResults ? results.innerPagesResults.totalCost : results.multiPartResults.totalCost) +
-                            (results.extrasResults?.coverExtras ? 
-                              results.extrasResults.coverExtras.reduce((sum, extra) => sum + extra.totalCost, 0) : 0) +
-                            (results.extrasResults?.innerExtras ? 
-                              results.extrasResults.innerExtras.reduce((sum, extra) => sum + extra.totalCost, 0) : 0)
-                          ).toFixed(2)}
-                        </p>
-                      </div>
-                      <div>
-                        <span className="font-bold text-xl text-gray-800">Cost per Booklet:</span>
-                        <p className="text-2xl font-bold text-green-600">
-                          ${((results.coverResults.totalCost + 
-                            (results.innerPagesResults ? results.innerPagesResults.totalCost : results.multiPartResults.totalCost) +
-                            (results.extrasResults?.coverExtras ? 
-                              results.extrasResults.coverExtras.reduce((sum, extra) => sum + extra.totalCost, 0) : 0) +
-                            (results.extrasResults?.innerExtras ? 
-                              results.extrasResults.innerExtras.reduce((sum, extra) => sum + extra.totalCost, 0) : 0)
-                          ) / results.job.quantity).toFixed(4)}
-                        </p>
-                      </div>
-                    </div>
+                          <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                            <div>
+                              <span className="font-bold text-xl text-gray-800">Total Cost (USD):</span>
+                              <p className="text-2xl font-bold text-blue-600">
+                                {formatUSDPrice(usdCosts.totalUSD)}
+                              </p>
+                            </div>
+                            <div>
+                              <span className="font-bold text-xl text-gray-800">Cost per Booklet (USD):</span>
+                              <p className="text-2xl font-bold text-green-600">
+                                {formatUSDPrice(usdCosts.totalUSD / results.job.quantity, 4)}
+                              </p>
+                            </div>
+                          </div>
+                        </>
+                      );
+                    })()}
                   </div>
                 )}
               </div>
