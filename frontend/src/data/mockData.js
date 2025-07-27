@@ -630,17 +630,29 @@ export const calculateOptimalForPaperType = (job, paperType, machines, selectedM
           left: job.marginLeft
         };
         
-        // Use the same binding edge logic as booklet mode for consistency
+        // Apply binding edge logic based on mode
         let effectiveWidth, effectiveHeight;
         
-        if (job.bindingEdge === 'short') {
-          // Short edge binding: double the height (short edge)
-          effectiveWidth = job.finalWidth;
-          effectiveHeight = job.finalHeight * 2; // Double the binding edge dimension
+        if (job.isBookletMode) {
+          // Booklet mode: use binding edge doubling logic
+          if (job.bindingEdge === 'short') {
+            // Short edge binding: double the height (short edge)
+            effectiveWidth = job.finalWidth;
+            effectiveHeight = job.finalHeight * 2; // Double the binding edge dimension
+          } else {
+            // Long edge binding: double the width (long edge)
+            effectiveWidth = job.finalHeight; // Use height as width
+            effectiveHeight = job.finalWidth * 2; // Double the width, use as height
+          }
         } else {
-          // Long edge binding: double the width (long edge)
-          effectiveWidth = job.finalHeight; // Use height as width
-          effectiveHeight = job.finalWidth * 2; // Double the width, use as height
+          // Normal mode: use original dimensions with binding edge orientation only
+          if (job.bindingEdge === 'short') {
+            effectiveWidth = job.finalWidth;
+            effectiveHeight = job.finalHeight;
+          } else {
+            effectiveWidth = job.finalHeight;
+            effectiveHeight = job.finalWidth;
+          }
         }
         
         const productsPerPrintSheet = calculateProductsPerSheet(
