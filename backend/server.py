@@ -356,11 +356,56 @@ async def initialize_default_data():
     existing_extras = await db.extras.count_documents({})
     if existing_extras == 0:
         default_extras = [
-            {"id": 1, "name": "Cellophane Lamination", "pricingType": "per_page", "price": 0.15, "insideOutsideSame": False},
-            {"id": 2, "name": "Staple Binding", "pricingType": "per_booklet", "price": 2.50, "insideOutsideSame": True},
-            {"id": 3, "name": "Spiral Binding", "pricingType": "per_length", "price": 0.08, "insideOutsideSame": True},
-            {"id": 4, "name": "Perfect Binding (American)", "pricingType": "per_booklet", "price": 15.00, "insideOutsideSame": True},
-            {"id": 5, "name": "UV Coating", "pricingType": "per_page", "price": 0.25, "insideOutsideSame": False}
+            {
+                "id": 1, 
+                "name": "Cellophane Lamination", 
+                "pricingType": "per_page", 
+                "insideOutsideSame": False,
+                "variants": [
+                    {"id": 1, "variantName": "Standard", "price": 0.15},
+                    {"id": 2, "variantName": "Premium", "price": 0.25}
+                ]
+            },
+            {
+                "id": 2, 
+                "name": "Staple Binding", 
+                "pricingType": "per_booklet", 
+                "insideOutsideSame": True,
+                "variants": [
+                    {"id": 3, "variantName": "2-Staple", "price": 2.50},
+                    {"id": 4, "variantName": "3-Staple", "price": 3.50}
+                ]
+            },
+            {
+                "id": 3, 
+                "name": "Spiral Binding", 
+                "pricingType": "per_length", 
+                "insideOutsideSame": True,
+                "variants": [
+                    {"id": 5, "variantName": "Plastic Coil", "price": 0.8},  # price per cm
+                    {"id": 6, "variantName": "Metal Wire", "price": 1.2}    # price per cm
+                ]
+            },
+            {
+                "id": 4, 
+                "name": "Perfect Binding (American)", 
+                "pricingType": "per_booklet", 
+                "insideOutsideSame": True,
+                "variants": [
+                    {"id": 7, "variantName": "Standard", "price": 15.00},
+                    {"id": 8, "variantName": "Premium", "price": 22.50}
+                ]
+            },
+            {
+                "id": 5, 
+                "name": "UV Coating", 
+                "pricingType": "per_page", 
+                "insideOutsideSame": False,
+                "variants": [
+                    {"id": 9, "variantName": "Matte", "price": 0.25},
+                    {"id": 10, "variantName": "Gloss", "price": 0.30}
+                ]
+            }
         ]
         
         await db.extras.insert_many(default_extras)
