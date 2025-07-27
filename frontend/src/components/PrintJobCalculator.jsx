@@ -1401,6 +1401,36 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                           )}
                         </div>
                         
+                        {/* Single/Double-Sided Selection */}
+                        {selectedCoverExtraId && selectedCoverVariantId && 
+                         extras.find(e => e.id === parseInt(selectedCoverExtraId))?.supportsDoubleSided && (
+                          <div className="p-3 border rounded bg-yellow-50">
+                            <Label className="text-sm font-semibold mb-2 block">Application Type:</Label>
+                            <div className="flex items-center space-x-4">
+                              <div className="flex items-center space-x-2">
+                                <input
+                                  type="radio"
+                                  id="cover-single"
+                                  name="cover-sided"
+                                  checked={!isCoverDoubleSided}
+                                  onChange={() => setIsCoverDoubleSided(false)}
+                                />
+                                <Label htmlFor="cover-single" className="text-sm cursor-pointer">Single Side</Label>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <input
+                                  type="radio"
+                                  id="cover-double"
+                                  name="cover-sided"
+                                  checked={isCoverDoubleSided}
+                                  onChange={() => setIsCoverDoubleSided(true)}
+                                />
+                                <Label htmlFor="cover-double" className="text-sm cursor-pointer">Both Sides (2x price)</Label>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        
                         {/* Add Extra Button */}
                         {selectedCoverExtraId && selectedCoverVariantId && (
                           <Button
