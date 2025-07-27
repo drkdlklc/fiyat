@@ -143,11 +143,11 @@ backend:
 
   - task: "Display cover and inner pages extras separately in Booklet Mode"
     implemented: true
-    working: true
+    working: false
     file: "frontend/src/components/PrintJobCalculator.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: true
         agent: "main"
@@ -158,6 +158,21 @@ backend:
       - working: true
         agent: "testing"
         comment: "FRONTEND UI VERIFICATION COMPLETED: ✅ Successfully verified separate extras display functionality in Booklet Mode. ✅ Booklet Mode checkbox enables properly and shows booklet-specific configuration. ✅ 'Has Cover' checkbox enables Cover Extras section with green background (bg-green-50). ✅ Inner Pages Extras section displays with orange background (bg-orange-50). ✅ Both sections show proper extras selection with checkboxes and pricing information. ✅ UI correctly displays 'Cover Extras' and 'Inner Pages Extras' section headers. ✅ Color coding matches implementation: Cover (green), Inner (orange), Combined Total (purple). ✅ Found 2 green sections, 2 orange sections, and 1 purple section as expected. ✅ No error messages during testing. The separate extras display functionality is working correctly in Booklet Mode as specified in the requirements."
+      - working: false
+        agent: "main"
+        comment: "USER REQUESTED CHANGES: 1) Integrate extras within corresponding paper sections instead of separate sections - cover extras should appear within Cover Cost section, inner extras within Inner Pages Cost section. 2) In Normal Mode, show only the best/optimal option instead of multiple alternatives. Need to refactor results display structure."
+
+  - task: "Integrate extras within paper sections and show only best option in Normal Mode"
+    implemented: false
+    working: false
+    file: "frontend/src/components/PrintJobCalculator.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "NEW TASK: Modify results display to: 1) Include cover extras within Cover Cost section (not separate), 2) Include inner extras within Inner Pages Cost section (not separate), 3) In Normal Mode only show the most efficient/optimal option instead of multiple alternatives. This requires refactoring the displayResults logic and integrating extras calculations within existing sections."
 
 frontend:
   - task: "Frontend API integration for persistent storage"
