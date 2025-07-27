@@ -306,6 +306,23 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
                 Enable this for extras like lamination or coating that can be applied to one side or both sides
               </p>
             </div>
+
+            {/* Apply to Print Sheet Checkbox */}
+            <div className="mt-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="applyToPrintSheet"
+                  checked={formData.applyToPrintSheet}
+                  onCheckedChange={(checked) => setFormData({ ...formData, applyToPrintSheet: checked })}
+                />
+                <Label htmlFor="applyToPrintSheet" className="text-sm">
+                  Apply to Print Sheet Dimensions (use print sheet size instead of page size for calculations)
+                </Label>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Enable this for extras that should be priced based on print sheet dimensions rather than individual page dimensions
+              </p>
+            </div>
             
             <div className="flex gap-2 mt-4">
               <Button type="submit" size="sm">
