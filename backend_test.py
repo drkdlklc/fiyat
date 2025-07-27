@@ -431,8 +431,10 @@ class BackendTester:
             test_extra = {
                 "name": "Test Delete Extra",
                 "pricingType": "per_length",
-                "price": 0.10,
-                "insideOutsideSame": False
+                "insideOutsideSame": False,
+                "variants": [
+                    {"variantName": "Standard", "price": 0.10}
+                ]
             }
             
             create_response = requests.post(
