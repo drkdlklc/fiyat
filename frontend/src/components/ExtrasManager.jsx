@@ -134,7 +134,7 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
     switch (pricingType) {
       case 'per_page': return 'Per Page';
       case 'per_booklet': return 'Per Booklet/Unit';
-      case 'per_length': return 'Per Length (mm)';
+      case 'per_length': return 'Per Length (cm)';
       default: return pricingType;
     }
   };
