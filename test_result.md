@@ -275,6 +275,21 @@ backend:
       - working: true
         agent: "testing"
         comment: "COMPREHENSIVE TESTING COMPLETED: ✅ ALL CRITICAL FIXES VERIFIED WORKING CORRECTLY. INSIDE/OUTSIDE SAME CONSOLIDATION: Successfully tested Spiral Binding extra marked as 'Inside/Outside Same' - when added to cover section first, attempting to add same extra to inner section shows proper consolidation message: 'Spiral Binding is marked as Inside/Outside Same and is already selected for the cover. It will automatically apply to both sections.' ✅ CALCULATION CRASH PREVENTION: Calculate button works without crashes, results display properly with no error messages. ✅ VARIANT-BASED CALCULATIONS: Dropdown workflow implemented correctly with separate extra selection and variant selection dropdowns, Add Extra button appears only after both selections. ✅ NEW DROPDOWN WORKFLOW: Found extra selection dropdowns, variant selection functionality, and Add Extra buttons working as designed. ✅ CONSOLIDATION IN RESULTS: Calculation results display successfully showing proper booklet mode sections (Cover Configuration, Inner Pages Configuration, Cover Extras, Inner Pages Extras). The implementation successfully prevents application crashes and properly handles Inside/Outside Same consolidation as specified in the requirements."
+      - working: true
+        agent: "main"
+        comment: "FILTERING FIX COMPLETED: ✅ Root cause identified - extras marked as 'Inside/Outside Same' were still visible in inner pages dropdown. ✅ Inner Pages Dropdown Filtering: Added filter logic to exclude insideOutsideSame extras from inner section dropdown. ✅ Cover Dropdown Enhancement: Added visual indicator '✓ Applies to both cover & inner' for consolidation extras. ✅ Simplified Selection Logic: Removed complex validation since UI now prevents invalid selections. RESULT: Inside/Outside Same extras (Spiral Binding, Staple Binding, Perfect Binding) now only appear in cover section dropdown, while individual extras (Cellophane Lamination, UV Coating) appear in both sections as expected. Users cannot make invalid selections and clear visual guidance shows consolidation behavior."
+
+  - task: "Add single/double-sided option for extras with price doubling"
+    implemented: false
+    working: false
+    file: "backend/server.py, frontend/src/components/ExtrasManager.jsx, frontend/src/components/PrintJobCalculator.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "NEW USER REQUEST: Some extras can be applied to one side or both sides of a page. Requirements: 1) Add supportsDoubleSided field to extras, 2) In calculator, when such extra is selected, show option to choose single/double sided, 3) Double the price when both sides selected. This affects backend model, ExtrasManager UI, and calculator selection workflow."
 
 frontend:
   - task: "Frontend API integration for persistent storage"
