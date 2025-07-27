@@ -479,6 +479,166 @@ class BackendTester:
         except requests.exceptions.RequestException as e:
             self.log_test("Extras Database Operations", False, f"Connection error: {str(e)}")
 
+    def test_extras_inside_outside_same_field_validation(self):
+        """Test the insideOutsideSame field validation and optional behavior"""
+        try:
+            # Test 1: Create extra without insideOutsideSame field (should default to False)
+            test_extra_no_field = {
+                "name": "Test No Field Extra",
+                "pricingType": "per_page",
+                "price": 0.30
+            }
+            
+            response1 = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra_no_field,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if response1.status_code == 200:
+                data1 = response1.json()
+                if data1.get("insideOutsideSame") == False:  # Should default to False
+                    self.log_test("InsideOutsideSame Field Default", True, f"Field defaults to False when not provided: {data1.get('insideOutsideSame')}")
+                else:
+                    self.log_test("InsideOutsideSame Field Default", False, f"Expected False default, got: {data1.get('insideOutsideSame')}")
+            else:
+                self.log_test("InsideOutsideSame Field Default", False, f"Failed to create extra without field: {response1.status_code}")
+            
+            # Test 2: Create extra with insideOutsideSame = True
+            test_extra_true = {
+                "name": "Test True Field Extra",
+                "pricingType": "per_booklet",
+                "price": 5.00,
+                "insideOutsideSame": True
+            }
+            
+            response2 = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra_true,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if response2.status_code == 200:
+                data2 = response2.json()
+                if data2.get("insideOutsideSame") == True:
+                    self.log_test("InsideOutsideSame Field True", True, f"Field correctly set to True: {data2.get('insideOutsideSame')}")
+                else:
+                    self.log_test("InsideOutsideSame Field True", False, f"Expected True, got: {data2.get('insideOutsideSame')}")
+            else:
+                self.log_test("InsideOutsideSame Field True", False, f"Failed to create extra with True field: {response2.status_code}")
+            
+            # Test 3: Create extra with insideOutsideSame = False
+            test_extra_false = {
+                "name": "Test False Field Extra",
+                "pricingType": "per_length",
+                "price": 0.12,
+                "insideOutsideSame": False
+            }
+            
+            response3 = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra_false,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if response3.status_code == 200:
+                data3 = response3.json()
+                if data3.get("insideOutsideSame") == False:
+                    self.log_test("InsideOutsideSame Field False", True, f"Field correctly set to False: {data3.get('insideOutsideSame')}")
+                else:
+                    self.log_test("InsideOutsideSame Field False", False, f"Expected False, got: {data3.get('insideOutsideSame')}")
+            else:
+                self.log_test("InsideOutsideSame Field False", False, f"Failed to create extra with False field: {response3.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("InsideOutsideSame Field Validation", False, f"Connection error: {str(e)}")
+
+    def test_extras_model_compatibility(self):
+        """Test that existing extras without insideOutsideSame field still work"""
+        try:
+            # Get all existing extras
+            get_response = requests.get(f"{self.api_url}/extras", timeout=10)
+            
+            if get_response.status_code == 200:
+                extras = get_response.json()
+                if isinstance(extras, list) and len(extras) > 0:
+                    # Check that all extras have the insideOutsideSame field
+                    all_have_field = True
+                    field_values = []
+                    
+                    for extra in extras:
+                        if "insideOutsideSame" not in extra:
+                            all_have_field = False
+                            break
+                        field_values.append(f"{extra.get('name')}: {extra.get('insideOutsideSame')}")
+                    
+                    if all_have_field:
+                        self.log_test("Extras Model Compatibility", True, f"All existing extras have insideOutsideSame field. Values: {field_values}")
+                    else:
+                        self.log_test("Extras Model Compatibility", False, "Some existing extras missing insideOutsideSame field")
+                else:
+                    self.log_test("Extras Model Compatibility", True, "No existing extras to test compatibility (empty database)")
+            else:
+                self.log_test("Extras Model Compatibility", False, f"Failed to retrieve extras: {get_response.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Extras Model Compatibility", False, f"Connection error: {str(e)}")
+
+    def test_extras_update_inside_outside_same_only(self):
+        """Test updating only the insideOutsideSame field"""
+        try:
+            # First create an extra
+            test_extra = {
+                "name": "Test Update Field Only",
+                "pricingType": "per_page",
+                "price": 0.25,
+                "insideOutsideSame": False
+            }
+            
+            create_response = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if create_response.status_code != 200:
+                self.log_test("Update InsideOutsideSame Only", False, "Failed to create test extra")
+                return
+            
+            created_extra = create_response.json()
+            extra_id = created_extra.get("id")
+            
+            # Update only the insideOutsideSame field
+            update_data = {
+                "insideOutsideSame": True
+            }
+            
+            update_response = requests.put(
+                f"{self.api_url}/extras/{extra_id}",
+                json=update_data,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if update_response.status_code == 200:
+                updated_extra = update_response.json()
+                if (updated_extra.get("insideOutsideSame") == True and
+                    updated_extra.get("name") == test_extra["name"] and
+                    updated_extra.get("pricingType") == test_extra["pricingType"] and
+                    updated_extra.get("price") == test_extra["price"]):
+                    self.log_test("Update InsideOutsideSame Only", True, f"Successfully updated only insideOutsideSame field to True for ID: {extra_id}")
+                else:
+                    self.log_test("Update InsideOutsideSame Only", False, f"Field update failed or other fields changed: {updated_extra}")
+            else:
+                self.log_test("Update InsideOutsideSame Only", False, f"HTTP {update_response.status_code}: {update_response.text}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Update InsideOutsideSame Only", False, f"Connection error: {str(e)}")
+
     def test_cover_calculation_logic(self):
         """Test the cover calculation logic for booklet mode using Node.js"""
         try:
