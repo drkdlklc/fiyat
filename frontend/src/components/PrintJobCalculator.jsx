@@ -1313,13 +1313,24 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                           <Label htmlFor={`extra-${extra.id}`} className="font-medium cursor-pointer">
                             {extra.name}
                           </Label>
-                          <p className="text-sm text-gray-600">
-                            ${extra.price.toFixed(2)} per {
-                              extra.pricingType === 'per_page' ? 'page' :
-                              extra.pricingType === 'per_booklet' ? 'unit' :
-                              'length (mm)'
-                            }
-                          </p>
+                          <div className="text-sm text-gray-600">
+                            {extra.variants?.length > 0 ? (
+                              <div className="space-y-1">
+                                {extra.variants.map((variant, idx) => (
+                                  <div key={idx} className="flex justify-between">
+                                    <span>{variant.variantName}:</span>
+                                    <span>${variant.price.toFixed(2)} per {
+                                      extra.pricingType === 'per_page' ? 'page' :
+                                      extra.pricingType === 'per_booklet' ? 'unit' :
+                                      'length (cm)'
+                                    }</span>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <span className="text-red-500">No variants available</span>
+                            )}
+                          </div>
                         </div>
                       </div>
                       
