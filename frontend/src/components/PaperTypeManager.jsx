@@ -187,15 +187,30 @@ const PaperTypeManager = ({ paperTypes, onAddPaperType, onUpdatePaperType, onDel
                 />
               </div>
               <div>
-                <Label htmlFor="pricePerTon">Price per Ton ($) (shared for all sizes)</Label>
-                <Input
-                  id="pricePerTon"
-                  type="number"
-                  step="0.01"
-                  value={formData.pricePerTon}
-                  onChange={(e) => setFormData({ ...formData, pricePerTon: e.target.value })}
-                  placeholder="850.00"
-                />
+                <Label htmlFor="pricePerTon">Price per Ton (shared for all sizes)</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <Input
+                    id="pricePerTon"
+                    type="number"
+                    step="0.01"
+                    value={formData.pricePerTon}
+                    onChange={(e) => setFormData({ ...formData, pricePerTon: e.target.value })}
+                    placeholder="850.00"
+                  />
+                  <Select 
+                    value={formData.currency} 
+                    onValueChange={(value) => setFormData({ ...formData, currency: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Currency" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="USD">USD ($)</SelectItem>
+                      <SelectItem value="EUR">EUR (€)</SelectItem>
+                      <SelectItem value="TRY">TRY (₺)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
 
