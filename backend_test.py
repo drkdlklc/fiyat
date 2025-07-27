@@ -1045,6 +1045,262 @@ class BackendTester:
         except requests.exceptions.RequestException as e:
             self.log_test("Update InsideOutsideSame Only", False, f"Connection error: {str(e)}")
 
+    def test_per_print_sheet_pricing_type(self):
+        """Test the new per_print_sheet pricing type functionality"""
+        try:
+            # Test 1: Create extra with per_print_sheet pricing type
+            test_extra = {
+                "name": "Test Per Print Sheet Extra",
+                "pricingType": "per_print_sheet",
+                "insideOutsideSame": False,
+                "supportsDoubleSided": False,
+                "variants": [
+                    {"variantName": "Basic Setup", "price": 1.5, "currency": "USD"},
+                    {"variantName": "Advanced Setup", "price": 2.8, "currency": "EUR"}
+                ]
+            }
+            
+            create_response = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if create_response.status_code == 200:
+                created_extra = create_response.json()
+                if (created_extra.get("pricingType") == "per_print_sheet" and
+                    created_extra.get("name") == test_extra["name"] and
+                    len(created_extra.get("variants", [])) == 2):
+                    self.log_test("Per Print Sheet Creation", True, f"Successfully created extra with per_print_sheet pricing type. ID: {created_extra.get('id')}")
+                    
+                    # Test 2: Update the extra to verify per_print_sheet pricing persists
+                    extra_id = created_extra.get("id")
+                    update_data = {
+                        "name": "Updated Per Print Sheet Extra"
+                    }
+                    
+                    update_response = requests.put(
+                        f"{self.api_url}/extras/{extra_id}",
+                        json=update_data,
+                        headers={"Content-Type": "application/json"},
+                        timeout=10
+                    )
+                    
+                    if update_response.status_code == 200:
+                        updated_extra = update_response.json()
+                        if (updated_extra.get("pricingType") == "per_print_sheet" and
+                            updated_extra.get("name") == update_data["name"]):
+                            self.log_test("Per Print Sheet Update", True, "Per print sheet pricing type preserved during update")
+                        else:
+                            self.log_test("Per Print Sheet Update", False, f"Pricing type not preserved: {updated_extra.get('pricingType')}")
+                    else:
+                        self.log_test("Per Print Sheet Update", False, f"Update failed: {update_response.status_code}")
+                        
+                    # Clean up
+                    requests.delete(f"{self.api_url}/extras/{extra_id}", timeout=10)
+                        
+                else:
+                    self.log_test("Per Print Sheet Creation", False, f"Invalid response structure: {created_extra}")
+            else:
+                self.log_test("Per Print Sheet Creation", False, f"HTTP {create_response.status_code}: {create_response.text}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Per Print Sheet Pricing Type", False, f"Connection error: {str(e)}")
+
+    def test_per_print_sheet_default_data(self):
+        """Test that the default data includes the new Print Sheet Setup extra with per_print_sheet pricing"""
+        try:
+            # Initialize data to ensure default extras exist
+            init_response = requests.post(f"{self.api_url}/initialize-data", timeout=10)
+            
+            # Get all extras
+            get_response = requests.get(f"{self.api_url}/extras", timeout=10)
+            
+            if get_response.status_code == 200:
+                extras = get_response.json()
+                print_sheet_extra = None
+                
+                # Find Print Sheet Setup extra
+                for extra in extras:
+                    if extra.get("name") == "Print Sheet Setup":
+                        print_sheet_extra = extra
+                        break
+                
+                if print_sheet_extra:
+                    # Verify it has per_print_sheet pricing type
+                    if print_sheet_extra.get("pricingType") == "per_print_sheet":
+                        # Verify it has the expected variants
+                        variants = print_sheet_extra.get("variants", [])
+                        if len(variants) == 2:
+                            variant_names = [v.get("variantName") for v in variants]
+                            expected_variants = ["Standard Setup", "Premium Setup"]
+                            
+                            if set(variant_names) == set(expected_variants):
+                                # Check variant prices and currencies
+                                standard_variant = next((v for v in variants if v.get("variantName") == "Standard Setup"), None)
+                                premium_variant = next((v for v in variants if v.get("variantName") == "Premium Setup"), None)
+                                
+                                if (standard_variant and standard_variant.get("price") == 2.5 and 
+                                    standard_variant.get("currency") == "USD" and
+                                    premium_variant and premium_variant.get("price") == 4.0 and
+                                    premium_variant.get("currency") == "EUR"):
+                                    self.log_test("Per Print Sheet Default Data", True, 
+                                                f"Print Sheet Setup extra properly initialized with per_print_sheet pricing and correct variants: Standard Setup (2.5 USD), Premium Setup (4.0 EUR)")
+                                else:
+                                    self.log_test("Per Print Sheet Default Data", False, 
+                                                f"Variant prices/currencies incorrect: Standard: {standard_variant}, Premium: {premium_variant}")
+                            else:
+                                self.log_test("Per Print Sheet Default Data", False, 
+                                            f"Expected variants {expected_variants}, got {variant_names}")
+                        else:
+                            self.log_test("Per Print Sheet Default Data", False, 
+                                        f"Expected 2 variants, got {len(variants)}")
+                    else:
+                        self.log_test("Per Print Sheet Default Data", False, 
+                                    f"Expected per_print_sheet pricing, got: {print_sheet_extra.get('pricingType')}")
+                else:
+                    self.log_test("Per Print Sheet Default Data", False, "Print Sheet Setup extra not found in default data")
+            else:
+                self.log_test("Per Print Sheet Default Data", False, f"Failed to retrieve extras: {get_response.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Per Print Sheet Default Data", False, f"Connection error: {str(e)}")
+
+    def test_per_print_sheet_model_validation(self):
+        """Test model validation for per_print_sheet pricing type"""
+        try:
+            # Test valid pricing types including per_print_sheet
+            valid_pricing_types = ["per_page", "per_booklet", "per_length", "per_print_sheet"]
+            
+            for pricing_type in valid_pricing_types:
+                test_extra = {
+                    "name": f"Test {pricing_type.replace('_', ' ').title()} Extra",
+                    "pricingType": pricing_type,
+                    "insideOutsideSame": False,
+                    "variants": [
+                        {"variantName": "Standard", "price": 1.0, "currency": "USD"}
+                    ]
+                }
+                
+                response = requests.post(
+                    f"{self.api_url}/extras",
+                    json=test_extra,
+                    headers={"Content-Type": "application/json"},
+                    timeout=10
+                )
+                
+                if response.status_code == 200:
+                    created_extra = response.json()
+                    if created_extra.get("pricingType") == pricing_type:
+                        # Clean up
+                        requests.delete(f"{self.api_url}/extras/{created_extra.get('id')}", timeout=10)
+                    else:
+                        self.log_test("Per Print Sheet Model Validation", False, 
+                                    f"Pricing type {pricing_type} not preserved correctly")
+                        return
+                else:
+                    self.log_test("Per Print Sheet Model Validation", False, 
+                                f"Failed to create extra with pricing type {pricing_type}: {response.status_code}")
+                    return
+            
+            self.log_test("Per Print Sheet Model Validation", True, 
+                        f"All pricing types validated successfully: {valid_pricing_types}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Per Print Sheet Model Validation", False, f"Connection error: {str(e)}")
+
+    def test_per_print_sheet_crud_operations(self):
+        """Test complete CRUD operations for extras with per_print_sheet pricing"""
+        try:
+            # CREATE
+            test_extra = {
+                "name": "CRUD Test Per Print Sheet",
+                "pricingType": "per_print_sheet",
+                "insideOutsideSame": False,
+                "supportsDoubleSided": False,
+                "variants": [
+                    {"variantName": "Basic", "price": 1.2, "currency": "USD"},
+                    {"variantName": "Premium", "price": 2.1, "currency": "EUR"}
+                ]
+            }
+            
+            create_response = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if create_response.status_code != 200:
+                self.log_test("Per Print Sheet CRUD Operations", False, "Failed to create test extra")
+                return
+            
+            created_extra = create_response.json()
+            extra_id = created_extra.get("id")
+            
+            # READ - Verify creation
+            get_response = requests.get(f"{self.api_url}/extras", timeout=10)
+            if get_response.status_code == 200:
+                all_extras = get_response.json()
+                found_extra = next((e for e in all_extras if e.get("id") == extra_id), None)
+                
+                if not found_extra or found_extra.get("pricingType") != "per_print_sheet":
+                    self.log_test("Per Print Sheet CRUD Operations", False, "Created extra not found or pricing type incorrect")
+                    return
+            
+            # UPDATE - Modify pricing type and variants
+            original_variants = created_extra.get("variants", [])
+            basic_variant_id = next((v.get("id") for v in original_variants if v.get("variantName") == "Basic"), None)
+            
+            update_data = {
+                "name": "Updated CRUD Test",
+                "variants": [
+                    {"id": basic_variant_id, "variantName": "Updated Basic", "price": 1.5, "currency": "USD"},
+                    {"variantName": "New Advanced", "price": 3.0, "currency": "TRY"}
+                ]
+            }
+            
+            update_response = requests.put(
+                f"{self.api_url}/extras/{extra_id}",
+                json=update_data,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if update_response.status_code == 200:
+                updated_extra = update_response.json()
+                updated_variants = updated_extra.get("variants", [])
+                
+                if (updated_extra.get("pricingType") == "per_print_sheet" and
+                    updated_extra.get("name") == "Updated CRUD Test" and
+                    len(updated_variants) == 2):
+                    
+                    updated_basic = next((v for v in updated_variants if v.get("id") == basic_variant_id), None)
+                    new_advanced = next((v for v in updated_variants if v.get("variantName") == "New Advanced"), None)
+                    
+                    if (updated_basic and updated_basic.get("variantName") == "Updated Basic" and
+                        updated_basic.get("price") == 1.5 and new_advanced and 
+                        new_advanced.get("price") == 3.0 and new_advanced.get("currency") == "TRY"):
+                        
+                        # DELETE - Clean up
+                        delete_response = requests.delete(f"{self.api_url}/extras/{extra_id}", timeout=10)
+                        
+                        if delete_response.status_code == 200:
+                            self.log_test("Per Print Sheet CRUD Operations", True, 
+                                        "Complete CRUD operations successful for per_print_sheet pricing type: Create → Read → Update (variants modified) → Delete")
+                        else:
+                            self.log_test("Per Print Sheet CRUD Operations", False, "Delete operation failed")
+                    else:
+                        self.log_test("Per Print Sheet CRUD Operations", False, f"Update verification failed: {updated_variants}")
+                else:
+                    self.log_test("Per Print Sheet CRUD Operations", False, f"Update failed: {updated_extra}")
+            else:
+                self.log_test("Per Print Sheet CRUD Operations", False, f"Update operation failed: {update_response.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Per Print Sheet CRUD Operations", False, f"Connection error: {str(e)}")
+
     def test_cover_calculation_logic(self):
         """Test the cover calculation logic for booklet mode using Node.js"""
         try:
