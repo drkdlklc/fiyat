@@ -641,10 +641,13 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
           // Calculate length based on binding edge (convert mm to cm)
           let edgeLength = 0;
           
+          console.log('=== PER_LENGTH CALCULATION START ===');
+          console.log('Raw job object:', job);
+          console.log('job.finalWidth:', job.finalWidth, 'type:', typeof job.finalWidth);
+          console.log('job.finalHeight:', job.finalHeight, 'type:', typeof job.finalHeight);
+          
           if (extra.applyToPrintSheet) {
             // Use print sheet dimensions when checkbox is checked
-            // This is a simplified estimation - in real implementation, this would need
-            // to be calculated based on the actual print sheet size being used
             if (job.isBookletMode) {
               // For booklet mode, estimate print sheet size (typical values)
               edgeLength = bookletSection === 'cover' ? 32.0 : 29.7; // SRA3 width/height in cm
@@ -652,33 +655,33 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
               // For normal mode, use typical print sheet size
               edgeLength = 32.0; // Default SRA3 width in cm
             }
+            console.log('Using print sheet dimensions. edgeLength:', edgeLength);
           } else {
             // Use page dimensions (existing logic)
             // Job object now always has valid dimensions (with A4 defaults)
             const validWidth = job.finalWidth;  // Already validated in job construction
             const validHeight = job.finalHeight; // Already validated in job construction
             
-            // Debug logging (will help us understand what's happening)
-            console.log('Edge calculation debug:', {
-              bookletSection,
-              lengthBasedEdge,
-              validWidth,
-              validHeight,
-              finalWidth: job.finalWidth,
-              finalHeight: job.finalHeight
-            });
+            console.log('=== PAGE DIMENSIONS CALCULATION ===');
+            console.log('validWidth:', validWidth, 'validHeight:', validHeight);
+            console.log('lengthBasedEdge:', lengthBasedEdge);
+            console.log('job.isBookletMode:', job.isBookletMode);
             
             if (job.isBookletMode) {
               // In booklet mode, use the passed binding edge parameter (which is already the correct edge for the section)
               edgeLength = lengthBasedEdge === 'short' ? validHeight / 10 : validWidth / 10; // mm to cm
+              console.log('Booklet mode calculation: lengthBasedEdge=', lengthBasedEdge, 'result=', edgeLength);
             } else {
               // In normal mode, use the passed binding edge parameter
               edgeLength = lengthBasedEdge === 'short' ? validHeight / 10 : validWidth / 10; // mm to cm
+              console.log('Normal mode calculation: lengthBasedEdge=', lengthBasedEdge, 'result=', edgeLength);
             }
           }
           
           // Ensure edgeLength is a valid number
+          const originalEdgeLength = edgeLength;
           edgeLength = isNaN(edgeLength) || edgeLength <= 0 ? 21.0 : edgeLength; // Default to 21cm (A4 width)
+          console.log('Final edgeLength after validation:', originalEdgeLength, '->', edgeLength);
           
           // Debug the final calculation
           console.log('Final edge calculation result:', {
@@ -690,6 +693,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
               edgeLength: extra.pricingType === 'per_length' ? edgeLength : 0
             }
           });
+          console.log('=== PER_LENGTH CALCULATION END ===');
           
           units = job.quantity;
           unitType = job.isBookletMode ? 'booklets' : 'units';
