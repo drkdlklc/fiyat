@@ -136,6 +136,7 @@ const MachineManager = ({ machines, onAddMachine, onUpdateMachine, onDeleteMachi
     setFormData({
       name: machine.name,
       setupCost: machine.setupCost.toString(),
+      setupCostCurrency: machine.setupCostCurrency || 'USD',
       printSheetSizes: machine.printSheetSizes
     });
     setEditingId(machine.id);
