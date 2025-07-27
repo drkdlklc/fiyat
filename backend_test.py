@@ -1853,6 +1853,420 @@ if (innerResult) {
         except requests.exceptions.RequestException as e:
             self.log_test("Invalid Endpoint Handling", False, f"Connection error: {str(e)}")
 
+    def test_currency_fields_in_default_data(self):
+        """Test that default data includes mixed currencies (USD, EUR, TRY)"""
+        try:
+            # Initialize data to ensure default data exists
+            init_response = requests.post(f"{self.api_url}/initialize-data", timeout=10)
+            
+            # Test paper types currencies
+            paper_response = requests.get(f"{self.api_url}/paper-types", timeout=10)
+            if paper_response.status_code == 200:
+                paper_types = paper_response.json()
+                currencies_found = set()
+                for paper in paper_types:
+                    currency = paper.get('currency')
+                    if currency:
+                        currencies_found.add(currency)
+                
+                expected_currencies = {'USD', 'EUR', 'TRY'}
+                if expected_currencies.issubset(currencies_found):
+                    self.log_test("Paper Types Currency Mix", True, f"Found expected currencies in paper types: {sorted(currencies_found)}")
+                else:
+                    missing = expected_currencies - currencies_found
+                    self.log_test("Paper Types Currency Mix", False, f"Missing currencies: {missing}. Found: {sorted(currencies_found)}")
+            else:
+                self.log_test("Paper Types Currency Mix", False, f"Failed to get paper types: {paper_response.status_code}")
+            
+            # Test machines currencies
+            machine_response = requests.get(f"{self.api_url}/machines", timeout=10)
+            if machine_response.status_code == 200:
+                machines = machine_response.json()
+                setup_currencies = set()
+                click_currencies = set()
+                
+                for machine in machines:
+                    setup_currency = machine.get('setupCostCurrency')
+                    if setup_currency:
+                        setup_currencies.add(setup_currency)
+                    
+                    for print_sheet in machine.get('printSheetSizes', []):
+                        click_currency = print_sheet.get('clickCostCurrency')
+                        if click_currency:
+                            click_currencies.add(click_currency)
+                
+                if expected_currencies.issubset(setup_currencies | click_currencies):
+                    self.log_test("Machine Currency Mix", True, f"Found expected currencies in machines - Setup: {sorted(setup_currencies)}, Click: {sorted(click_currencies)}")
+                else:
+                    all_machine_currencies = setup_currencies | click_currencies
+                    missing = expected_currencies - all_machine_currencies
+                    self.log_test("Machine Currency Mix", False, f"Missing currencies: {missing}. Found: Setup={sorted(setup_currencies)}, Click={sorted(click_currencies)}")
+            else:
+                self.log_test("Machine Currency Mix", False, f"Failed to get machines: {machine_response.status_code}")
+            
+            # Test extras currencies
+            extras_response = requests.get(f"{self.api_url}/extras", timeout=10)
+            if extras_response.status_code == 200:
+                extras = extras_response.json()
+                variant_currencies = set()
+                
+                for extra in extras:
+                    for variant in extra.get('variants', []):
+                        currency = variant.get('currency')
+                        if currency:
+                            variant_currencies.add(currency)
+                
+                if expected_currencies.issubset(variant_currencies):
+                    self.log_test("Extras Currency Mix", True, f"Found expected currencies in extras variants: {sorted(variant_currencies)}")
+                else:
+                    missing = expected_currencies - variant_currencies
+                    self.log_test("Extras Currency Mix", False, f"Missing currencies: {missing}. Found: {sorted(variant_currencies)}")
+            else:
+                self.log_test("Extras Currency Mix", False, f"Failed to get extras: {extras_response.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Currency Fields in Default Data", False, f"Connection error: {str(e)}")
+
+    def test_currency_field_validation(self):
+        """Test currency field validation and defaults"""
+        try:
+            # Test paper type without currency (should default to USD)
+            test_paper_no_currency = {
+                "name": "Test No Currency Paper",
+                "gsm": 80,
+                "pricePerTon": 900,
+                "stockSheetSizes": [
+                    {"id": 1, "name": "A4", "width": 210, "height": 297, "unit": "mm"}
+                ]
+            }
+            
+            paper_response = requests.post(
+                f"{self.api_url}/paper-types",
+                json=test_paper_no_currency,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if paper_response.status_code == 200:
+                created_paper = paper_response.json()
+                if created_paper.get('currency') == 'USD':
+                    self.log_test("Paper Type Currency Default", True, "Paper type defaults to USD when currency not provided")
+                    # Clean up
+                    requests.delete(f"{self.api_url}/paper-types/{created_paper.get('id')}", timeout=10)
+                else:
+                    self.log_test("Paper Type Currency Default", False, f"Expected USD default, got: {created_paper.get('currency')}")
+            else:
+                self.log_test("Paper Type Currency Default", False, f"Failed to create paper type: {paper_response.status_code}")
+            
+            # Test machine without currency (should default to USD)
+            test_machine_no_currency = {
+                "name": "Test No Currency Machine",
+                "setupCost": 50,
+                "printSheetSizes": [
+                    {
+                        "id": 1,
+                        "name": "A4",
+                        "width": 210,
+                        "height": 297,
+                        "clickCost": 0.05,
+                        "duplexSupport": False,
+                        "unit": "mm"
+                    }
+                ]
+            }
+            
+            machine_response = requests.post(
+                f"{self.api_url}/machines",
+                json=test_machine_no_currency,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if machine_response.status_code == 200:
+                created_machine = machine_response.json()
+                setup_currency = created_machine.get('setupCostCurrency')
+                print_sheets = created_machine.get('printSheetSizes', [])
+                click_currency = print_sheets[0].get('clickCostCurrency') if print_sheets else None
+                
+                if setup_currency == 'USD' and click_currency == 'USD':
+                    self.log_test("Machine Currency Default", True, "Machine defaults to USD when currencies not provided")
+                    # Clean up
+                    requests.delete(f"{self.api_url}/machines/{created_machine.get('id')}", timeout=10)
+                else:
+                    self.log_test("Machine Currency Default", False, f"Expected USD defaults, got: setup={setup_currency}, click={click_currency}")
+            else:
+                self.log_test("Machine Currency Default", False, f"Failed to create machine: {machine_response.status_code}")
+            
+            # Test extra variant without currency (should default to USD)
+            test_extra_no_currency = {
+                "name": "Test No Currency Extra",
+                "pricingType": "per_page",
+                "variants": [
+                    {"variantName": "No Currency Variant", "price": 0.15}
+                ]
+            }
+            
+            extra_response = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra_no_currency,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if extra_response.status_code == 200:
+                created_extra = extra_response.json()
+                variants = created_extra.get('variants', [])
+                if len(variants) > 0 and variants[0].get('currency') == 'USD':
+                    self.log_test("Extra Variant Currency Default", True, "Extra variant defaults to USD when currency not provided")
+                    # Clean up
+                    requests.delete(f"{self.api_url}/extras/{created_extra.get('id')}", timeout=10)
+                else:
+                    self.log_test("Extra Variant Currency Default", False, f"Expected USD default, got: {variants[0].get('currency') if variants else 'No variants'}")
+            else:
+                self.log_test("Extra Variant Currency Default", False, f"Failed to create extra: {extra_response.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Currency Field Validation", False, f"Connection error: {str(e)}")
+
+    def test_paper_type_crud_with_currency(self):
+        """Test paper type CRUD operations with currency field"""
+        try:
+            # CREATE - Test creating paper type with currency
+            test_paper = {
+                "name": "Test Currency Paper",
+                "gsm": 90,
+                "pricePerTon": 1500,
+                "currency": "EUR",
+                "stockSheetSizes": [
+                    {"id": 1, "name": "A4", "width": 210, "height": 297, "unit": "mm"}
+                ]
+            }
+            
+            create_response = requests.post(
+                f"{self.api_url}/paper-types",
+                json=test_paper,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if create_response.status_code == 200:
+                created_paper = create_response.json()
+                paper_id = created_paper.get('id')
+                
+                if (created_paper.get('currency') == 'EUR' and 
+                    created_paper.get('name') == test_paper['name']):
+                    self.log_test("Paper Type CREATE with Currency", True, f"Created paper type with EUR currency, ID: {paper_id}")
+                    
+                    # UPDATE - Test updating currency
+                    update_data = {"currency": "TRY", "pricePerTon": 45000}
+                    update_response = requests.put(
+                        f"{self.api_url}/paper-types/{paper_id}",
+                        json=update_data,
+                        headers={"Content-Type": "application/json"},
+                        timeout=10
+                    )
+                    
+                    if update_response.status_code == 200:
+                        updated_paper = update_response.json()
+                        if (updated_paper.get('currency') == 'TRY' and 
+                            updated_paper.get('pricePerTon') == 45000):
+                            self.log_test("Paper Type UPDATE Currency", True, f"Updated currency to TRY and price to 45000")
+                            
+                            # DELETE - Clean up
+                            delete_response = requests.delete(f"{self.api_url}/paper-types/{paper_id}", timeout=10)
+                            if delete_response.status_code == 200:
+                                self.log_test("Paper Type CRUD with Currency", True, "Complete CRUD operations with currency successful")
+                            else:
+                                self.log_test("Paper Type DELETE", False, f"Delete failed: {delete_response.status_code}")
+                        else:
+                            self.log_test("Paper Type UPDATE Currency", False, f"Update failed: {updated_paper}")
+                    else:
+                        self.log_test("Paper Type UPDATE Currency", False, f"Update request failed: {update_response.status_code}")
+                else:
+                    self.log_test("Paper Type CREATE with Currency", False, f"Create failed: {created_paper}")
+            else:
+                self.log_test("Paper Type CREATE with Currency", False, f"Create request failed: {create_response.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Paper Type CRUD with Currency", False, f"Connection error: {str(e)}")
+
+    def test_machine_crud_with_currency(self):
+        """Test machine CRUD operations with currency fields"""
+        try:
+            # CREATE - Test creating machine with currency fields
+            test_machine = {
+                "name": "Test Currency Machine",
+                "setupCost": 75,
+                "setupCostCurrency": "EUR",
+                "printSheetSizes": [
+                    {
+                        "id": 1,
+                        "name": "A3",
+                        "width": 297,
+                        "height": 420,
+                        "clickCost": 0.12,
+                        "clickCostCurrency": "EUR",
+                        "duplexSupport": True,
+                        "unit": "mm"
+                    }
+                ]
+            }
+            
+            create_response = requests.post(
+                f"{self.api_url}/machines",
+                json=test_machine,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if create_response.status_code == 200:
+                created_machine = create_response.json()
+                machine_id = created_machine.get('id')
+                
+                setup_currency = created_machine.get('setupCostCurrency')
+                print_sheets = created_machine.get('printSheetSizes', [])
+                click_currency = print_sheets[0].get('clickCostCurrency') if print_sheets else None
+                
+                if (setup_currency == 'EUR' and click_currency == 'EUR' and 
+                    created_machine.get('name') == test_machine['name']):
+                    self.log_test("Machine CREATE with Currency", True, f"Created machine with EUR currencies, ID: {machine_id}")
+                    
+                    # UPDATE - Test updating currencies
+                    update_data = {
+                        "setupCostCurrency": "USD",
+                        "printSheetSizes": [
+                            {
+                                "id": 1,
+                                "name": "A3",
+                                "width": 297,
+                                "height": 420,
+                                "clickCost": 0.10,
+                                "clickCostCurrency": "USD",
+                                "duplexSupport": True,
+                                "unit": "mm"
+                            }
+                        ]
+                    }
+                    
+                    update_response = requests.put(
+                        f"{self.api_url}/machines/{machine_id}",
+                        json=update_data,
+                        headers={"Content-Type": "application/json"},
+                        timeout=10
+                    )
+                    
+                    if update_response.status_code == 200:
+                        updated_machine = update_response.json()
+                        updated_setup_currency = updated_machine.get('setupCostCurrency')
+                        updated_print_sheets = updated_machine.get('printSheetSizes', [])
+                        updated_click_currency = updated_print_sheets[0].get('clickCostCurrency') if updated_print_sheets else None
+                        
+                        if (updated_setup_currency == 'USD' and updated_click_currency == 'USD'):
+                            self.log_test("Machine UPDATE Currency", True, f"Updated currencies to USD")
+                            
+                            # DELETE - Clean up
+                            delete_response = requests.delete(f"{self.api_url}/machines/{machine_id}", timeout=10)
+                            if delete_response.status_code == 200:
+                                self.log_test("Machine CRUD with Currency", True, "Complete CRUD operations with currency successful")
+                            else:
+                                self.log_test("Machine DELETE", False, f"Delete failed: {delete_response.status_code}")
+                        else:
+                            self.log_test("Machine UPDATE Currency", False, f"Update failed: setup={updated_setup_currency}, click={updated_click_currency}")
+                    else:
+                        self.log_test("Machine UPDATE Currency", False, f"Update request failed: {update_response.status_code}")
+                else:
+                    self.log_test("Machine CREATE with Currency", False, f"Create failed: setup={setup_currency}, click={click_currency}")
+            else:
+                self.log_test("Machine CREATE with Currency", False, f"Create request failed: {create_response.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Machine CRUD with Currency", False, f"Connection error: {str(e)}")
+
+    def test_extras_crud_with_currency(self):
+        """Test extras CRUD operations with currency field in variants"""
+        try:
+            # CREATE - Test creating extra with currency in variants
+            test_extra = {
+                "name": "Test Currency Extra",
+                "pricingType": "per_page",
+                "insideOutsideSame": False,
+                "supportsDoubleSided": True,
+                "variants": [
+                    {"variantName": "EUR Variant", "price": 0.25, "currency": "EUR"},
+                    {"variantName": "TRY Variant", "price": 8.5, "currency": "TRY"}
+                ]
+            }
+            
+            create_response = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if create_response.status_code == 200:
+                created_extra = create_response.json()
+                extra_id = created_extra.get('id')
+                variants = created_extra.get('variants', [])
+                
+                if len(variants) == 2:
+                    eur_variant = next((v for v in variants if v.get('currency') == 'EUR'), None)
+                    try_variant = next((v for v in variants if v.get('currency') == 'TRY'), None)
+                    
+                    if (eur_variant and try_variant and 
+                        eur_variant.get('price') == 0.25 and try_variant.get('price') == 8.5):
+                        self.log_test("Extras CREATE with Currency", True, f"Created extra with EUR and TRY variants, ID: {extra_id}")
+                        
+                        # UPDATE - Test updating variant currencies
+                        eur_variant_id = eur_variant.get('id')
+                        update_data = {
+                            "variants": [
+                                {"id": eur_variant_id, "variantName": "Updated EUR", "price": 0.30, "currency": "EUR"},
+                                {"variantName": "New USD Variant", "price": 0.28, "currency": "USD"}
+                            ]
+                        }
+                        
+                        update_response = requests.put(
+                            f"{self.api_url}/extras/{extra_id}",
+                            json=update_data,
+                            headers={"Content-Type": "application/json"},
+                            timeout=10
+                        )
+                        
+                        if update_response.status_code == 200:
+                            updated_extra = update_response.json()
+                            updated_variants = updated_extra.get('variants', [])
+                            
+                            if len(updated_variants) == 2:
+                                updated_eur = next((v for v in updated_variants if v.get('id') == eur_variant_id), None)
+                                new_usd = next((v for v in updated_variants if v.get('currency') == 'USD'), None)
+                                
+                                if (updated_eur and updated_eur.get('price') == 0.30 and 
+                                    new_usd and new_usd.get('price') == 0.28):
+                                    self.log_test("Extras UPDATE Currency", True, f"Updated variant currencies successfully")
+                                    
+                                    # DELETE - Clean up
+                                    delete_response = requests.delete(f"{self.api_url}/extras/{extra_id}", timeout=10)
+                                    if delete_response.status_code == 200:
+                                        self.log_test("Extras CRUD with Currency", True, "Complete CRUD operations with currency successful")
+                                    else:
+                                        self.log_test("Extras DELETE", False, f"Delete failed: {delete_response.status_code}")
+                                else:
+                                    self.log_test("Extras UPDATE Currency", False, f"Update verification failed: {updated_variants}")
+                            else:
+                                self.log_test("Extras UPDATE Currency", False, f"Expected 2 variants after update, got {len(updated_variants)}")
+                        else:
+                            self.log_test("Extras UPDATE Currency", False, f"Update request failed: {update_response.status_code}")
+                    else:
+                        self.log_test("Extras CREATE with Currency", False, f"Variant validation failed: EUR={eur_variant}, TRY={try_variant}")
+                else:
+                    self.log_test("Extras CREATE with Currency", False, f"Expected 2 variants, got {len(variants)}")
+            else:
+                self.log_test("Extras CREATE with Currency", False, f"Create request failed: {create_response.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Extras CRUD with Currency", False, f"Connection error: {str(e)}")
+
     def run_all_tests(self):
         """Run all backend tests"""
         print("🚀 Starting Backend API Tests")
