@@ -14,7 +14,8 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
   const [formData, setFormData] = useState({
     name: '',
     pricingType: 'per_page', // 'per_page', 'per_booklet', 'per_length'
-    price: ''
+    price: '',
+    insideOutsideSame: false
   });
   const { toast } = useToast();
 
