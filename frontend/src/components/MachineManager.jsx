@@ -183,15 +183,30 @@ const MachineManager = ({ machines, onAddMachine, onUpdateMachine, onDeleteMachi
                 />
               </div>
               <div>
-                <Label htmlFor="setupCost">Setup Cost ($)</Label>
-                <Input
-                  id="setupCost"
-                  type="number"
-                  step="0.01"
-                  value={formData.setupCost}
-                  onChange={(e) => setFormData({ ...formData, setupCost: e.target.value })}
-                  placeholder="45.00"
-                />
+                <Label htmlFor="setupCost">Setup Cost</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <Input
+                    id="setupCost"
+                    type="number"
+                    step="0.01"
+                    value={formData.setupCost}
+                    onChange={(e) => setFormData({ ...formData, setupCost: e.target.value })}
+                    placeholder="45.00"
+                  />
+                  <Select 
+                    value={formData.setupCostCurrency} 
+                    onValueChange={(value) => setFormData({ ...formData, setupCostCurrency: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Currency" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="USD">USD ($)</SelectItem>
+                      <SelectItem value="EUR">EUR (€)</SelectItem>
+                      <SelectItem value="TRY">TRY (₺)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
 
