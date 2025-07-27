@@ -30,10 +30,11 @@ function App() {
       // Initialize default data if needed
       await apiService.initializeData();
       
-      // Fetch paper types and machines
+      // Fetch paper types, machines, and extras
       await Promise.all([
         loadPaperTypes(),
-        loadMachines()
+        loadMachines(),
+        loadExtras()
       ]);
       
       setLoading(false);
