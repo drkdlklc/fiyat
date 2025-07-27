@@ -349,6 +349,18 @@ metadata:
   test_sequence: 1
   run_ui: false
 
+  - task: "Implement currency conversion to USD for all prices"
+    implemented: true
+    working: false
+    file: "frontend/src/components/PrintJobCalculator.jsx, frontend/src/utils/currencyConverter.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "USER REQUEST: Convert all prices to USD when different currencies are present. IMPLEMENTATION COMPLETED: Created currencyConverter.js utility with exchange rates for USD, EUR, TRY. Updated Total Booklet Cost Summary and Final Total Price sections to convert all prices to USD. Added (USD) labels and conversion indicators. Shows original currency when converted. Enhanced both booklet mode and normal mode displays with consistent USD pricing."
+
   - task: "Add extras to Total Booklet Cost Summary"
     implemented: true
     working: false
