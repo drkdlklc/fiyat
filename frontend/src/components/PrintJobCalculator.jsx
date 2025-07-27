@@ -1888,6 +1888,106 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                     </Button>
                   </div>
                 )}
+
+                {/* Final Total Price Section */}
+                {results && (
+                  <div className="mt-8 border-2 border-blue-200 rounded-lg bg-blue-50 p-6">
+                    <h2 className="text-2xl font-bold text-blue-800 mb-4 text-center flex items-center justify-center gap-2">
+                      <DollarSign size={24} />
+                      Final Total Price
+                    </h2>
+                    
+                    <div className="space-y-4">
+                      {results.job.isBookletMode ? (
+                        // Booklet Mode Total Breakdown
+                        <div className="space-y-3">
+                          {results.job.hasCover && results.coverResults && (
+                            <div className="flex justify-between items-center p-3 bg-green-50 rounded border border-green-200">
+                              <span className="font-semibold text-green-800">Cover Total Cost:</span>
+                              <span className="font-bold text-green-700">
+                                ${(results.coverResults.totalCost + 
+                                  (results.extrasResults?.coverExtras ? 
+                                    results.extrasResults.coverExtras.reduce((sum, extra) => sum + extra.totalCost, 0) : 0)
+                                ).toFixed(2)}
+                              </span>
+                            </div>
+                          )}
+                          
+                          {results.innerPagesResults && (
+                            <div className="flex justify-between items-center p-3 bg-orange-50 rounded border border-orange-200">
+                              <span className="font-semibold text-orange-800">Inner Pages Total Cost:</span>
+                              <span className="font-bold text-orange-700">
+                                ${(results.innerPagesResults.totalCost + 
+                                  (results.extrasResults?.innerExtras ? 
+                                    results.extrasResults.innerExtras.reduce((sum, extra) => sum + extra.totalCost, 0) : 0)
+                                ).toFixed(2)}
+                              </span>
+                            </div>
+                          )}
+                          
+                          <div className="flex justify-between items-center p-4 bg-blue-100 rounded-lg border-2 border-blue-300">
+                            <span className="text-xl font-bold text-blue-900">Grand Total:</span>
+                            <span className="text-2xl font-bold text-blue-800">
+                              ${((results.job.hasCover && results.coverResults ? results.coverResults.totalCost : 0) + 
+                                (results.innerPagesResults ? results.innerPagesResults.totalCost : 0) +
+                                (results.extrasResults?.coverExtras ? 
+                                  results.extrasResults.coverExtras.reduce((sum, extra) => sum + extra.totalCost, 0) : 0) +
+                                (results.extrasResults?.innerExtras ? 
+                                  results.extrasResults.innerExtras.reduce((sum, extra) => sum + extra.totalCost, 0) : 0)
+                              ).toFixed(2)}
+                            </span>
+                          </div>
+                          
+                          <div className="text-center text-sm text-gray-600 mt-3">
+                            <p>Price per booklet: ${(((results.job.hasCover && results.coverResults ? results.coverResults.totalCost : 0) + 
+                              (results.innerPagesResults ? results.innerPagesResults.totalCost : 0) +
+                              (results.extrasResults?.coverExtras ? 
+                                results.extrasResults.coverExtras.reduce((sum, extra) => sum + extra.totalCost, 0) : 0) +
+                              (results.extrasResults?.innerExtras ? 
+                                results.extrasResults.innerExtras.reduce((sum, extra) => sum + extra.totalCost, 0) : 0)) / 
+                              results.job.quantity).toFixed(4)}
+                            </p>
+                          </div>
+                        </div>
+                      ) : (
+                        // Normal Mode Total
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <span className="font-semibold text-gray-800">Print Job Cost:</span>
+                            <span className="font-bold text-gray-700">
+                              ${displayResults[0]?.totalCost.toFixed(2) || '0.00'}
+                            </span>
+                          </div>
+                          
+                          {results.extrasResults && results.extrasResults.length > 0 && (
+                            <div className="flex justify-between items-center p-3 bg-purple-50 rounded border border-purple-200">
+                              <span className="font-semibold text-purple-800">Extras Cost:</span>
+                              <span className="font-bold text-purple-700">
+                                ${results.extrasResults.reduce((sum, extra) => sum + extra.totalCost, 0).toFixed(2)}
+                              </span>
+                            </div>
+                          )}
+                          
+                          <div className="flex justify-between items-center p-4 bg-blue-100 rounded-lg border-2 border-blue-300">
+                            <span className="text-xl font-bold text-blue-900">Grand Total:</span>
+                            <span className="text-2xl font-bold text-blue-800">
+                              ${((displayResults[0]?.totalCost || 0) + 
+                                (results.extrasResults ? results.extrasResults.reduce((sum, extra) => sum + extra.totalCost, 0) : 0)
+                              ).toFixed(2)}
+                            </span>
+                          </div>
+                          
+                          <div className="text-center text-sm text-gray-600 mt-3">
+                            <p>Price per unit: ${(((displayResults[0]?.totalCost || 0) + 
+                              (results.extrasResults ? results.extrasResults.reduce((sum, extra) => sum + extra.totalCost, 0) : 0)) / 
+                              results.job.quantity).toFixed(4)}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </CardContent>
