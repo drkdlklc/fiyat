@@ -13,7 +13,7 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
-    pricingType: 'per_page', // 'per_page', 'per_booklet', 'per_length', 'per_print_sheet'
+    pricingType: 'per_page', // 'per_page', 'per_booklet', 'per_length'
     insideOutsideSame: false,
     supportsDoubleSided: false,
     variants: [{ variantName: '', price: '', currency: 'USD' }] // Array of variants with currency
