@@ -212,7 +212,7 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
               
               <div className="space-y-3">
                 {formData.variants.map((variant, index) => (
-                  <div key={index} className="grid grid-cols-2 gap-3 p-3 border rounded bg-white">
+                  <div key={index} className="grid grid-cols-3 gap-3 p-3 border rounded bg-white">
                     <div>
                       <Label>Variant Name</Label>
                       <Input
@@ -221,16 +221,32 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
                         placeholder="e.g., Standard, Premium, Matte"
                       />
                     </div>
+                    <div>
+                      <Label>Price ({getPricingTypeLabel(formData.pricingType)})</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={variant.price}
+                        onChange={(e) => updateVariant(index, 'price', e.target.value)}
+                        placeholder="0.00"
+                      />
+                    </div>
                     <div className="flex gap-2">
                       <div className="flex-1">
-                        <Label>Price ({getPricingTypeLabel(formData.pricingType)})</Label>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          value={variant.price}
-                          onChange={(e) => updateVariant(index, 'price', e.target.value)}
-                          placeholder="0.00"
-                        />
+                        <Label>Currency</Label>
+                        <Select 
+                          value={variant.currency || 'USD'} 
+                          onValueChange={(value) => updateVariant(index, 'currency', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Currency" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="USD">USD ($)</SelectItem>
+                            <SelectItem value="EUR">EUR (€)</SelectItem>
+                            <SelectItem value="TRY">TRY (₺)</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                       {formData.variants.length > 1 && (
                         <Button
