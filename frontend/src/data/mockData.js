@@ -673,6 +673,16 @@ export const calculateExtrasCost = (job, selectedExtras, extras, lengthBasedEdge
         const validWidth = parseFloat(job.finalWidth) || 210;  // Default to A4 width in mm
         const validHeight = parseFloat(job.finalHeight) || 297; // Default to A4 height in mm
         
+        // Debug logging
+        console.log('MockData edge calculation debug:', {
+          lengthBasedEdge,
+          validWidth,
+          validHeight,
+          finalWidth: job.finalWidth,
+          finalHeight: job.finalHeight,
+          bindingEdge: job.bindingEdge
+        });
+        
         if (job.isBookletMode) {
           // In booklet mode, use bound edge (convert mm to cm)
           edgeLength = job.bindingEdge === 'short' ? validHeight / 10 : validWidth / 10;
