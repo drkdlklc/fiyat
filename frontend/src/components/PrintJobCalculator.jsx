@@ -791,13 +791,13 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                             <SelectItem value="short">
                               <div className="flex flex-col">
                                 <span className="font-semibold">Short Edge Binding</span>
-                                <span className="text-xs text-gray-500">Bound on the short side (height) - Portrait cover</span>
+                                <span className="text-xs text-gray-500">Bound on the short side (height) - Landscape cover</span>
                               </div>
                             </SelectItem>
                             <SelectItem value="long">
                               <div className="flex flex-col">
                                 <span className="font-semibold">Long Edge Binding</span>
-                                <span className="text-xs text-gray-500">Bound on the long side (width) - Landscape cover</span>
+                                <span className="text-xs text-gray-500">Bound on the long side (width) - Portrait cover</span>
                               </div>
                             </SelectItem>
                           </SelectContent>
