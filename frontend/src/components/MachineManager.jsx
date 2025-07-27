@@ -30,13 +30,15 @@ const MachineManager = ({ machines, onAddMachine, onUpdateMachine, onDeleteMachi
     setFormData({
       name: '',
       setupCost: '',
+      setupCostCurrency: 'USD',
       printSheetSizes: []
     });
     setSheetSizeForm({
       name: '',
       width: '',
       height: '',
-      clickCost: ''
+      clickCost: '',
+      clickCostCurrency: 'USD'
     });
     setIsAdding(false);
     setEditingId(null);
