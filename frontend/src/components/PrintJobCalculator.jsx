@@ -598,7 +598,6 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
       let cost = 0;
       let units = 0;
       let unitType = '';
-      let edgeLength = 0;
       let basePrice = variant.price;
 
       // Apply double-sided multiplier if applicable
