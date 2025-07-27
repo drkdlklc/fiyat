@@ -1712,10 +1712,11 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                           <div key={index} className="flex items-center justify-between p-2 bg-white border rounded">
                             <span className="font-medium">
                               {extra?.name} - {selected.variantName}
+                              {selected.isDoubleSided && " (Double-Sided)"}
                             </span>
                             <div className="flex items-center gap-2">
                               <span className="text-sm text-gray-600">
-                                ${selected.price.toFixed(2)} per {
+                                ${selected.price.toFixed(2)}{selected.isDoubleSided && " x2"} per {
                                   extra?.pricingType === 'per_page' ? 'page' :
                                   extra?.pricingType === 'per_booklet' ? 'unit' :
                                   'cm'
