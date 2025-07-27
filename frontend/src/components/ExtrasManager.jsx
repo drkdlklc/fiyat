@@ -92,6 +92,7 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
       name: extra.name,
       pricingType: extra.pricingType,
       insideOutsideSame: extra.insideOutsideSame || false,
+      supportsDoubleSided: extra.supportsDoubleSided || false,
       variants: extra.variants?.map(v => ({
         id: v.id,
         variantName: v.variantName,
