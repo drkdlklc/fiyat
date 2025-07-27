@@ -970,6 +970,88 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
               </div>
             </div>
 
+            {/* Extras Section */}
+            <div className="p-4 border rounded-lg bg-purple-50">
+              <h3 className="font-semibold text-lg mb-3 text-purple-800 flex items-center gap-2">
+                <Award size={18} />
+                Extras & Finishing Options
+              </h3>
+              
+              <div className="space-y-3">
+                {extras.map((extra) => (
+                  <div key={extra.id} className="flex items-center justify-between p-3 border rounded bg-white">
+                    <div className="flex items-center space-x-3">
+                      <Checkbox
+                        id={`extra-${extra.id}`}
+                        checked={selectedExtras.some(se => se.extraId === extra.id)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedExtras([...selectedExtras, { extraId: extra.id }]);
+                          } else {
+                            setSelectedExtras(selectedExtras.filter(se => se.extraId !== extra.id));
+                          }
+                        }}
+                      />
+                      <div>
+                        <Label htmlFor={`extra-${extra.id}`} className="font-medium cursor-pointer">
+                          {extra.name}
+                        </Label>
+                        <p className="text-sm text-gray-600">
+                          ${extra.price.toFixed(2)} per {
+                            extra.pricingType === 'per_page' ? 'page' :
+                            extra.pricingType === 'per_booklet' ? (jobData.isBookletMode ? 'booklet' : 'unit') :
+                            'length (mm)'
+                          }
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {extra.pricingType === 'per_length' && !jobData.isBookletMode && 
+                     selectedExtras.some(se => se.extraId === extra.id) && (
+                      <div className="ml-4">
+                        <Label className="text-sm">Edge Selection:</Label>
+                        <Select 
+                          value={lengthBasedEdge} 
+                          onValueChange={setLengthBasedEdge}
+                        >
+                          <SelectTrigger className="w-32">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="long">Long Edge</SelectItem>
+                            <SelectItem value="short">Short Edge</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+                  </div>
+                ))}
+                
+                {extras.length === 0 && (
+                  <div className="text-center py-4 text-gray-500">
+                    <Award className="h-8 w-8 mx-auto mb-2 opacity-30" />
+                    <p>No extras available. Add some in the Extras tab.</p>
+                  </div>
+                )}
+                
+                {extras.length > 0 && selectedExtras.length === 0 && (
+                  <p className="text-sm text-purple-600">
+                    Select additional finishing options above to include in your cost calculation.
+                  </p>
+                )}
+                
+                {selectedExtras.some(se => {
+                  const extra = extras.find(e => e.id === se.extraId);
+                  return extra && extra.pricingType === 'per_length';
+                }) && jobData.isBookletMode && (
+                  <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded">
+                    <strong>Note:</strong> Length-based pricing in Booklet Mode uses the bound edge 
+                    ({jobData.bindingEdge === 'short' ? 'short edge (height)' : 'long edge (width)'}).
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div className="flex gap-2">
               <Button type="submit" className="flex items-center gap-2">
                 <Calculator size={16} />
