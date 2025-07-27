@@ -501,7 +501,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
       marginRight: parseFloat(jobData.marginRight),
       marginBottom: parseFloat(jobData.marginBottom),
       marginLeft: parseFloat(jobData.marginLeft),
-      quantity: parseInt(jobData.quantity),
+      quantity: parseInt(jobData.quantity) || 1, // Default to 1 if not set or invalid
       isDoubleSided: jobData.isDoubleSided,
       setupRequired: jobData.setupRequired,
       isBookletMode: jobData.isBookletMode,
@@ -510,6 +510,8 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
       totalPages: jobData.totalPages ? parseInt(jobData.totalPages) : 0,
       bindingEdge: jobData.bindingEdge // Add missing binding edge
     };
+    
+    console.log('Job object constructed with quantity:', job.quantity, 'from jobData.quantity:', jobData.quantity);
 
     let calculationResults;
     let coverResults = null;
