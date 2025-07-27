@@ -45,7 +45,8 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
     const extraData = {
       name: formData.name,
       pricingType: formData.pricingType,
-      price: parseFloat(formData.price)
+      price: parseFloat(formData.price),
+      insideOutsideSame: formData.insideOutsideSame
     };
 
     if (editingId) {
