@@ -423,11 +423,11 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
     if (job.isBookletMode) {
       // Booklet mode: separate cover and inner page extras
       const coverExtrasResults = job.hasCover && selectedCoverExtras.length > 0 
-        ? calculateExtrasCost(job, selectedCoverExtras, extras, coverBindingEdge, 'cover')
+        ? calculateVariantExtrasCost(job, selectedCoverExtras, coverBindingEdge, 'cover')
         : [];
       
       const innerExtrasResults = selectedInnerExtras.length > 0
-        ? calculateExtrasCost(job, selectedInnerExtras, extras, innerBindingEdge, 'inner')
+        ? calculateVariantExtrasCost(job, selectedInnerExtras, innerBindingEdge, 'inner')
         : [];
       
       // Handle consolidation of extras with insideOutsideSame flag
@@ -446,7 +446,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
     } else {
       // Normal mode: single extras calculation
       extrasResults = selectedExtras.length > 0
-        ? calculateExtrasCost(job, selectedExtras, extras, lengthBasedEdge)
+        ? calculateVariantExtrasCost(job, selectedExtras, lengthBasedEdge)
         : [];
     }
 
