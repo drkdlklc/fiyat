@@ -1131,8 +1131,8 @@ class BackendTester:
         except requests.exceptions.RequestException as e:
             self.log_test("ApplyToPrintSheet Field Validation", False, f"Connection error: {str(e)}")
 
-    def test_per_print_sheet_default_data(self):
-        """Test that the default data includes the new Print Sheet Setup extra with per_print_sheet pricing"""
+    def test_apply_to_print_sheet_default_data(self):
+        """Test that default data includes extras with applyToPrintSheet=True"""
         try:
             # Initialize data to ensure default extras exist
             init_response = requests.post(f"{self.api_url}/initialize-data", timeout=10)
@@ -1142,53 +1142,57 @@ class BackendTester:
             
             if get_response.status_code == 200:
                 extras = get_response.json()
-                print_sheet_extra = None
                 
-                # Find Print Sheet Setup extra
+                # Find extras that should have applyToPrintSheet=True
+                spiral_binding = None
+                print_sheet_processing = None
+                
                 for extra in extras:
-                    if extra.get("name") == "Print Sheet Setup":
-                        print_sheet_extra = extra
-                        break
+                    if extra.get("name") == "Spiral Binding":
+                        spiral_binding = extra
+                    elif extra.get("name") == "Print Sheet Processing":
+                        print_sheet_processing = extra
                 
-                if print_sheet_extra:
-                    # Verify it has per_print_sheet pricing type
-                    if print_sheet_extra.get("pricingType") == "per_print_sheet":
-                        # Verify it has the expected variants
-                        variants = print_sheet_extra.get("variants", [])
-                        if len(variants) == 2:
-                            variant_names = [v.get("variantName") for v in variants]
-                            expected_variants = ["Standard Setup", "Premium Setup"]
-                            
-                            if set(variant_names) == set(expected_variants):
-                                # Check variant prices and currencies
-                                standard_variant = next((v for v in variants if v.get("variantName") == "Standard Setup"), None)
-                                premium_variant = next((v for v in variants if v.get("variantName") == "Premium Setup"), None)
-                                
-                                if (standard_variant and standard_variant.get("price") == 2.5 and 
-                                    standard_variant.get("currency") == "USD" and
-                                    premium_variant and premium_variant.get("price") == 4.0 and
-                                    premium_variant.get("currency") == "EUR"):
-                                    self.log_test("Per Print Sheet Default Data", True, 
-                                                f"Print Sheet Setup extra properly initialized with per_print_sheet pricing and correct variants: Standard Setup (2.5 USD), Premium Setup (4.0 EUR)")
-                                else:
-                                    self.log_test("Per Print Sheet Default Data", False, 
-                                                f"Variant prices/currencies incorrect: Standard: {standard_variant}, Premium: {premium_variant}")
-                            else:
-                                self.log_test("Per Print Sheet Default Data", False, 
-                                            f"Expected variants {expected_variants}, got {variant_names}")
-                        else:
-                            self.log_test("Per Print Sheet Default Data", False, 
-                                        f"Expected 2 variants, got {len(variants)}")
+                results = []
+                
+                # Check Spiral Binding
+                if spiral_binding:
+                    if spiral_binding.get("applyToPrintSheet") == True:
+                        results.append("✅ Spiral Binding has applyToPrintSheet=True")
                     else:
-                        self.log_test("Per Print Sheet Default Data", False, 
-                                    f"Expected per_print_sheet pricing, got: {print_sheet_extra.get('pricingType')}")
+                        results.append(f"❌ Spiral Binding has applyToPrintSheet={spiral_binding.get('applyToPrintSheet')}, expected True")
                 else:
-                    self.log_test("Per Print Sheet Default Data", False, "Print Sheet Setup extra not found in default data")
+                    results.append("❌ Spiral Binding not found")
+                
+                # Check Print Sheet Processing
+                if print_sheet_processing:
+                    if print_sheet_processing.get("applyToPrintSheet") == True:
+                        results.append("✅ Print Sheet Processing has applyToPrintSheet=True")
+                    else:
+                        results.append(f"❌ Print Sheet Processing has applyToPrintSheet={print_sheet_processing.get('applyToPrintSheet')}, expected True")
+                else:
+                    results.append("❌ Print Sheet Processing not found")
+                
+                # Check that other extras have applyToPrintSheet=False
+                other_extras = [e for e in extras if e.get("name") not in ["Spiral Binding", "Print Sheet Processing"]]
+                for extra in other_extras:
+                    if extra.get("applyToPrintSheet") == False:
+                        results.append(f"✅ {extra.get('name')} has applyToPrintSheet=False")
+                    else:
+                        results.append(f"❌ {extra.get('name')} has applyToPrintSheet={extra.get('applyToPrintSheet')}, expected False")
+                
+                # Determine overall result
+                failed_results = [r for r in results if r.startswith("❌")]
+                if not failed_results:
+                    self.log_test("ApplyToPrintSheet Default Data", True, f"All default extras have correct applyToPrintSheet values. {len(results)} checks passed.")
+                else:
+                    self.log_test("ApplyToPrintSheet Default Data", False, f"Some extras have incorrect applyToPrintSheet values: {failed_results}")
+                    
             else:
-                self.log_test("Per Print Sheet Default Data", False, f"Failed to retrieve extras: {get_response.status_code}")
+                self.log_test("ApplyToPrintSheet Default Data", False, f"Failed to retrieve extras: {get_response.status_code}")
                 
         except requests.exceptions.RequestException as e:
-            self.log_test("Per Print Sheet Default Data", False, f"Connection error: {str(e)}")
+            self.log_test("ApplyToPrintSheet Default Data", False, f"Connection error: {str(e)}")
 
     def test_per_print_sheet_model_validation(self):
         """Test model validation for per_print_sheet pricing type"""
