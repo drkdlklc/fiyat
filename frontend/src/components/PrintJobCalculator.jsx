@@ -573,46 +573,6 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                       />
                       <p className="text-sm text-gray-500 mt-1">Must be multiple of 4 for proper booklet layout</p>
                     </div>
-                    
-                    <div>
-                      <Label htmlFor="bindingEdge" className="text-base font-semibold">Binding Edge Selection</Label>
-                      <div className="mt-2 p-3 border rounded-lg bg-yellow-50 border-yellow-200">
-                        <Select value={jobData.bindingEdge} onValueChange={(value) => setJobData({ ...jobData, bindingEdge: value })}>
-                          <SelectTrigger className="mb-2">
-                            <SelectValue placeholder="Choose which edge will be bound" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="short">
-                              <div className="flex flex-col">
-                                <span className="font-semibold">Short Edge Binding</span>
-                                <span className="text-xs text-gray-500">Bound on the short side (height) - Portrait</span>
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="long">
-                              <div className="flex flex-col">
-                                <span className="font-semibold">Long Edge Binding</span>
-                                <span className="text-xs text-gray-500">Bound on the long side (width) - Landscape</span>
-                              </div>
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                        
-                        <div className="mt-2 p-2 bg-blue-50 rounded text-sm">
-                          <p className="font-medium text-blue-800">
-                            {jobData.bindingEdge === 'short' 
-                              ? '📖 Short Edge: Books open like a standard portrait book' 
-                              : '📋 Long Edge: Books open like a landscape calendar or flip chart'
-                            }
-                          </p>
-                          <p className="text-blue-600 text-xs mt-1">
-                            Current selection: {jobData.bindingEdge === 'short' 
-                              ? `${jobData.height}mm edge will be bound` 
-                              : `${jobData.width}mm edge will be bound`
-                            }
-                          </p>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                   <div className="flex items-center space-x-2 mt-6">
                     <Checkbox
