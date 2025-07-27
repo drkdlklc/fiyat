@@ -810,13 +810,15 @@ class BackendTester:
             self.log_test("Complex CRUD Operations", False, f"Connection error: {str(e)}")
 
     def test_extras_inside_outside_same_field_validation(self):
-        """Test the insideOutsideSame field validation and optional behavior"""
+        """Test the insideOutsideSame field validation and optional behavior with variants"""
         try:
             # Test 1: Create extra without insideOutsideSame field (should default to False)
             test_extra_no_field = {
                 "name": "Test No Field Extra",
                 "pricingType": "per_page",
-                "price": 0.30
+                "variants": [
+                    {"variantName": "Standard", "price": 0.30}
+                ]
             }
             
             response1 = requests.post(
@@ -839,8 +841,10 @@ class BackendTester:
             test_extra_true = {
                 "name": "Test True Field Extra",
                 "pricingType": "per_booklet",
-                "price": 5.00,
-                "insideOutsideSame": True
+                "insideOutsideSame": True,
+                "variants": [
+                    {"variantName": "Standard", "price": 5.00}
+                ]
             }
             
             response2 = requests.post(
@@ -863,8 +867,10 @@ class BackendTester:
             test_extra_false = {
                 "name": "Test False Field Extra",
                 "pricingType": "per_length",
-                "price": 0.12,
-                "insideOutsideSame": False
+                "insideOutsideSame": False,
+                "variants": [
+                    {"variantName": "Standard", "price": 0.12}
+                ]
             }
             
             response3 = requests.post(
