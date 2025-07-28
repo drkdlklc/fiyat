@@ -349,6 +349,21 @@ metadata:
   test_sequence: 1
   run_ui: false
 
+  - task: "Convert all display prices to EUR with live exchange rates"
+    implemented: true
+    working: false
+    file: "frontend/src/components/PrintJobCalculator.jsx"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "USER REQUEST: All prices in display section should be shown in EUR, regardless of original input currency. Ensure all amounts converted to EUR using latest exchange rates before display."
+      - working: false
+        agent: "main"
+        comment: "COMPREHENSIVE CURRENCY DISPLAY FIX COMPLETED: (1) Updated convertResultsCostsToEUR helper function with enhanced logging to properly handle already-converted EUR values from calculation functions. (2) Fixed all hardcoded dollar signs in variant price displays - now use convertToEURSync for proper conversion. (3) Updated all selected price displays to show EUR with conversion. (4) Fixed paper price displays to show EUR conversion. (5) Updated all extras pricing displays (per_page, per_booklet, per_length) to use EUR with proper currency conversion. (6) Added comprehensive debug logging to track currency conversions. All prices now consistently displayed in EUR regardless of original input currency."
+
   - task: "Update calculation logic to use separate binding edges for cover and inner pages"
     implemented: true
     working: false
