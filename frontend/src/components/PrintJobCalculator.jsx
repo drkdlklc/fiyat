@@ -2452,7 +2452,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                                 </div>
                               </div>
                               <div className="text-right">
-                                <span className="font-semibold text-green-600">${extra.totalCost.toFixed(2)}</span>
+                                <span className="font-semibold text-green-600">€{convertToEURSync(extra.totalCost, extra.originalPrice?.currency || 'EUR').toFixed(2)}</span>
                               </div>
                             </div>
                           ))}
