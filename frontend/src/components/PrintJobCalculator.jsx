@@ -2042,7 +2042,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                               <SelectContent>
                                 {extras.find(e => e.id === parseInt(selectedInnerExtraId))?.variants?.map((variant) => (
                                   <SelectItem key={variant.id} value={variant.id.toString()}>
-                                    {variant.variantName} - ${variant.price.toFixed(2)}
+                                    {variant.variantName} - €{convertToEURSync(variant.price, variant.currency || 'EUR').toFixed(2)}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
