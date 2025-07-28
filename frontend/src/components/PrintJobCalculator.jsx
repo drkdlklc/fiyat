@@ -158,6 +158,20 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
     }
   }, [jobData.bindingEdge]);
 
+  // Update main binding edge when cover binding edge changes (for booklet mode)
+  const handleCoverBindingEdgeChange = (value) => {
+    setCoverBindingEdge(value);
+    setJobData({ ...jobData, bindingEdge: value });
+    console.log('Cover binding edge changed, updating main binding edge to:', value);
+  };
+
+  // Update main binding edge when inner binding edge changes (for booklet mode) 
+  const handleInnerBindingEdgeChange = (value) => {
+    setInnerBindingEdge(value);
+    setJobData({ ...jobData, bindingEdge: value });
+    console.log('Inner binding edge changed, updating main binding edge to:', value);
+  };
+
   // Alternative PDF Generation Function using html2canvas + jsPDF
   const generatePDFAlternative = async () => {
     if (!results || !resultsRef.current) {
