@@ -1737,6 +1737,45 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
               </div>
             </div>
 
+            {/* Main Binding Edge Selection - applies to all calculations */}
+            <div className="p-4 border rounded-lg bg-blue-50 border-blue-200">
+              <Label className="text-base font-semibold mb-2 block">Binding Edge</Label>
+              <Select 
+                value={jobData.bindingEdge} 
+                onValueChange={(value) => setJobData({ ...jobData, bindingEdge: value })}
+              >
+                <SelectTrigger className="mb-2">
+                  <SelectValue placeholder="Choose which edge will be bound" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="short">
+                    <div className="flex flex-col">
+                      <span className="font-medium">Short Edge ({jobData.finalHeight}mm)</span>
+                      <span className="text-sm text-gray-500">📖 Opens like a standard book</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="long">
+                    <div className="flex flex-col">
+                      <span className="font-medium">Long Edge ({jobData.finalWidth}mm)</span>
+                      <span className="text-sm text-gray-500">📋 Opens like a calendar or flip chart</span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-blue-600 text-xs mt-1">
+                {jobData.bindingEdge === 'short' 
+                  ? '📖 Bound on the short edge - opens like a standard book' 
+                  : '📋 Bound on the long edge - opens like a calendar or flip chart'
+                }
+              </p>
+              <p className="text-blue-600 text-xs mt-1">
+                Binding edge: {jobData.bindingEdge === 'short' 
+                  ? `${jobData.finalHeight}mm edge will be bound` 
+                  : `${jobData.finalWidth}mm edge will be bound`
+                }
+              </p>
+            </div>
+
             {/* Binding Edge Selection for Normal Mode */}
             {!jobData.isBookletMode && (
               <div className="p-4 border rounded-lg bg-yellow-50 border-yellow-200">
