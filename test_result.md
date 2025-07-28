@@ -349,6 +349,24 @@ metadata:
   test_sequence: 1
   run_ui: false
 
+  - task: "Update calculation logic to use separate binding edges for cover and inner pages"
+    implemented: true
+    working: false
+    file: "frontend/src/data/mockData.js, frontend/src/components/PrintJobCalculator.jsx"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "USER REPORTED: UI correctly allows selecting different binding edges for inner pages and cover, but calculation logic still treats both as sharing same binding edge. Need to update calculations to use selected binding edge separately for each section."
+      - working: false
+        agent: "main"
+        comment: "ROOT CAUSE: calculateCoverCost() and calculateInnerPagesCost() functions were using job.bindingEdge instead of section-specific binding edges. Functions weren't accepting binding edge parameters."
+      - working: false
+        agent: "main"
+        comment: "IMPLEMENTATION COMPLETED: Updated calculateCoverCost() to accept coverBindingEdge parameter. Updated calculateInnerPagesCost() to accept innerBindingEdge parameter. Fixed long edge binding calculation logic. Added debug logging to track binding edge usage. Updated function calls in PrintJobCalculator to pass coverBindingEdge and innerBindingEdge respectively. Cover and inner page calculations now use their own independent binding edges."
+
   - task: "Enable independent binding edges for cover and inner pages in booklet mode"
     implemented: true
     working: false
