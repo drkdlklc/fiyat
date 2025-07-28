@@ -428,7 +428,10 @@ export const calculateCoverCost = (job, coverPaperType, coverMachine, coverBindi
   return bestCoverOption;
 };
 
-export const calculateInnerPagesCost = (job, innerPaperType, innerMachine) => {
+// Calculate inner pages cost with specific binding edge
+export const calculateInnerPagesCost = (job, innerPaperType, innerMachine, innerBindingEdge = 'short') => {
+  console.log('calculateInnerPagesCost called with:', { innerBindingEdge });
+  
   if (!job.isBookletMode || !innerPaperType || !innerMachine) {
     return null;
   }
@@ -454,10 +457,19 @@ export const calculateInnerPagesCost = (job, innerPaperType, innerMachine) => {
   // Long edge binding: double the width (long edge) 
   let effectiveWidth, effectiveHeight;
   
-  if (job.bindingEdge === 'short') {
+  console.log('Inner pages binding edge calculation:', { innerBindingEdge, finalWidth: job.finalWidth, finalHeight: job.finalHeight });
+  
+  if (innerBindingEdge === 'short') {
     // Short edge binding: double the height (short edge)
     effectiveWidth = job.finalWidth;
     effectiveHeight = job.finalHeight * 2; // Double the binding edge dimension
+    console.log('Short edge binding - doubled height:', { effectiveWidth, effectiveHeight });
+  } else {
+    // Long edge binding: double the width (long edge)
+    effectiveWidth = job.finalWidth * 2; // Double the binding edge dimension  
+    effectiveHeight = job.finalHeight; // Use height as height
+    console.log('Long edge binding - doubled width:', { effectiveWidth, effectiveHeight });
+  }
   } else {
     // Long edge binding: double the width (long edge)
     effectiveWidth = job.finalHeight; // Use height as width
