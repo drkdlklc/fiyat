@@ -349,6 +349,21 @@ metadata:
   test_sequence: 1
   run_ui: false
 
+  - task: "Enable independent binding edges for cover and inner pages in booklet mode"
+    implemented: true
+    working: false
+    file: "frontend/src/components/PrintJobCalculator.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "USER REQUEST: In Booklet Mode, inner pages and cover should be allowed to have different binding edges. Support selecting separate binding edges - e.g. inner pages on short edge while cover on long edge."
+      - working: false
+        agent: "main"
+        comment: "IMPLEMENTATION COMPLETED: Removed forced synchronization between cover and inner binding edges. Made coverBindingEdge and innerBindingEdge completely independent. Added main binding edge control only for normal mode. Added purple info box explaining independent binding edges in booklet mode. Updated UI labels to show '(Independent)' and added check marks. Cover and inner pages can now have different binding edges as requested."
+
   - task: "Fix binding edge not applied correctly in booklet mode"
     implemented: true
     working: false
