@@ -349,6 +349,24 @@ metadata:
   test_sequence: 1
   run_ui: false
 
+  - task: "Fix binding edge not applied correctly in booklet mode"
+    implemented: true
+    working: false
+    file: "frontend/src/components/PrintJobCalculator.jsx"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "USER REPORTED: In Booklet Mode, even when selecting long edge binding, the system still performs calculations as if it were short edge binding. The selected binding edge is not being applied correctly - always defaults to short edge."
+      - working: false
+        agent: "main"
+        comment: "ROOT CAUSE IDENTIFIED: Missing main binding edge control in UI. The jobData.bindingEdge was set to default 'short' but never updated by user interaction. Booklet mode used separate coverBindingEdge/innerBindingEdge controls that defaulted to 'short' and weren't synchronized with user's main binding edge selection."
+      - working: false
+        agent: "main" 
+        comment: "IMPLEMENTATION COMPLETED: Added main binding edge control to form that updates jobData.bindingEdge. Added synchronization logic to update coverBindingEdge/innerBindingEdge when main binding edge changes. Added handlers to update main binding edge when cover/inner edges change. Added debugging console logs to track binding edge propagation."
+
   - task: "Fix incorrect exchange rates calculation"
     implemented: true
     working: true
