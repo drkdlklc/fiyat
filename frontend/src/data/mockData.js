@@ -316,7 +316,10 @@ export const calculatePaperCost = (weightKg, pricePerTon, currency = 'EUR') => {
   return convertToEURSync(baseCost, currency);
 };
 
-export const calculateCoverCost = (job, coverPaperType, coverMachine) => {
+// Calculate cover cost with specific binding edge
+export const calculateCoverCost = (job, coverPaperType, coverMachine, coverBindingEdge = 'short') => {
+  console.log('calculateCoverCost called with:', { coverBindingEdge });
+  
   if (!job.isBookletMode || !coverPaperType || !coverMachine) {
     return null;
   }
@@ -330,14 +333,19 @@ export const calculateCoverCost = (job, coverPaperType, coverMachine) => {
   // The length of the selected binding edge should be doubled (cover wraps around)
   let effectiveWidth, effectiveHeight;
   
-  if (job.bindingEdge === 'short') {
+  console.log('Cover binding edge calculation:', { coverBindingEdge, finalWidth: job.finalWidth, finalHeight: job.finalHeight });
+  
+  if (coverBindingEdge === 'short') {
     // Short edge binding: double the height (short edge)
     effectiveWidth = job.finalWidth;
     effectiveHeight = job.finalHeight * 2; // Double the binding edge dimension
+    console.log('Short edge binding - doubled height:', { effectiveWidth, effectiveHeight });
   } else {
     // Long edge binding: double the width (long edge)
-    effectiveWidth = job.finalHeight; // Use height as width
-    effectiveHeight = job.finalWidth * 2; // Double the width, use as height
+    effectiveWidth = job.finalWidth * 2; // Double the binding edge dimension
+    effectiveHeight = job.finalHeight; // Use height as height
+    console.log('Long edge binding - doubled width:', { effectiveWidth, effectiveHeight });
+  }
   }
   
   // Find the best stock sheet size for the cover
