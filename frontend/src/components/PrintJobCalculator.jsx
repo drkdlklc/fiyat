@@ -1387,6 +1387,9 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                               : `${jobData.finalWidth}mm edge will be bound`
                             }
                           </p>
+                          <p className="text-green-500 text-xs mt-1 font-medium">
+                            ✓ Independent from inner pages binding edge
+                          </p>
                         </div>
                       </div>
                     </div>
