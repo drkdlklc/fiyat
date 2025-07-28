@@ -2932,7 +2932,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                         </div>
                         <div>
                           <span className="font-medium text-gray-700">Click Cost:</span>
-                          <p className="text-sm font-semibold text-blue-600">${result.clickCost.toFixed(2)}</p>
+                          <p className="text-sm font-semibold text-blue-600">€{result.clickCost.toFixed(2)}</p>
                         </div>
                         <div>
                           <span className="font-medium text-gray-700">Total Cost:</span>
