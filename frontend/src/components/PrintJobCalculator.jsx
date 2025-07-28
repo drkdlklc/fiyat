@@ -613,7 +613,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
       if (job.hasCover && selectedCoverPaperType && selectedCoverMachine) {
         const coverPaperType = paperTypes.find(p => p.id === selectedCoverPaperType);
         const coverMachine = machines.find(m => m.id === selectedCoverMachine);
-        coverResults = calculateCoverCost(job, coverPaperType, coverMachine);
+        coverResults = calculateCoverCost(job, coverPaperType, coverMachine, coverBindingEdge);
       }
       
       // Handle multi-part inner pages
