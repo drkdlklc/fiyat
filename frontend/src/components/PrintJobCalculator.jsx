@@ -2837,7 +2837,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                     <div className="grid grid-cols-2 gap-4 pt-4 border-t bg-gray-50 p-4 rounded-lg">
                       <div>
                         <span className="font-bold text-xl text-gray-800">Total Multi-Part Cost:</span>
-                        <p className="text-2xl font-bold text-purple-600">${results.multiPartResults.totalCost.toFixed(2)}</p>
+                        <p className="text-2xl font-bold text-purple-600">€{results.multiPartResults.totalCost.toFixed(2)}</p>
                       </div>
                       <div>
                         <span className="font-bold text-xl text-gray-800">Average Cost per Unit:</span>
