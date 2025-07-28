@@ -149,6 +149,15 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
     return () => clearInterval(interval);
   }, []);
 
+  // Synchronize binding edge states with main binding edge setting
+  useEffect(() => {
+    if (jobData.bindingEdge) {
+      setCoverBindingEdge(jobData.bindingEdge);
+      setInnerBindingEdge(jobData.bindingEdge);
+      console.log('Synchronized binding edges to:', jobData.bindingEdge);
+    }
+  }, [jobData.bindingEdge]);
+
   // Alternative PDF Generation Function using html2canvas + jsPDF
   const generatePDFAlternative = async () => {
     if (!results || !resultsRef.current) {
