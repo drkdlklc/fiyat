@@ -1530,7 +1530,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                   <div className="mt-4">
                     <Label htmlFor="innerBindingEdge" className="text-base font-semibold">Inner Pages Binding Edge</Label>
                     <div className="mt-2 p-3 border rounded-lg bg-orange-100 border-orange-300">
-                      <Select value={innerBindingEdge} onValueChange={setInnerBindingEdge}>
+                      <Select value={innerBindingEdge} onValueChange={handleInnerBindingEdgeChange}>
                         <SelectTrigger className="mb-2">
                           <SelectValue placeholder="Choose which edge will be bound for inner pages" />
                         </SelectTrigger>
