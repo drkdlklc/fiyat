@@ -149,14 +149,14 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
     return () => clearInterval(interval);
   }, []);
 
-  // Synchronize binding edge states with main binding edge setting
+  // Update main binding edge when not in booklet mode 
   useEffect(() => {
-    if (jobData.bindingEdge) {
-      setCoverBindingEdge(jobData.bindingEdge);
-      setInnerBindingEdge(jobData.bindingEdge);
-      console.log('Synchronized binding edges to:', jobData.bindingEdge);
+    if (!jobData.isBookletMode && jobData.bindingEdge) {
+      // In normal mode, sync the extras binding edge with main binding edge
+      setLengthBasedEdge(jobData.bindingEdge);
+      console.log('Normal mode: synchronized extras binding edge to:', jobData.bindingEdge);
     }
-  }, [jobData.bindingEdge]);
+  }, [jobData.bindingEdge, jobData.isBookletMode]);
 
   // Update main binding edge when cover binding edge changes (for booklet mode)
   const handleCoverBindingEdgeChange = (value) => {
