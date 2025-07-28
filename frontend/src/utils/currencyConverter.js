@@ -148,8 +148,7 @@ export const convertExtraCostToEUR = async (extra, customRates = null) => {
   return basePrice * (extra.units || 0) * (extra.edgeLength || 1);
 };
 
-// Initialize exchange rates on module load
-fetchExchangeRates().catch(console.error);
+// Exchange rates will be initialized by components as needed
 
 export default {
   convertToEUR,
