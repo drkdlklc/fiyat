@@ -628,7 +628,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
         if (!job.hasCover) {
           modifiedJob.totalPages = job.totalPages; // All pages are inner pages
         }
-        innerPagesResults = calculateInnerPagesCost(modifiedJob, innerPaperType, innerMachine);
+        innerPagesResults = calculateInnerPagesCost(modifiedJob, innerPaperType, innerMachine, innerBindingEdge);
       }
       
       // For booklet mode, we don't use the normal calculation results
