@@ -138,13 +138,28 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
   const [showOptimalOnly, setShowOptimalOnly] = useState(true);
   const { toast } = useToast();
 
-  // Fetch exchange rates on component mount
+  // Fetch exchange rates on component mount (non-blocking)
   useEffect(() => {
     const initializeExchangeRates = async () => {
       try {
-        const rates = await fetchExchangeRates();
-        setExchangeRates(rates);
-        console.log('Exchange rates initialized:', rates);
+        // Set default fallback rates immediately
+        setExchangeRates({
+          'EUR': 1.0,
+          'USD': 0.95,
+          'TRY': 0.028
+        });
+        
+        // Fetch live rates in background (non-blocking)
+        fetchExchangeRates()
+          .then(rates => {
+            setExchangeRates(rates);
+            console.log('Live exchange rates loaded:', rates);
+          })
+          .catch(error => {
+            console.warn('Failed to load live exchange rates, using fallback:', error);
+          });
+        
+        console.log('Exchange rates initialized with fallback values');
       } catch (error) {
         console.warn('Failed to initialize exchange rates:', error);
       }
@@ -152,8 +167,12 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
     
     initializeExchangeRates();
     
-    // Refresh rates every 5 minutes
-    const interval = setInterval(initializeExchangeRates, 5 * 60 * 1000);
+    // Refresh rates every 5 minutes (non-blocking)
+    const interval = setInterval(() => {
+      fetchExchangeRates()
+        .then(rates => setExchangeRates(rates))
+        .catch(error => console.warn('Failed to refresh exchange rates:', error));
+    }, 5 * 60 * 1000);
     
     return () => clearInterval(interval);
   }, []);
