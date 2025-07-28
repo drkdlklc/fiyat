@@ -2642,7 +2642,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                           </div>
                           <div>
                             <span className="font-medium text-gray-700">Setup Cost:</span>
-                            <p className="text-sm">${part.setupCost.toFixed(2)}</p>
+                            <p className="text-sm">€{part.setupCost.toFixed(2)}</p>
                           </div>
                           <div>
                             <span className="font-medium text-gray-700">Part Total:</span>
