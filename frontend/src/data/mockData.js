@@ -470,11 +470,6 @@ export const calculateInnerPagesCost = (job, innerPaperType, innerMachine, inner
     effectiveHeight = job.finalHeight; // Use height as height
     console.log('Long edge binding - doubled width:', { effectiveWidth, effectiveHeight });
   }
-  } else {
-    // Long edge binding: double the width (long edge)
-    effectiveWidth = job.finalHeight; // Use height as width
-    effectiveHeight = job.finalWidth * 2; // Double the width, use as height
-  }
   
   // Find the best stock sheet size for inner pages
   let bestInnerOption = null;
