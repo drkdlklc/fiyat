@@ -1355,7 +1355,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                     <div className="mt-4">
                       <Label htmlFor="coverBindingEdge" className="text-base font-semibold">Cover Binding Edge</Label>
                       <div className="mt-2 p-3 border rounded-lg bg-green-100 border-green-300">
-                        <Select value={coverBindingEdge} onValueChange={setCoverBindingEdge}>
+                        <Select value={coverBindingEdge} onValueChange={handleCoverBindingEdgeChange}>
                           <SelectTrigger className="mb-2">
                             <SelectValue placeholder="Choose which edge will be bound for the cover" />
                           </SelectTrigger>
