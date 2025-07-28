@@ -24,41 +24,50 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
     let coverExtrasEUR = 0;
     let innerExtrasEUR = 0;
 
-    // Convert cover costs to EUR
+    // Convert cover costs to EUR - calculation functions already return EUR values
     if (results.coverResults) {
-      // For now, assume cover results are already in EUR or get currency from selected paper/machine
-      // This would need access to the selected cover paper type and machine for accurate conversion
-      coverCostEUR = results.coverResults.totalCost; // TODO: Add proper currency conversion
+      // The calculation functions already convert everything to EUR, so no additional conversion needed
+      coverCostEUR = results.coverResults.totalCost;
+      console.log('Cover cost already in EUR:', coverCostEUR);
     }
 
-    // Convert inner pages costs to EUR  
+    // Convert inner pages costs to EUR - calculation functions already return EUR values
     if (results.innerPagesResults) {
-      innerCostEUR = results.innerPagesResults.totalCost; // TODO: Add proper currency conversion
+      innerCostEUR = results.innerPagesResults.totalCost;
+      console.log('Inner pages cost already in EUR:', innerCostEUR);
     } else if (results.multiPartResults) {
-      innerCostEUR = results.multiPartResults.totalCost; // TODO: Add proper currency conversion
+      innerCostEUR = results.multiPartResults.totalCost;
+      console.log('Multi-part cost already in EUR:', innerCostEUR);
     }
 
     // Convert extras costs to EUR
     if (results.extrasResults?.coverExtras) {
       coverExtrasEUR = results.extrasResults.coverExtras.reduce((sum, extra) => {
         const currency = extra.originalPrice?.currency || 'EUR';
-        return sum + convertToEURSync(extra.totalCost, currency);
+        const convertedCost = convertToEURSync(extra.totalCost, currency);
+        console.log(`Cover extra ${extra.extraName} converted from ${currency}: ${extra.totalCost} -> ${convertedCost} EUR`);
+        return sum + convertedCost;
       }, 0);
     }
 
     if (results.extrasResults?.innerExtras) {
       innerExtrasEUR = results.extrasResults.innerExtras.reduce((sum, extra) => {
         const currency = extra.originalPrice?.currency || 'EUR';
-        return sum + convertToEURSync(extra.totalCost, currency);
+        const convertedCost = convertToEURSync(extra.totalCost, currency);
+        console.log(`Inner extra ${extra.extraName} converted from ${currency}: ${extra.totalCost} -> ${convertedCost} EUR`);
+        return sum + convertedCost;
       }, 0);
     }
+
+    const totalEUR = coverCostEUR + innerCostEUR + coverExtrasEUR + innerExtrasEUR;
+    console.log('Total EUR breakdown:', { coverCostEUR, innerCostEUR, coverExtrasEUR, innerExtrasEUR, totalEUR });
 
     return {
       coverCostEUR,
       innerCostEUR, 
       coverExtrasEUR,
       innerExtrasEUR,
-      totalEUR: coverCostEUR + innerCostEUR + coverExtrasEUR + innerExtrasEUR
+      totalEUR
     };
   };
   const resultsRef = useRef(null);
