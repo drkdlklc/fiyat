@@ -346,7 +346,6 @@ export const calculateCoverCost = (job, coverPaperType, coverMachine, coverBindi
     effectiveHeight = job.finalHeight; // Use height as height
     console.log('Long edge binding - doubled width:', { effectiveWidth, effectiveHeight });
   }
-  }
   
   // Find the best stock sheet size for the cover
   let bestCoverOption = null;
