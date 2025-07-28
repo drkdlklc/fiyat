@@ -2655,7 +2655,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
                     <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                       <div>
                         <span className="font-bold text-lg text-gray-800">Total Multi-Part Cost:</span>
-                        <p className="text-xl font-bold text-orange-600">${results.multiPartResults.totalCost.toFixed(2)}</p>
+                        <p className="text-xl font-bold text-orange-600">€{results.multiPartResults.totalCost.toFixed(2)}</p>
                       </div>
                       <div>
                         <span className="font-bold text-lg text-gray-800">Multi-Part Cost per {results.job.isBookletMode ? 'Booklet' : 'Unit'}:</span>
