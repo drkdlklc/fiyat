@@ -826,18 +826,25 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
             console.log('job.isBookletMode:', job.isBookletMode);
             
             if (job.isBookletMode) {
-              // In booklet mode, use the passed binding edge parameter (which is already the correct edge for the section)
+              if (shouldCalculateForBoth) {
+                // For Inside/Outside = Same extras, calculate for all booklets
+                units = job.quantity;
+                unitType = 'booklets (cover + inner)';
+              } else {
+                // In booklet mode, use the passed binding edge parameter (which is already the correct edge for the section)
+                units = job.quantity;
+                unitType = job.isBookletMode ? 'booklets' : 'units';
+              }
               edgeLength = lengthBasedEdge === 'short' ? validHeight / 10 : validWidth / 10; // mm to cm
               console.log('Booklet mode calculation: lengthBasedEdge=', lengthBasedEdge, 'result=', edgeLength);
             } else {
               // In normal mode, use the passed binding edge parameter
               edgeLength = lengthBasedEdge === 'short' ? validHeight / 10 : validWidth / 10; // mm to cm
               console.log('Normal mode calculation: lengthBasedEdge=', lengthBasedEdge, 'result=', edgeLength);
+              // Use standard units for page-based calculation
+              units = job.quantity;
+              unitType = job.isBookletMode ? 'booklets' : 'units';
             }
-            
-            // Use standard units for page-based calculation
-            units = job.quantity;
-            unitType = job.isBookletMode ? 'booklets' : 'units';
           }
           
           // Ensure edgeLength is a valid number
