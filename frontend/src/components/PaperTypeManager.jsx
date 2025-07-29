@@ -25,6 +25,118 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
+// Sortable Item component for paper types
+const SortablePaperType = ({ 
+  paper, 
+  isAdding, 
+  editingId, 
+  handleDuplicate, 
+  handleEdit, 
+  handleDelete 
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: paper.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.8 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`p-4 border rounded-lg bg-white hover:bg-gray-50 transition-colors ${isDragging ? 'z-10 shadow-lg' : ''}`}
+    >
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-3 flex-1">
+          <div
+            {...attributes}
+            {...listeners}
+            className="cursor-grab hover:cursor-grabbing p-2 hover:bg-gray-200 rounded"
+            title="Drag to reorder"
+          >
+            <GripVertical size={16} className="text-gray-400" />
+          </div>
+          <div className="flex-1">
+            <h3 className="font-semibold text-lg">{paper.name}</h3>
+            <div className="flex gap-4 mt-1 text-sm text-gray-600">
+              <span><strong>GSM:</strong> {paper.gsm}</span>
+              <span><strong>Price:</strong> {paper.pricePerTon} {paper.currency || 'USD'}/ton</span>
+            </div>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleDuplicate(paper)}
+            disabled={isAdding || editingId}
+            className="flex items-center gap-1"
+          >
+            <Copy size={14} />
+            Duplicate
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleEdit(paper)}
+            disabled={isAdding || editingId}
+            className="flex items-center gap-1"
+          >
+            <Edit2 size={14} />
+            Edit
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleDelete(paper.id)}
+            disabled={isAdding || editingId}
+            className="flex items-center gap-1 text-red-600 hover:text-red-700"
+          >
+            <Trash2 size={14} />
+            Delete
+          </Button>
+        </div>
+      </div>
+      
+      <div className="space-y-2">
+        <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+          <FileText size={16} />
+          Stock Sheet Sizes ({paper.stockSheetSizes.length})
+        </div>
+        <div className="grid gap-2">
+          {paper.stockSheetSizes.map((stockSheet) => (
+            <div key={stockSheet.id} className="pl-4 p-2 bg-gray-100 rounded text-sm">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <div>
+                  <span className="font-medium">{stockSheet.name}</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">{stockSheet.width} × {stockSheet.height} mm</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">{((stockSheet.width * stockSheet.height) / 1000000).toFixed(3)} m²</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">{paper.gsm} GSM</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const PaperTypeManager = ({ paperTypes, onAddPaperType, onUpdatePaperType, onDeletePaperType }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState(null);
