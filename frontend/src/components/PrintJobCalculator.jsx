@@ -138,7 +138,6 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
   ]);
   const [results, setResults] = useState(null);
   const [showOptimalOnly, setShowOptimalOnly] = useState(true);
-  const { toast } = useToast();
   const { applyPriceMultiplier, canSeeInputPrices } = useAuth();
 
   // Update main binding edge when not in booklet mode 
