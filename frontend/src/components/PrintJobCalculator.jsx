@@ -2536,7 +2536,9 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
                         <div>
                           <span className="font-medium text-gray-700">Paper:</span>
                           <p className="text-sm font-semibold text-blue-600">{results.innerPagesResults.paperType.name}</p>
-                          <p className="text-xs text-gray-500">{results.innerPagesResults.paperType.gsm}g/m² - €{convertToEURSync(results.innerPagesResults.paperType.pricePerTon, results.innerPagesResults.paperType.currency || 'EUR').toFixed(0)}/ton</p>
+                          {canSeeInputPrices() && (
+                            <p className="text-xs text-gray-500">{results.innerPagesResults.paperType.gsm}g/m² - €{convertToEURSync(results.innerPagesResults.paperType.pricePerTon, results.innerPagesResults.paperType.currency || 'EUR').toFixed(0)}/ton</p>
+                          )}
                         </div>
                         <div>
                           <span className="font-medium text-gray-700">Stock Sheet:</span>
