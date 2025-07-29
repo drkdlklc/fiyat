@@ -155,7 +155,7 @@ const UserManager = () => {
 
     if (window.confirm(`Are you sure you want to delete user "${username}"?`)) {
       try {
-        await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/users/${userId}`);
+        await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/users/${userId}`);
         toast({
           title: "Success",
           description: "User deleted successfully"
