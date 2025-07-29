@@ -2507,7 +2507,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
                                 </div>
                               </div>
                               <div className="text-right">
-                                <span className="font-semibold text-green-600">{formatEURPriceDynamic(convertToEURSync(extra.totalCost, extra.originalPrice?.currency || 'EUR'))}</span>
+                                <span className="font-semibold text-green-600">{formatUserPrice(extra.totalCost, extra.originalPrice?.currency || 'EUR')}</span>
                               </div>
                             </div>
                           ))}
