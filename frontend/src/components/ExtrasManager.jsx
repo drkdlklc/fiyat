@@ -31,9 +31,12 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
   const [formData, setFormData] = useState({
     name: '',
     pricingType: 'per_page', // 'per_page', 'per_booklet', 'per_length'
+    setupCost: '',
+    setupCostCurrency: 'USD',
     insideOutsideSame: false,
     supportsDoubleSided: false,
     applyToPrintSheet: false, // New field: apply pricing to print sheet dimensions
+    bookletApplicationScope: 'both', // New field for booklet application scope
     variants: [{ variantName: '', price: '', currency: 'USD' }] // Array of variants with currency
   });
   const { toast } = useToast();
