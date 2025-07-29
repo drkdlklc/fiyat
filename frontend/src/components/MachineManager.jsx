@@ -25,6 +25,179 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
+// Sortable Item component for print sheet sizes
+const SortableSheetSize = ({ 
+  sheetSize, 
+  machine, 
+  editingSheetSizeId, 
+  editingMachineId, 
+  editingSheetSizeData, 
+  setEditingSheetSizeData, 
+  handleEditSheetSize, 
+  handleSaveSheetSize, 
+  resetEditingSheetSizeForm, 
+  handleDeleteSheetSize 
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: sheetSize.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.8 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`pl-4 p-2 bg-gray-100 rounded text-sm ${isDragging ? 'z-10 shadow-lg' : ''}`}
+    >
+      {editingSheetSizeId === sheetSize.id && editingMachineId === machine.id ? (
+        // Editing mode
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor={`edit-sheet-name-${sheetSize.id}`}>Sheet Size Name</Label>
+              <Input
+                id={`edit-sheet-name-${sheetSize.id}`}
+                value={editingSheetSizeData.name}
+                onChange={(e) => setEditingSheetSizeData({ ...editingSheetSizeData, name: e.target.value })}
+                placeholder="e.g., SRA3, A3, Custom"
+              />
+            </div>
+            <div className="col-span-2">
+              <Label htmlFor={`edit-sheet-click-cost-${sheetSize.id}`}>Click Cost</Label>
+              <div className="grid grid-cols-2 gap-2">
+                <Input
+                  id={`edit-sheet-click-cost-${sheetSize.id}`}
+                  type="number"
+                  step="0.01"
+                  value={editingSheetSizeData.clickCost}
+                  onChange={(e) => setEditingSheetSizeData({ ...editingSheetSizeData, clickCost: e.target.value })}
+                  placeholder="0.08"
+                />
+                <Select 
+                  value={editingSheetSizeData.clickCostCurrency} 
+                  onValueChange={(value) => setEditingSheetSizeData({ ...editingSheetSizeData, clickCostCurrency: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Currency" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="USD">USD ($)</SelectItem>
+                    <SelectItem value="EUR">EUR (€)</SelectItem>
+                    <SelectItem value="TRY">TRY (₺)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor={`edit-sheet-width-${sheetSize.id}`}>Width (mm)</Label>
+              <Input
+                id={`edit-sheet-width-${sheetSize.id}`}
+                type="number"
+                value={editingSheetSizeData.width}
+                onChange={(e) => setEditingSheetSizeData({ ...editingSheetSizeData, width: e.target.value })}
+                placeholder="320"
+              />
+            </div>
+            <div>
+              <Label htmlFor={`edit-sheet-height-${sheetSize.id}`}>Height (mm)</Label>
+              <Input
+                id={`edit-sheet-height-${sheetSize.id}`}
+                type="number"
+                value={editingSheetSizeData.height}
+                onChange={(e) => setEditingSheetSizeData({ ...editingSheetSizeData, height: e.target.value })}
+                placeholder="450"
+              />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              onClick={handleSaveSheetSize}
+              size="sm"
+              className="flex items-center gap-1"
+            >
+              <Save size={14} />
+              Save
+            </Button>
+            <Button
+              onClick={resetEditingSheetSizeForm}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1"
+            >
+              <X size={14} />
+              Cancel
+            </Button>
+          </div>
+        </div>
+      ) : (
+        // Display mode with drag handle
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 flex-1">
+            <div
+              {...attributes}
+              {...listeners}
+              className="cursor-grab hover:cursor-grabbing p-1 hover:bg-gray-200 rounded"
+              title="Drag to reorder"
+            >
+              <GripVertical size={14} className="text-gray-400" />
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 flex-1">
+              <div>
+                <span className="font-medium">{sheetSize.name}</span>
+              </div>
+              <div>
+                <span className="text-gray-600">{sheetSize.width} × {sheetSize.height} mm</span>
+              </div>
+              <div>
+                <span className="text-gray-600">{sheetSize.clickCost} {sheetSize.clickCostCurrency || 'USD'}/click</span>
+              </div>
+              <div>
+                {sheetSize.duplexSupport ? (
+                  <span className="text-green-600 text-xs">Duplex</span>
+                ) : (
+                  <span className="text-gray-400 text-xs">No Duplex</span>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="flex gap-1 ml-2">
+            <Button
+              onClick={() => handleEditSheetSize(machine.id, sheetSize)}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1 text-blue-600 hover:text-blue-700"
+            >
+              <Edit2 size={12} />
+              Edit
+            </Button>
+            <Button
+              onClick={() => handleDeleteSheetSize(machine.id, sheetSize.id)}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1 text-red-600 hover:text-red-700"
+            >
+              <Trash2 size={12} />
+              Delete
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const MachineManager = ({ machines, onAddMachine, onUpdateMachine, onDeleteMachine }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState(null);
