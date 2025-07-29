@@ -317,7 +317,7 @@ const PaperTypeManager = ({ paperTypes, onAddPaperType, onUpdatePaperType, onDel
       currency: paper.currency || 'USD',
       stockSheetSizes: paper.stockSheetSizes.map(size => ({
         ...size,
-        id: Date.now() + Math.random() // Generate new IDs for duplicated stock sheet sizes
+        id: Math.floor(Date.now() + Math.random() * 1000) // Generate integer IDs
       }))
     };
 
