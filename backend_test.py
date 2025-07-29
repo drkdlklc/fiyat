@@ -4451,6 +4451,464 @@ if (innerResult) {
         except requests.exceptions.RequestException as e:
             self.log_test("Setup Cost Calculation Integration", False, f"Connection error: {str(e)}")
 
+    def test_booklet_application_scope_field_support(self):
+        """Test that the bookletApplicationScope field is supported in all CRUD operations"""
+        try:
+            # Test GET /api/extras returns bookletApplicationScope field
+            get_response = requests.get(f"{self.api_url}/extras", timeout=10)
+            
+            if get_response.status_code == 200:
+                extras = get_response.json()
+                if isinstance(extras, list) and len(extras) > 0:
+                    # Check if all extras have bookletApplicationScope field
+                    all_have_field = True
+                    field_values = []
+                    
+                    for extra in extras:
+                        if "bookletApplicationScope" not in extra:
+                            all_have_field = False
+                            break
+                        field_values.append(f"{extra.get('name')}: {extra.get('bookletApplicationScope')}")
+                    
+                    if all_have_field:
+                        self.log_test("BookletApplicationScope Field Support", True, 
+                                    f"All {len(extras)} extras have bookletApplicationScope field. Values: {field_values[:3]}...")
+                    else:
+                        self.log_test("BookletApplicationScope Field Support", False, 
+                                    "Some extras missing bookletApplicationScope field")
+                else:
+                    # Initialize data and try again
+                    init_response = requests.post(f"{self.api_url}/initialize-data", timeout=10)
+                    get_response = requests.get(f"{self.api_url}/extras", timeout=10)
+                    
+                    if get_response.status_code == 200:
+                        extras = get_response.json()
+                        if len(extras) > 0:
+                            first_extra = extras[0]
+                            if "bookletApplicationScope" in first_extra:
+                                self.log_test("BookletApplicationScope Field Support", True, 
+                                            f"BookletApplicationScope field present after initialization. First extra: {first_extra.get('name')} = {first_extra.get('bookletApplicationScope')}")
+                            else:
+                                self.log_test("BookletApplicationScope Field Support", False, 
+                                            "BookletApplicationScope field missing even after initialization")
+                        else:
+                            self.log_test("BookletApplicationScope Field Support", False, 
+                                        "No extras found even after initialization")
+                    else:
+                        self.log_test("BookletApplicationScope Field Support", False, 
+                                    f"Failed to retrieve extras after initialization: {get_response.status_code}")
+            else:
+                self.log_test("BookletApplicationScope Field Support", False, 
+                            f"Failed to retrieve extras: {get_response.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("BookletApplicationScope Field Support", False, f"Connection error: {str(e)}")
+
+    def test_booklet_application_scope_crud_operations(self):
+        """Test CRUD operations with bookletApplicationScope field"""
+        try:
+            # Test CREATE with bookletApplicationScope
+            test_extra = {
+                "name": "Test BookletScope Extra",
+                "pricingType": "per_page",
+                "bookletApplicationScope": "cover_only",
+                "variants": [
+                    {"variantName": "Standard", "price": 0.25, "currency": "USD"}
+                ]
+            }
+            
+            # CREATE
+            create_response = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if create_response.status_code == 200:
+                created_extra = create_response.json()
+                extra_id = created_extra.get("id")
+                
+                if created_extra.get("bookletApplicationScope") == "cover_only":
+                    self.log_test("BookletApplicationScope CREATE", True, 
+                                f"Extra created with bookletApplicationScope='cover_only'. ID: {extra_id}")
+                    
+                    # Test UPDATE bookletApplicationScope
+                    update_data = {
+                        "bookletApplicationScope": "inner_only"
+                    }
+                    
+                    update_response = requests.put(
+                        f"{self.api_url}/extras/{extra_id}",
+                        json=update_data,
+                        headers={"Content-Type": "application/json"},
+                        timeout=10
+                    )
+                    
+                    if update_response.status_code == 200:
+                        updated_extra = update_response.json()
+                        if updated_extra.get("bookletApplicationScope") == "inner_only":
+                            self.log_test("BookletApplicationScope UPDATE", True, 
+                                        f"BookletApplicationScope updated from 'cover_only' to 'inner_only' for ID: {extra_id}")
+                            
+                            # Test READ to verify persistence
+                            get_response = requests.get(f"{self.api_url}/extras", timeout=10)
+                            if get_response.status_code == 200:
+                                all_extras = get_response.json()
+                                found_extra = next((e for e in all_extras if e.get("id") == extra_id), None)
+                                
+                                if found_extra and found_extra.get("bookletApplicationScope") == "inner_only":
+                                    self.log_test("BookletApplicationScope READ persistence", True, 
+                                                f"Updated bookletApplicationScope persisted correctly in database")
+                                    
+                                    # Test DELETE
+                                    delete_response = requests.delete(f"{self.api_url}/extras/{extra_id}", timeout=10)
+                                    if delete_response.status_code == 200:
+                                        self.log_test("BookletApplicationScope DELETE", True, 
+                                                    f"Extra with bookletApplicationScope deleted successfully")
+                                    else:
+                                        self.log_test("BookletApplicationScope DELETE", False, 
+                                                    f"Delete failed: {delete_response.status_code}")
+                                else:
+                                    self.log_test("BookletApplicationScope READ persistence", False, 
+                                                "Updated bookletApplicationScope not persisted correctly")
+                            else:
+                                self.log_test("BookletApplicationScope read persistence", False, 
+                                            f"Failed to read extras: {get_response.status_code}")
+                        else:
+                            self.log_test("BookletApplicationScope UPDATE", False, 
+                                        f"Update failed. Expected 'inner_only', got: {updated_extra.get('bookletApplicationScope')}")
+                    else:
+                        self.log_test("BookletApplicationScope UPDATE", False, 
+                                    f"Update request failed: {update_response.status_code}")
+                else:
+                    self.log_test("BookletApplicationScope CREATE", False, 
+                                f"Create failed. Expected 'cover_only', got: {created_extra.get('bookletApplicationScope')}")
+            else:
+                self.log_test("BookletApplicationScope CREATE", False, 
+                            f"Create request failed: {create_response.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("BookletApplicationScope CRUD Operations", False, f"Connection error: {str(e)}")
+
+    def test_booklet_application_scope_default_values(self):
+        """Test that bookletApplicationScope defaults to 'both' when not specified"""
+        try:
+            # Create extra without specifying bookletApplicationScope
+            test_extra = {
+                "name": "Test Default BookletScope",
+                "pricingType": "per_booklet",
+                "variants": [
+                    {"variantName": "Standard", "price": 5.00, "currency": "USD"}
+                ]
+            }
+            
+            create_response = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if create_response.status_code == 200:
+                created_extra = create_response.json()
+                extra_id = created_extra.get("id")
+                scope_value = created_extra.get("bookletApplicationScope")
+                
+                if scope_value == "both":
+                    self.log_test("BookletApplicationScope Default Value", True, 
+                                f"BookletApplicationScope defaults to 'both' when not specified. ID: {extra_id}")
+                    
+                    # Clean up
+                    requests.delete(f"{self.api_url}/extras/{extra_id}", timeout=10)
+                else:
+                    self.log_test("BookletApplicationScope Default Value", False, 
+                                f"Expected default 'both', got: {scope_value}")
+            else:
+                self.log_test("BookletApplicationScope Default Value", False, 
+                            f"Failed to create extra: {create_response.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("BookletApplicationScope Default Value", False, f"Connection error: {str(e)}")
+
+    def test_booklet_application_scope_validation(self):
+        """Test bookletApplicationScope field validation with valid values"""
+        try:
+            valid_values = ["both", "cover_only", "inner_only"]
+            test_results = []
+            
+            for value in valid_values:
+                test_extra = {
+                    "name": f"Test {value} Scope",
+                    "pricingType": "per_page",
+                    "bookletApplicationScope": value,
+                    "variants": [
+                        {"variantName": "Standard", "price": 0.20, "currency": "USD"}
+                    ]
+                }
+                
+                create_response = requests.post(
+                    f"{self.api_url}/extras",
+                    json=test_extra,
+                    headers={"Content-Type": "application/json"},
+                    timeout=10
+                )
+                
+                if create_response.status_code == 200:
+                    created_extra = create_response.json()
+                    if created_extra.get("bookletApplicationScope") == value:
+                        test_results.append(f"✅ {value}")
+                        # Clean up
+                        requests.delete(f"{self.api_url}/extras/{created_extra.get('id')}", timeout=10)
+                    else:
+                        test_results.append(f"❌ {value} (got: {created_extra.get('bookletApplicationScope')})")
+                else:
+                    test_results.append(f"❌ {value} (HTTP {create_response.status_code})")
+            
+            if all("✅" in result for result in test_results):
+                self.log_test("BookletApplicationScope Validation", True, 
+                            f"All valid values accepted: {', '.join(test_results)}")
+            else:
+                self.log_test("BookletApplicationScope Validation", False, 
+                            f"Some validation failures: {', '.join(test_results)}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("BookletApplicationScope Validation", False, f"Connection error: {str(e)}")
+
+    def test_booklet_application_scope_default_extras_verification(self):
+        """Test that default extras have correct bookletApplicationScope values"""
+        try:
+            # Initialize data to ensure default extras exist
+            init_response = requests.post(f"{self.api_url}/initialize-data", timeout=10)
+            
+            # Get all extras
+            get_response = requests.get(f"{self.api_url}/extras", timeout=10)
+            
+            if get_response.status_code == 200:
+                extras = get_response.json()
+                
+                # Expected bookletApplicationScope values for default extras
+                expected_scopes = {
+                    "Cellophane Lamination": "both",
+                    "Staple Binding": "cover_only", 
+                    "Spiral Binding": "inner_only",
+                    "Perfect Binding (American)": "both",
+                    "UV Coating": "cover_only",
+                    "Print Sheet Processing": "inner_only"
+                }
+                
+                found_extras = {}
+                for extra in extras:
+                    name = extra.get("name")
+                    scope = extra.get("bookletApplicationScope")
+                    found_extras[name] = scope
+                
+                verification_results = []
+                for name, expected_scope in expected_scopes.items():
+                    if name in found_extras:
+                        actual_scope = found_extras[name]
+                        if actual_scope == expected_scope:
+                            verification_results.append(f"✅ {name}: {expected_scope}")
+                        else:
+                            verification_results.append(f"❌ {name}: expected {expected_scope}, got {actual_scope}")
+                    else:
+                        verification_results.append(f"❌ {name}: not found")
+                
+                success_count = sum(1 for result in verification_results if "✅" in result)
+                total_count = len(expected_scopes)
+                
+                if success_count == total_count:
+                    self.log_test("BookletApplicationScope Default Extras", True, 
+                                f"All {total_count} default extras have correct bookletApplicationScope values: {verification_results}")
+                else:
+                    self.log_test("BookletApplicationScope Default Extras", False, 
+                                f"Only {success_count}/{total_count} default extras have correct values: {verification_results}")
+            else:
+                self.log_test("BookletApplicationScope Default Extras", False, 
+                            f"Failed to retrieve extras: {get_response.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("BookletApplicationScope Default Extras", False, f"Connection error: {str(e)}")
+
+    def test_booklet_application_scope_database_persistence(self):
+        """Test that bookletApplicationScope field is properly stored and retrieved from MongoDB"""
+        try:
+            # Create extras with different bookletApplicationScope values
+            test_extras = [
+                {"name": "Test Both Scope", "scope": "both"},
+                {"name": "Test Cover Scope", "scope": "cover_only"},
+                {"name": "Test Inner Scope", "scope": "inner_only"}
+            ]
+            
+            created_ids = []
+            
+            # Create all test extras
+            for test_data in test_extras:
+                extra = {
+                    "name": test_data["name"],
+                    "pricingType": "per_page",
+                    "bookletApplicationScope": test_data["scope"],
+                    "variants": [
+                        {"variantName": "Standard", "price": 0.15, "currency": "USD"}
+                    ]
+                }
+                
+                create_response = requests.post(
+                    f"{self.api_url}/extras",
+                    json=extra,
+                    headers={"Content-Type": "application/json"},
+                    timeout=10
+                )
+                
+                if create_response.status_code == 200:
+                    created_extra = create_response.json()
+                    created_ids.append({
+                        "id": created_extra.get("id"),
+                        "name": test_data["name"],
+                        "expected_scope": test_data["scope"]
+                    })
+            
+            if len(created_ids) == 3:
+                # Retrieve all extras and verify persistence
+                get_response = requests.get(f"{self.api_url}/extras", timeout=10)
+                
+                if get_response.status_code == 200:
+                    all_extras = get_response.json()
+                    persistence_results = []
+                    
+                    for created_data in created_ids:
+                        found_extra = next((e for e in all_extras if e.get("id") == created_data["id"]), None)
+                        
+                        if found_extra:
+                            actual_scope = found_extra.get("bookletApplicationScope")
+                            expected_scope = created_data["expected_scope"]
+                            
+                            if actual_scope == expected_scope:
+                                persistence_results.append(f"✅ {created_data['name']}: {expected_scope}")
+                            else:
+                                persistence_results.append(f"❌ {created_data['name']}: expected {expected_scope}, got {actual_scope}")
+                        else:
+                            persistence_results.append(f"❌ {created_data['name']}: not found in database")
+                    
+                    # Clean up
+                    for created_data in created_ids:
+                        requests.delete(f"{self.api_url}/extras/{created_data['id']}", timeout=10)
+                    
+                    success_count = sum(1 for result in persistence_results if "✅" in result)
+                    
+                    if success_count == 3:
+                        self.log_test("BookletApplicationScope Database Persistence", True, 
+                                    f"All 3 bookletApplicationScope values properly persisted: {persistence_results}")
+                    else:
+                        self.log_test("BookletApplicationScope Database Persistence", False, 
+                                    f"Only {success_count}/3 values persisted correctly: {persistence_results}")
+                else:
+                    self.log_test("BookletApplicationScope Database Persistence", False, 
+                                f"Failed to retrieve extras for verification: {get_response.status_code}")
+            else:
+                self.log_test("BookletApplicationScope Database Persistence", False, 
+                            f"Failed to create test extras. Created: {len(created_ids)}/3")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("BookletApplicationScope Database Persistence", False, f"Connection error: {str(e)}")
+
+    def test_booklet_application_scope_model_validation(self):
+        """Test that bookletApplicationScope field works with Pydantic model validation"""
+        try:
+            # Test with valid values in different model operations
+            test_scenarios = [
+                {
+                    "name": "Create with 'both'",
+                    "operation": "create",
+                    "data": {
+                        "name": "Model Test Both",
+                        "pricingType": "per_page",
+                        "bookletApplicationScope": "both",
+                        "variants": [{"variantName": "Standard", "price": 0.20}]
+                    }
+                },
+                {
+                    "name": "Create with 'cover_only'",
+                    "operation": "create", 
+                    "data": {
+                        "name": "Model Test Cover",
+                        "pricingType": "per_booklet",
+                        "bookletApplicationScope": "cover_only",
+                        "variants": [{"variantName": "Standard", "price": 3.00}]
+                    }
+                },
+                {
+                    "name": "Create with 'inner_only'",
+                    "operation": "create",
+                    "data": {
+                        "name": "Model Test Inner",
+                        "pricingType": "per_length",
+                        "bookletApplicationScope": "inner_only",
+                        "variants": [{"variantName": "Standard", "price": 0.10}]
+                    }
+                }
+            ]
+            
+            validation_results = []
+            created_ids = []
+            
+            for scenario in test_scenarios:
+                if scenario["operation"] == "create":
+                    response = requests.post(
+                        f"{self.api_url}/extras",
+                        json=scenario["data"],
+                        headers={"Content-Type": "application/json"},
+                        timeout=10
+                    )
+                    
+                    if response.status_code == 200:
+                        created_extra = response.json()
+                        expected_scope = scenario["data"]["bookletApplicationScope"]
+                        actual_scope = created_extra.get("bookletApplicationScope")
+                        
+                        if actual_scope == expected_scope:
+                            validation_results.append(f"✅ {scenario['name']}")
+                            created_ids.append(created_extra.get("id"))
+                        else:
+                            validation_results.append(f"❌ {scenario['name']}: expected {expected_scope}, got {actual_scope}")
+                    else:
+                        validation_results.append(f"❌ {scenario['name']}: HTTP {response.status_code}")
+            
+            # Test update operation with first created extra
+            if created_ids:
+                update_response = requests.put(
+                    f"{self.api_url}/extras/{created_ids[0]}",
+                    json={"bookletApplicationScope": "inner_only"},
+                    headers={"Content-Type": "application/json"},
+                    timeout=10
+                )
+                
+                if update_response.status_code == 200:
+                    updated_extra = update_response.json()
+                    if updated_extra.get("bookletApplicationScope") == "inner_only":
+                        validation_results.append("✅ Update operation")
+                    else:
+                        validation_results.append(f"❌ Update operation: got {updated_extra.get('bookletApplicationScope')}")
+                else:
+                    validation_results.append(f"❌ Update operation: HTTP {update_response.status_code}")
+            
+            # Clean up
+            for extra_id in created_ids:
+                requests.delete(f"{self.api_url}/extras/{extra_id}", timeout=10)
+            
+            success_count = sum(1 for result in validation_results if "✅" in result)
+            total_count = len(validation_results)
+            
+            if success_count == total_count:
+                self.log_test("BookletApplicationScope Model Validation", True, 
+                            f"All {total_count} Pydantic model validation tests passed: {validation_results}")
+            else:
+                self.log_test("BookletApplicationScope Model Validation", False, 
+                            f"Only {success_count}/{total_count} validation tests passed: {validation_results}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("BookletApplicationScope Model Validation", False, f"Connection error: {str(e)}")
+
     def run_all_tests(self):
         """Run all backend tests"""
         print("🚀 Starting Backend API Tests")
