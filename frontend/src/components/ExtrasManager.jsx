@@ -47,6 +47,7 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
       insideOutsideSame: false,
       supportsDoubleSided: false,
       applyToPrintSheet: false,
+      bookletApplicationScope: 'both', // New field for booklet application scope
       variants: [{ variantName: '', price: '', currency: 'USD' }]
     });
     setIsAdding(false);
