@@ -461,6 +461,8 @@ async def initialize_default_data():
                 "id": 1, 
                 "name": "Cellophane Lamination", 
                 "pricingType": "per_page", 
+                "setupCost": 15.00,  # Add setup cost
+                "setupCostCurrency": "USD",  # Add setup cost currency
                 "insideOutsideSame": False,
                 "supportsDoubleSided": True,  # Can be applied to one or both sides
                 "applyToPrintSheet": False,  # Apply to individual pages
@@ -473,6 +475,8 @@ async def initialize_default_data():
                 "id": 2, 
                 "name": "Staple Binding", 
                 "pricingType": "per_booklet", 
+                "setupCost": 0.00,  # No setup cost
+                "setupCostCurrency": "USD",
                 "insideOutsideSame": True,
                 "supportsDoubleSided": False,  # Binding applies to whole booklet
                 "applyToPrintSheet": False,  # Binding is per booklet, not per sheet
@@ -485,6 +489,8 @@ async def initialize_default_data():
                 "id": 3, 
                 "name": "Spiral Binding", 
                 "pricingType": "per_length", 
+                "setupCost": 25.00,  # Add setup cost
+                "setupCostCurrency": "EUR",  # Different currency
                 "insideOutsideSame": True,
                 "supportsDoubleSided": False,  # Binding applies to whole booklet
                 "applyToPrintSheet": True,  # Use print sheet length for binding calculation
@@ -497,6 +503,8 @@ async def initialize_default_data():
                 "id": 4, 
                 "name": "Perfect Binding (American)", 
                 "pricingType": "per_booklet", 
+                "setupCost": 50.00,  # Add setup cost
+                "setupCostCurrency": "USD",
                 "insideOutsideSame": True,
                 "supportsDoubleSided": False,  # Binding applies to whole booklet
                 "applyToPrintSheet": False,  # Binding is per booklet, not per sheet
@@ -509,6 +517,8 @@ async def initialize_default_data():
                 "id": 5, 
                 "name": "UV Coating", 
                 "pricingType": "per_page", 
+                "setupCost": 30.00,  # Add setup cost
+                "setupCostCurrency": "EUR",
                 "insideOutsideSame": False,
                 "supportsDoubleSided": True,  # Can be applied to one or both sides
                 "applyToPrintSheet": False,  # Apply to individual pages
@@ -521,6 +531,8 @@ async def initialize_default_data():
                 "id": 6,
                 "name": "Print Sheet Processing",
                 "pricingType": "per_length",
+                "setupCost": 0.00,  # No setup cost
+                "setupCostCurrency": "USD",
                 "insideOutsideSame": False,
                 "supportsDoubleSided": False,  # Applied per print sheet
                 "applyToPrintSheet": True,  # Use print sheet dimensions for calculation
