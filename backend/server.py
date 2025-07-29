@@ -921,10 +921,23 @@ async def get_exchange_rates():
 async def startup_event():
     """Initialize default data on application startup"""
     try:
+        # Wait a moment for database connection to be fully established
+        import asyncio
+        await asyncio.sleep(1)
+        
         await initialize_default_data()
         print("✅ Default data initialization completed on startup")
     except Exception as e:
         print(f"❌ Error initializing default data on startup: {e}")
+        # Try once more after a delay
+        try:
+            import asyncio
+            await asyncio.sleep(3)
+            await initialize_default_data()
+            print("✅ Default data initialization completed on startup (retry)")
+        except Exception as retry_error:
+            print(f"❌ Failed to initialize default data after retry: {retry_error}")
+            # Log the error but don't crash the application
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
