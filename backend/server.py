@@ -1,4 +1,5 @@
-from fastapi import FastAPI, APIRouter, HTTPException, HTTPException
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -8,8 +9,11 @@ from pathlib import Path
 from pydantic import BaseModel, Field
 from typing import List, Optional
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from altinkaynak import Altinkaynak
+from passlib.context import CryptContext
+from jose import JWTError, jwt
+import bcrypt
 
 
 ROOT_DIR = Path(__file__).parent
