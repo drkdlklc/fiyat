@@ -3217,6 +3217,14 @@ if (innerResult) {
         # Data endpoints tests
         self.test_initialize_data_endpoint()
         
+        # DUPLICATION FUNCTIONALITY TESTS (Priority for review request)
+        print("🔄 Testing Duplication Functionality for Paper Types and Machines")
+        print()
+        self.test_paper_type_duplication()
+        self.test_machine_duplication()
+        self.test_paper_type_post_validation()
+        self.test_machine_post_validation()
+        
         # NEW: Currency Support Tests
         print("💰 Testing Currency Support Implementation")
         print()
