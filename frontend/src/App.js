@@ -17,7 +17,7 @@ import { Calculator, FileText, Settings, Printer, RefreshCw, Scissors, Users, Lo
 import { Button } from './components/ui/button';
 import './App.css';
 
-function App() {
+function AppContent() {
   const [paperTypes, setPaperTypes] = useState([]);
   const [machines, setMachines] = useState([]);
   const [extras, setExtras] = useState([]);
@@ -27,11 +27,14 @@ function App() {
   const [exchangeRates, setExchangeRates] = useState(null);
   
   const { toast } = useToast();
+  const { user, isAuthenticated, hasPermission, logout } = useAuth();
 
   // Initialize data on component mount
   useEffect(() => {
-    initializeData();
-  }, []);
+    if (isAuthenticated) {
+      initializeData();
+    }
+  }, [isAuthenticated]);
 
   // Fetch exchange rates on component mount (non-blocking)
   useEffect(() => {
