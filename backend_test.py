@@ -5443,6 +5443,23 @@ if (innerResult) {
         print("🚀 Starting Backend API Tests")
         print()
         
+        # AUTHENTICATION SYSTEM TESTS (Priority for review request)
+        print("🔐 Testing Authentication System Implementation")
+        print()
+        self.test_authentication_login_valid_credentials()
+        self.test_authentication_login_invalid_credentials()
+        self.test_authentication_get_current_user_with_token()
+        self.test_authentication_get_current_user_without_token()
+        self.test_authentication_get_all_users_admin_only()
+        self.test_authentication_create_user_admin_only()
+        self.test_authentication_update_user_admin_only()
+        self.test_authentication_delete_user_admin_only()
+        self.test_authentication_default_admin_user()
+        self.test_authentication_jwt_token_validation()
+        self.test_authentication_permission_system()
+        self.test_authentication_protected_routes()
+        print()
+        
         # Basic connectivity tests
         self.test_root_endpoint()
         self.test_status_get_endpoint()
