@@ -465,6 +465,16 @@ const MachineManager = ({ machines, onAddMachine, onUpdateMachine, onDeleteMachi
                   <Button
                     variant="outline"
                     size="sm"
+                    onClick={() => handleDuplicate(machine)}
+                    disabled={isAdding || editingId}
+                    className="flex items-center gap-1"
+                  >
+                    <Copy size={14} />
+                    Duplicate
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={() => handleEdit(machine)}
                     disabled={isAdding || editingId}
                     className="flex items-center gap-1"
