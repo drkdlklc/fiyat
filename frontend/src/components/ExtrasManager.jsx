@@ -375,6 +375,7 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
                           {formatPriceDynamic(variant.price, variant.currency || 'USD')}
                           {extra.pricingType === 'per_length' ? '/cm' : 
                            extra.pricingType === 'per_page' ? '/page' :
+                           extra.pricingType === 'per_form' ? '/form' :
                            '/unit'}
                         </span>
                       </div>
