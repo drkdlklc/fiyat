@@ -508,6 +508,7 @@ async def initialize_default_data():
                 "insideOutsideSame": True,
                 "supportsDoubleSided": False,  # Binding applies to whole booklet
                 "applyToPrintSheet": True,  # Use print sheet length for binding calculation
+                "bookletApplicationScope": "inner_only",  # Apply only to inner pages
                 "variants": [
                     {"id": 5, "variantName": "Plastic Coil", "price": 0.8, "currency": "USD"},  # price per cm
                     {"id": 6, "variantName": "Metal Wire", "price": 1.1, "currency": "EUR"}    # price per cm
