@@ -16,6 +16,7 @@ import jsPDF from 'jspdf';
 import { convertToEURSync, formatEURPrice, formatEURPriceDynamic, convertExtraCostToEUR } from '../utils/currencyConverter';
 
 const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => {
+  const { applyPriceMultiplier, canSeeInputPrices } = useAuth();
   const { toast } = useToast();
   const { applyPriceMultiplier, canSeeInputPrices } = useAuth();
   
