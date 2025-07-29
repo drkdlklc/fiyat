@@ -403,6 +403,7 @@ function App() {
                       onAddPaperType={handleAddPaperType}
                       onUpdatePaperType={handleUpdatePaperType}
                       onDeletePaperType={handleDeletePaperType}
+                      onReorderPaperTypes={handleReorderPaperTypes}
                     />
                   </TabsContent>
 
