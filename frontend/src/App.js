@@ -36,6 +36,12 @@ function AppContent() {
     }
   }, [isAuthenticated]);
 
+  const handleRefresh = async () => {
+    if (isAuthenticated) {
+      await initializeData();
+    }
+  };
+
   // Fetch exchange rates on component mount (non-blocking)
   useEffect(() => {
     const initializeExchangeRates = async () => {
