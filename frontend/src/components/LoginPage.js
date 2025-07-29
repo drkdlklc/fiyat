@@ -22,9 +22,10 @@ const LoginPage = () => {
     
     if (!result.success) {
       setError(result.error);
+      setLoading(false);
     }
-    
-    setLoading(false);
+    // Don't set loading to false here for successful logins to avoid flash
+    // The user will be redirected automatically
   };
 
   return (
