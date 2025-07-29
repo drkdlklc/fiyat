@@ -40,8 +40,13 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     };
 
-    checkAuth();
-  }, [token]);
+    // Only check auth if we don't already have user data (avoid race condition with login)
+    if (token && !user) {
+      checkAuth();
+    } else {
+      setLoading(false);
+    }
+  }, [token, user]);
 
   const login = async (username, password) => {
     try {
@@ -52,11 +57,11 @@ export const AuthProvider = ({ children }) => {
 
       const { access_token } = response.data;
       
-      // Store token
+      // Store token first
       localStorage.setItem('token', access_token);
       setToken(access_token);
       
-      // Get user info
+      // Get user info directly and set user state
       const userResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/me`);
       setUser(userResponse.data);
 
