@@ -19,6 +19,19 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
   const { toast } = useToast();
   const { applyPriceMultiplier, canSeeInputPrices } = useAuth();
   
+  // Helper function to format price with user's multiplier
+  const formatUserPrice = (price, currency = 'EUR') => {
+    const convertedPrice = convertToEURSync(price, currency);
+    const multipliedPrice = applyPriceMultiplier(convertedPrice);
+    return formatEURPriceDynamic(multipliedPrice);
+  };
+  
+  // Helper function to format EUR price with user's multiplier
+  const formatUserPriceEUR = (price) => {
+    const multipliedPrice = applyPriceMultiplier(price);
+    return formatEURPriceDynamic(multipliedPrice);
+  };
+  
   // Currency conversion helper functions
   const convertResultsCostsToEUR = (results) => {
     let coverCostEUR = 0;
