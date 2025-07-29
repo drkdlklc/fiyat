@@ -86,7 +86,16 @@ const LoginPage = () => {
               {error && (
                 <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-md">
                   <AlertCircle size={16} className="text-red-600" />
-                  <span className="text-red-700 text-sm">{error}</span>
+                  <div>
+                    <span className="text-red-700 text-sm">{error}</span>
+                    {error.includes('Incorrect username or password') && (
+                      <div className="text-xs text-red-600 mt-1">
+                        <p>Please ensure you're using the correct credentials:</p>
+                        <p><strong>Username:</strong> Emre (case-sensitive)</p>
+                        <p><strong>Password:</strong> 169681ymc</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
               
