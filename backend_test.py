@@ -2659,6 +2659,14 @@ if (innerResult) {
         self.test_extras_model_compatibility()
         self.test_extras_update_inside_outside_same_only()
         
+        # NEW: Inside/Outside Same Filtering Tests (for review request)
+        print("🎯 Testing Inside/Outside Same Extras Filtering Functionality")
+        print()
+        self.test_inside_outside_same_filtering_scenario_1()
+        self.test_inside_outside_same_filtering_scenario_2()
+        self.test_inside_outside_same_calculation_logic()
+        self.test_inside_outside_same_comprehensive_verification()
+        
         # Advanced functionality tests
         self.test_database_connectivity()
         self.test_cors_headers()
