@@ -155,6 +155,37 @@ const PaperTypeManager = ({ paperTypes, onAddPaperType, onUpdatePaperType, onDel
   const [isAddingStockSheet, setIsAddingStockSheet] = useState(false);
   const { toast } = useToast();
 
+  // Drag and drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // Handle drag end for reordering paper types
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      const oldIndex = paperTypes.findIndex(paper => paper.id === active.id);
+      const newIndex = paperTypes.findIndex(paper => paper.id === over.id);
+
+      const reorderedPapers = arrayMove(paperTypes, oldIndex, newIndex);
+      
+      // Update each paper type with new order - this assumes the parent component can handle reordering
+      // In a real implementation, you might want to add an onReorderPaperTypes prop
+      reorderedPapers.forEach((paper, index) => {
+        onUpdatePaperType(paper.id, { ...paper, order: index });
+      });
+      
+      toast({
+        title: "Success",
+        description: "Paper types reordered successfully"
+      });
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       name: '',
