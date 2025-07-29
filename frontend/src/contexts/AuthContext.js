@@ -50,37 +50,28 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
-      console.log('Login attempt started for username:', username);
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/login`, {
         username,
         password
       });
 
-      console.log('Login API response:', response.status, response.data);
       const { access_token } = response.data;
       
       if (!access_token) {
-        console.error('No access token received');
         return { success: false, error: 'No access token received' };
       }
       
       // Store token first
       localStorage.setItem('token', access_token);
       setToken(access_token);
-      console.log('Token set in state and localStorage');
       
       // Get user info directly and set user state
-      console.log('Fetching user info...');
       const userResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/me`);
-      console.log('User API response:', userResponse.status, userResponse.data);
-      
       setUser(userResponse.data);
-      console.log('User set in state, login should be complete');
 
       return { success: true };
     } catch (error) {
       console.error('Login failed:', error);
-      console.error('Error details:', error.response?.data);
       return { 
         success: false, 
         error: error.response?.data?.detail || 'Login failed' 
