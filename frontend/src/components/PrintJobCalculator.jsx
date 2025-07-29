@@ -1606,18 +1606,14 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
                 {!jobData.useMultiPartConfiguration && (
                   <div>
                     <Label htmlFor="paperType">Paper Type (Optional - auto-selects optimal stock sheet)</Label>
-                    <Select value={selectedPaperType?.toString()} onValueChange={handlePaperTypeChange}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a paper type (or leave blank for all options)" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {paperTypes.map((paperType) => (
-                          <SelectItem key={paperType.id} value={paperType.id.toString()}>
-                            {paperType.name} ({paperType.gsm} GSM)
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <AutocompleteSelect
+                      value={selectedPaperType?.toString()}
+                      onValueChange={handlePaperTypeChange}
+                      options={paperTypes}
+                      placeholder="Select or type to search paper type (or leave blank for all options)"
+                      displayValue={(paper) => `${paper.name} (${paper.gsm} GSM)`}
+                      searchValue={(paper) => `${paper.name} ${paper.gsm} GSM`.toLowerCase()}
+                    />
                     {selectedPaperType && (
                       <p className="text-sm text-green-600 mt-1 flex items-center gap-1">
                         <CheckCircle size={14} />
