@@ -876,7 +876,8 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
         innerExtrasResults, 
         extras, 
         selectedCoverExtras, 
-        selectedInnerExtras
+        selectedInnerExtras,
+        job.hasCover
       );
       
       extrasResults = {
