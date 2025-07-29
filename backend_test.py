@@ -2901,6 +2901,309 @@ if (innerResult) {
         except requests.exceptions.RequestException as e:
             self.log_test("Extras CRUD with Currency", False, f"Connection error: {str(e)}")
 
+    def test_paper_type_duplication(self):
+        """Test paper type duplication functionality - creating a copy with 'Copy of' prefix and new IDs"""
+        try:
+            # First, get existing paper types to find one to duplicate
+            get_response = requests.get(f"{self.api_url}/paper-types", timeout=10)
+            
+            if get_response.status_code != 200:
+                self.log_test("Paper Type Duplication", False, f"Failed to get existing paper types: {get_response.status_code}")
+                return
+            
+            existing_paper_types = get_response.json()
+            if not existing_paper_types:
+                self.log_test("Paper Type Duplication", False, "No existing paper types found to duplicate")
+                return
+            
+            # Select the first paper type to duplicate
+            original_paper_type = existing_paper_types[0]
+            original_name = original_paper_type.get("name")
+            original_stock_sizes = original_paper_type.get("stockSheetSizes", [])
+            
+            # Create duplication payload with "Copy of" prefix and new IDs for stock sheet sizes
+            max_stock_id = 0
+            for paper_type in existing_paper_types:
+                for stock_size in paper_type.get("stockSheetSizes", []):
+                    max_stock_id = max(max_stock_id, stock_size.get("id", 0))
+            
+            # Create new stock sheet sizes with incremented IDs
+            new_stock_sizes = []
+            for i, stock_size in enumerate(original_stock_sizes):
+                new_stock_size = stock_size.copy()
+                new_stock_size["id"] = max_stock_id + i + 1
+                new_stock_sizes.append(new_stock_size)
+            
+            duplication_payload = {
+                "name": f"Copy of {original_name}",
+                "gsm": original_paper_type.get("gsm"),
+                "pricePerTon": original_paper_type.get("pricePerTon"),
+                "currency": original_paper_type.get("currency", "USD"),
+                "stockSheetSizes": new_stock_sizes
+            }
+            
+            # Test POST with duplication payload
+            post_response = requests.post(
+                f"{self.api_url}/paper-types",
+                json=duplication_payload,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if post_response.status_code == 200:
+                created_paper_type = post_response.json()
+                
+                # Verify the duplication was successful
+                if (created_paper_type.get("name") == f"Copy of {original_name}" and
+                    created_paper_type.get("gsm") == original_paper_type.get("gsm") and
+                    created_paper_type.get("pricePerTon") == original_paper_type.get("pricePerTon") and
+                    created_paper_type.get("currency") == original_paper_type.get("currency") and
+                    len(created_paper_type.get("stockSheetSizes", [])) == len(original_stock_sizes)):
+                    
+                    # Verify stock sheet sizes have new IDs but same properties
+                    created_stock_sizes = created_paper_type.get("stockSheetSizes", [])
+                    all_ids_different = True
+                    all_properties_same = True
+                    
+                    for i, (original, created) in enumerate(zip(original_stock_sizes, created_stock_sizes)):
+                        if created.get("id") == original.get("id"):
+                            all_ids_different = False
+                        if (created.get("name") != original.get("name") or
+                            created.get("width") != original.get("width") or
+                            created.get("height") != original.get("height") or
+                            created.get("unit") != original.get("unit")):
+                            all_properties_same = False
+                    
+                    if all_ids_different and all_properties_same:
+                        self.log_test("Paper Type Duplication", True, 
+                                    f"Paper type duplication successful: Created '{created_paper_type.get('name')}' with ID {created_paper_type.get('id')}, {len(created_stock_sizes)} stock sizes with new IDs")
+                    else:
+                        self.log_test("Paper Type Duplication", False, 
+                                    f"Stock sheet size duplication failed: all_ids_different={all_ids_different}, all_properties_same={all_properties_same}")
+                else:
+                    self.log_test("Paper Type Duplication", False, 
+                                f"Paper type properties not duplicated correctly: {created_paper_type}")
+            else:
+                self.log_test("Paper Type Duplication", False, 
+                            f"Failed to create duplicated paper type: HTTP {post_response.status_code}: {post_response.text}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Paper Type Duplication", False, f"Connection error: {str(e)}")
+
+    def test_machine_duplication(self):
+        """Test machine duplication functionality - creating a copy with 'Copy of' prefix and new IDs"""
+        try:
+            # First, get existing machines to find one to duplicate
+            get_response = requests.get(f"{self.api_url}/machines", timeout=10)
+            
+            if get_response.status_code != 200:
+                self.log_test("Machine Duplication", False, f"Failed to get existing machines: {get_response.status_code}")
+                return
+            
+            existing_machines = get_response.json()
+            if not existing_machines:
+                self.log_test("Machine Duplication", False, "No existing machines found to duplicate")
+                return
+            
+            # Select the first machine to duplicate
+            original_machine = existing_machines[0]
+            original_name = original_machine.get("name")
+            original_print_sizes = original_machine.get("printSheetSizes", [])
+            
+            # Create duplication payload with "Copy of" prefix and new IDs for print sheet sizes
+            max_print_id = 0
+            for machine in existing_machines:
+                for print_size in machine.get("printSheetSizes", []):
+                    max_print_id = max(max_print_id, print_size.get("id", 0))
+            
+            # Create new print sheet sizes with incremented IDs
+            new_print_sizes = []
+            for i, print_size in enumerate(original_print_sizes):
+                new_print_size = print_size.copy()
+                new_print_size["id"] = max_print_id + i + 1
+                new_print_sizes.append(new_print_size)
+            
+            duplication_payload = {
+                "name": f"Copy of {original_name}",
+                "setupCost": original_machine.get("setupCost"),
+                "setupCostCurrency": original_machine.get("setupCostCurrency", "USD"),
+                "printSheetSizes": new_print_sizes
+            }
+            
+            # Test POST with duplication payload
+            post_response = requests.post(
+                f"{self.api_url}/machines",
+                json=duplication_payload,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if post_response.status_code == 200:
+                created_machine = post_response.json()
+                
+                # Verify the duplication was successful
+                if (created_machine.get("name") == f"Copy of {original_name}" and
+                    created_machine.get("setupCost") == original_machine.get("setupCost") and
+                    created_machine.get("setupCostCurrency") == original_machine.get("setupCostCurrency") and
+                    len(created_machine.get("printSheetSizes", [])) == len(original_print_sizes)):
+                    
+                    # Verify print sheet sizes have new IDs but same properties
+                    created_print_sizes = created_machine.get("printSheetSizes", [])
+                    all_ids_different = True
+                    all_properties_same = True
+                    
+                    for i, (original, created) in enumerate(zip(original_print_sizes, created_print_sizes)):
+                        if created.get("id") == original.get("id"):
+                            all_ids_different = False
+                        if (created.get("name") != original.get("name") or
+                            created.get("width") != original.get("width") or
+                            created.get("height") != original.get("height") or
+                            created.get("clickCost") != original.get("clickCost") or
+                            created.get("clickCostCurrency") != original.get("clickCostCurrency") or
+                            created.get("duplexSupport") != original.get("duplexSupport") or
+                            created.get("unit") != original.get("unit")):
+                            all_properties_same = False
+                    
+                    if all_ids_different and all_properties_same:
+                        self.log_test("Machine Duplication", True, 
+                                    f"Machine duplication successful: Created '{created_machine.get('name')}' with ID {created_machine.get('id')}, {len(created_print_sizes)} print sizes with new IDs")
+                    else:
+                        self.log_test("Machine Duplication", False, 
+                                    f"Print sheet size duplication failed: all_ids_different={all_ids_different}, all_properties_same={all_properties_same}")
+                else:
+                    self.log_test("Machine Duplication", False, 
+                                f"Machine properties not duplicated correctly: {created_machine}")
+            else:
+                self.log_test("Machine Duplication", False, 
+                            f"Failed to create duplicated machine: HTTP {post_response.status_code}: {post_response.text}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Machine Duplication", False, f"Connection error: {str(e)}")
+
+    def test_paper_type_post_validation(self):
+        """Test POST /api/paper-types endpoint validation and error handling"""
+        try:
+            # Test 1: Valid paper type creation
+            valid_paper_type = {
+                "name": "Test Paper Type",
+                "gsm": 90,
+                "pricePerTon": 1200,
+                "currency": "EUR",
+                "stockSheetSizes": [
+                    {"id": 999, "name": "Test Size", "width": 300, "height": 400, "unit": "mm"}
+                ]
+            }
+            
+            response = requests.post(
+                f"{self.api_url}/paper-types",
+                json=valid_paper_type,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                created_paper = response.json()
+                if (created_paper.get("name") == valid_paper_type["name"] and
+                    "id" in created_paper and
+                    len(created_paper.get("stockSheetSizes", [])) == 1):
+                    self.log_test("Paper Type POST Validation - Valid Data", True, 
+                                f"Valid paper type created successfully with ID: {created_paper.get('id')}")
+                else:
+                    self.log_test("Paper Type POST Validation - Valid Data", False, 
+                                f"Created paper type structure invalid: {created_paper}")
+            else:
+                self.log_test("Paper Type POST Validation - Valid Data", False, 
+                            f"Failed to create valid paper type: HTTP {response.status_code}: {response.text}")
+            
+            # Test 2: Missing required fields
+            invalid_paper_type = {
+                "name": "Incomplete Paper Type",
+                # Missing gsm, pricePerTon, stockSheetSizes
+            }
+            
+            response2 = requests.post(
+                f"{self.api_url}/paper-types",
+                json=invalid_paper_type,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if response2.status_code == 422:  # Validation error expected
+                self.log_test("Paper Type POST Validation - Missing Fields", True, 
+                            f"Correctly rejected incomplete paper type with HTTP 422")
+            else:
+                self.log_test("Paper Type POST Validation - Missing Fields", False, 
+                            f"Should have rejected incomplete data, got HTTP {response2.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Paper Type POST Validation", False, f"Connection error: {str(e)}")
+
+    def test_machine_post_validation(self):
+        """Test POST /api/machines endpoint validation and error handling"""
+        try:
+            # Test 1: Valid machine creation
+            valid_machine = {
+                "name": "Test Machine",
+                "setupCost": 50.0,
+                "setupCostCurrency": "USD",
+                "printSheetSizes": [
+                    {
+                        "id": 999,
+                        "name": "Test Print Size",
+                        "width": 320,
+                        "height": 450,
+                        "clickCost": 0.10,
+                        "clickCostCurrency": "USD",
+                        "duplexSupport": True,
+                        "unit": "mm"
+                    }
+                ]
+            }
+            
+            response = requests.post(
+                f"{self.api_url}/machines",
+                json=valid_machine,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                created_machine = response.json()
+                if (created_machine.get("name") == valid_machine["name"] and
+                    "id" in created_machine and
+                    len(created_machine.get("printSheetSizes", [])) == 1):
+                    self.log_test("Machine POST Validation - Valid Data", True, 
+                                f"Valid machine created successfully with ID: {created_machine.get('id')}")
+                else:
+                    self.log_test("Machine POST Validation - Valid Data", False, 
+                                f"Created machine structure invalid: {created_machine}")
+            else:
+                self.log_test("Machine POST Validation - Valid Data", False, 
+                            f"Failed to create valid machine: HTTP {response.status_code}: {response.text}")
+            
+            # Test 2: Missing required fields
+            invalid_machine = {
+                "name": "Incomplete Machine",
+                # Missing setupCost, printSheetSizes
+            }
+            
+            response2 = requests.post(
+                f"{self.api_url}/machines",
+                json=invalid_machine,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if response2.status_code == 422:  # Validation error expected
+                self.log_test("Machine POST Validation - Missing Fields", True, 
+                            f"Correctly rejected incomplete machine with HTTP 422")
+            else:
+                self.log_test("Machine POST Validation - Missing Fields", False, 
+                            f"Should have rejected incomplete data, got HTTP {response2.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Machine POST Validation", False, f"Connection error: {str(e)}")
+
     def run_all_tests(self):
         """Run all backend tests"""
         print("🚀 Starting Backend API Tests")
