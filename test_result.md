@@ -105,6 +105,18 @@
 user_problem_statement: "Fix the extras calculation logic to use the actual calculated 'print sheets needed' (e.g., 4 sheets) instead of the job's quantity (e.g., 100 units) when the 'Apply to Print Sheet Dimensions' option is selected for an extra."
 
 backend:
+  - task: "Setup cost functionality for extras implementation"
+    implemented: false
+    working: false
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "SETUP COST FUNCTIONALITY TESTING COMPLETED: ❌ CRITICAL FINDING: Setup cost functionality for extras is NOT IMPLEMENTED in the backend. ❌ COMPREHENSIVE TEST RESULTS: All 6 setup cost tests failed because the Extra and ExtraVariant models do not include setupCost and setupCostCurrency fields. ❌ SPECIFIC FAILURES: (1) Setup Cost Basic Acceptance: Backend doesn't save setupCost fields (returns None), (2) Setup Cost Currency Support: All currencies (USD, EUR, TRY) fail because setupCost fields don't exist, (3) Setup Cost CRUD Operations: Can't read setup cost because it's not stored in database, (4) Setup Cost Zero Value: Zero setup cost not handled (field doesn't exist), (5) Setup Cost API Responses: API responses missing setupCost and setupCostCurrency fields, (6) Setup Cost Calculation Integration: Missing required fields for calculations. ❌ BACKEND MODEL ANALYSIS: Current Extra model has: id, name, pricingType, insideOutsideSame, supportsDoubleSided, applyToPrintSheet, variants. Current ExtraVariant model has: id, variantName, price, currency. MISSING: setupCost and setupCostCurrency fields in both models. ❌ BACKEND TEST SUCCESS RATE: 83.5% (76/91 tests passed). The setup cost functionality needs to be implemented in the backend before it can be tested or used by the frontend."
+
   - task: "Currency support for paper types implementation"
     implemented: true
     working: true
