@@ -8,6 +8,7 @@ import MachineManager from './components/MachineManager';
 import ExtrasManager from './components/ExtrasManager';
 import PrintJobCalculator from './components/PrintJobCalculator';
 import { apiService } from './services/api';
+import { fetchExchangeRates } from './utils/currencyConverter';
 import { Calculator, FileText, Settings, Printer, RefreshCw, Scissors } from 'lucide-react';
 import './App.css';
 
