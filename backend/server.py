@@ -586,7 +586,26 @@ async def delete_extra(extra_id: int):
 # Initialize default data endpoint
 @api_router.post("/initialize-data")
 async def initialize_default_data():
-    """Initialize the database with default paper types and machines if they don't exist"""
+    """Initialize the database with default paper types, machines, and users if they don't exist"""
+    
+    # Initialize default admin user
+    existing_users = await db.users.count_documents({})
+    if existing_users == 0:
+        admin_user = User(
+            id=1,
+            username="Emre",
+            hashed_password=hash_password("169681ymc"),
+            is_admin=True,
+            permissions=UserPermissions(
+                can_access_calculator=True,
+                can_access_machines=True,
+                can_access_papers=True,
+                can_access_extras=True,
+                can_see_input_prices=True
+            ),
+            price_multiplier=1.0
+        )
+        await db.users.insert_one(admin_user.dict())
     
     # Check if data already exists
     existing_paper_types = await db.paper_types.count_documents({})
