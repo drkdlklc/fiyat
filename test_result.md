@@ -558,14 +558,14 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Fix extras calculation to use actual print sheets instead of job quantity"
+    - "Move exchange rates display to above tabbed navigation section"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
   - agent: "main"
-    message: "IMPLEMENTATION COMPLETED for extras calculation fix: Modified calculateVariantExtrasCost function to receive calculationResults parameter and use actual print sheets from results instead of job.quantity when applyToPrintSheet checkbox is checked. The function now uses coverResults.printSheetsNeeded for cover extras and innerPagesResults.printSheetsNeeded for inner extras in booklet mode, and calculations[0].printSheetsNeeded for normal mode. This should resolve the issue where extras were showing inflated costs due to using job quantity (100) instead of actual print sheets needed (4)."
+    message: "TASK COMPLETED: Successfully moved exchange rates display from PrintJobCalculator component to above the tabbed navigation section in App.js. The rates now appear prominently above the tabs (Calculator, Paper Types, Machines, Extras) while maintaining the subtle styling. Exchange rates logic was moved to App.js and passed as prop to PrintJobCalculator for use in Final Total Price section. All functionality preserved and tested."
 
 backend:
   - task: "Corrected calculation system implementation"
