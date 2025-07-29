@@ -29,6 +29,8 @@ function AppContent() {
   const { toast } = useToast();
   const { user, isAuthenticated, hasPermission, logout } = useAuth();
 
+  console.log('AppContent render - isAuthenticated:', isAuthenticated, 'user:', user);
+
   // Initialize data on component mount
   useEffect(() => {
     if (isAuthenticated) {
