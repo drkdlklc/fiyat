@@ -588,40 +588,51 @@ async def delete_extra(extra_id: int):
 async def initialize_default_data():
     """Initialize the database with default paper types, machines, and users if they don't exist"""
     
+    print("🔄 Starting default data initialization...")
+    
     # Initialize default admin user - ensure only one exists
-    existing_admin_users = await db.users.find({"username": "Emre"}).to_list(100)
-    
-    if len(existing_admin_users) > 1:
-        # Remove all duplicates and keep only one
-        await db.users.delete_many({"username": "Emre"})
-        existing_admin_users = []
-    
-    if len(existing_admin_users) == 0:
-        # Create new admin user with unique ID
-        existing_users = await db.users.find().sort("id", -1).limit(1).to_list(1)
-        new_admin_id = 1 if not existing_users else existing_users[0]["id"] + 1
+    try:
+        existing_admin_users = await db.users.find({"username": "Emre"}).to_list(100)
         
-        admin_user = User(
-            id=new_admin_id,
-            username="Emre",
-            hashed_password=hash_password("169681ymc"),
-            is_admin=True,
-            permissions=UserPermissions(
-                can_access_calculator=True,
-                can_access_machines=True,
-                can_access_papers=True,
-                can_access_extras=True,
-                can_see_input_prices=True
-            ),
-            price_multiplier=1.0
-        )
-        await db.users.insert_one(admin_user.dict())
-    elif not existing_admin_users[0].get("is_admin", False):
-        # Update existing user to be admin if not already
-        await db.users.update_one(
-            {"username": "Emre"}, 
-            {"$set": {"is_admin": True, "updated_at": datetime.utcnow()}}
-        )
+        if len(existing_admin_users) > 1:
+            # Remove all duplicates and keep only one
+            print(f"⚠️ Found {len(existing_admin_users)} duplicate admin users, cleaning up...")
+            await db.users.delete_many({"username": "Emre"})
+            existing_admin_users = []
+        
+        if len(existing_admin_users) == 0:
+            # Create new admin user with unique ID
+            existing_users = await db.users.find().sort("id", -1).limit(1).to_list(1)
+            new_admin_id = 1 if not existing_users else existing_users[0]["id"] + 1
+            
+            admin_user = User(
+                id=new_admin_id,
+                username="Emre",
+                hashed_password=hash_password("169681ymc"),
+                is_admin=True,
+                permissions=UserPermissions(
+                    can_access_calculator=True,
+                    can_access_machines=True,
+                    can_access_papers=True,
+                    can_access_extras=True,
+                    can_see_input_prices=True
+                ),
+                price_multiplier=1.0
+            )
+            await db.users.insert_one(admin_user.dict())
+            print(f"✅ Created default admin user: Emre (ID: {new_admin_id})")
+        elif not existing_admin_users[0].get("is_admin", False):
+            # Update existing user to be admin if not already
+            await db.users.update_one(
+                {"username": "Emre"}, 
+                {"$set": {"is_admin": True, "updated_at": datetime.utcnow()}}
+            )
+            print("✅ Updated existing Emre user to admin status")
+        else:
+            print("✅ Default admin user already exists and is properly configured")
+    except Exception as e:
+        print(f"❌ Error initializing admin user: {e}")
+        # Still continue with other initialization
     
     # Check if data already exists
     existing_paper_types = await db.paper_types.count_documents({})
