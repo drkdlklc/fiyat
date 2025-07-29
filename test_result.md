@@ -349,17 +349,20 @@ metadata:
   test_sequence: 1
   run_ui: false
 
-  - task: "Add subtle exchange rates display at top of application"
+  - task: "Move exchange rates display to above tabbed navigation section"
     implemented: true
-    working: false
-    file: "frontend/src/components/PrintJobCalculator.jsx"
+    working: true
+    file: "frontend/src/App.js, frontend/src/components/PrintJobCalculator.jsx"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "main"
         comment: "USER REQUEST: Display current exchange rates for USD/TRY and EUR/TRY at top of program in a subtle and minimal way - visible but not visually intrusive. IMPLEMENTATION COMPLETED: Added minimalist exchange rates display in CardHeader section just below the main title. Used very small text (text-xs), muted gray colors (text-gray-400), subtle background (bg-gray-50), rounded pill shape (rounded-full), and monospace font for rates. Shows USD/TRY and EUR/TRY with dot separator and 'Live' indicator. Positioned centrally but unobtrusive."
+      - working: true
+        agent: "main"
+        comment: "USER REQUEST: Move exchange rates display to above tabbed navigation section (Calculator, Paper Types, Machines, Extras). IMPLEMENTATION COMPLETED: Moved exchange rates state and useEffect logic from PrintJobCalculator.jsx to App.js. Moved exchange rates display JSX from PrintJobCalculator CardHeader to App.js above the TabsList component. Updated PrintJobCalculator to receive exchangeRates as a prop for use in Final Total Price section. The exchange rates now display prominently above the tabs while maintaining the subtle styling. All functionality preserved including the Final Total Price section exchange rates display."
 
   - task: "Remove 'Made with Emergent' watermark"
     implemented: true
