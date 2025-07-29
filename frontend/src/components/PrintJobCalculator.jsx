@@ -866,6 +866,63 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
           cost = units * edgeLength * basePrice;
           break;
 
+        case 'per_form':
+          // Per Form Pricing: Calculate forms based on paper GSM and total pages
+          console.log('=== PER_FORM CALCULATION START ===');
+          console.log('job object:', job);
+          console.log('bookletSection:', bookletSection);
+          
+          // Determine the paper GSM based on the current mode and section
+          let paperGSM = null;
+          let totalPages = 0;
+          
+          if (job.isBookletMode) {
+            if (bookletSection === 'cover' && selectedCoverPaperType) {
+              const coverPaper = paperTypes.find(p => p.id === selectedCoverPaperType);
+              paperGSM = coverPaper?.gsm;
+              totalPages = 4; // Cover always has 4 pages
+            } else if (bookletSection === 'inner' && selectedInnerPaperType) {
+              const innerPaper = paperTypes.find(p => p.id === selectedInnerPaperType);
+              paperGSM = innerPaper?.gsm;
+              totalPages = job.hasCover ? Math.max(0, job.totalPages - 4) : job.totalPages;
+            } else if (shouldCalculateForBoth) {
+              // For Inside/Outside = Same, use inner paper GSM for both
+              const innerPaper = paperTypes.find(p => p.id === selectedInnerPaperType);
+              paperGSM = innerPaper?.gsm;
+              totalPages = job.totalPages;
+            }
+          } else {
+            // Normal mode
+            if (selectedPaperType) {
+              const paper = paperTypes.find(p => p.id === selectedPaperType);
+              paperGSM = paper?.gsm;
+            }
+            totalPages = job.totalPages || 1;
+          }
+          
+          console.log('paperGSM:', paperGSM, 'totalPages:', totalPages);
+          
+          if (paperGSM !== null) {
+            // Calculate number of forms based on GSM
+            const divisor = paperGSM >= 170 ? 12 : 16;
+            const numberOfForms = Math.ceil(totalPages / divisor);
+            
+            units = numberOfForms * job.quantity;
+            unitType = `forms (${divisor} pages per form, ${paperGSM} GSM)`;
+            
+            console.log('divisor:', divisor, 'numberOfForms:', numberOfForms, 'units:', units);
+          } else {
+            // Fallback if paper GSM is not available
+            console.warn('Paper GSM not available, using fallback calculation');
+            const numberOfForms = Math.ceil(totalPages / 16); // Default to 16
+            units = numberOfForms * job.quantity;
+            unitType = `forms (16 pages per form, GSM unknown)`;
+          }
+          
+          cost = units * basePrice;
+          console.log('=== PER_FORM CALCULATION END ===');
+          break;
+
         default:
           return;
       }
