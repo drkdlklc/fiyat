@@ -367,14 +367,14 @@ function AppContent() {
       <div className="min-h-screen bg-gray-50">
         <header className="bg-white shadow-sm border-b">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
+            <div className="flex items-center justify-between h-20">
               <div className="flex items-center">
                 {/* Official Logo */}
                 <img 
                   src="https://www.printandsmile.com.tr/data/images/printandsmile-logo.svg" 
                   alt="Print and Smile Logo" 
-                  className="h-12 w-auto mr-4"
-                  style={{ maxHeight: '48px', maxWidth: '200px' }}
+                  className="h-16 w-auto mr-6"
+                  style={{ maxHeight: '64px', maxWidth: '240px' }}
                   onLoad={() => {
                     console.log('Header logo loaded successfully');
                   }}
