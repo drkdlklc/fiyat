@@ -478,6 +478,7 @@ async def initialize_default_data():
                 "insideOutsideSame": False,
                 "supportsDoubleSided": True,  # Can be applied to one or both sides
                 "applyToPrintSheet": False,  # Apply to individual pages
+                "bookletApplicationScope": "both",  # Default to both cover and inner
                 "variants": [
                     {"id": 1, "variantName": "Standard", "price": 0.15, "currency": "USD"},
                     {"id": 2, "variantName": "Premium", "price": 0.22, "currency": "EUR"}
