@@ -373,8 +373,13 @@ function AppContent() {
                 <img 
                   src="https://www.printandsmile.com.tr/data/images/printandsmile-logo.svg" 
                   alt="Print and Smile Logo" 
-                  className="h-10 w-auto mr-4"
+                  className="h-12 w-auto mr-4"
+                  style={{ maxHeight: '48px', maxWidth: '200px' }}
+                  onLoad={() => {
+                    console.log('Header logo loaded successfully');
+                  }}
                   onError={(e) => {
+                    console.log('Header logo failed to load, hiding element');
                     e.target.style.display = 'none';
                   }}
                 />
