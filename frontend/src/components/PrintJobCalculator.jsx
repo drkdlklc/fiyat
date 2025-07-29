@@ -2020,6 +2020,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
                                 <SelectItem key={extra.id} value={extra.id.toString()}>
                                   {extra.name} ({extra.pricingType === 'per_page' ? 'Per Page' : 
                                                   extra.pricingType === 'per_booklet' ? 'Per Booklet' : 
+                                                  extra.pricingType === 'per_form' ? 'Per Form Pricing' :
                                                   'Per Length (cm)'})
                                   {extra.insideOutsideSame && " ✓ Applies to both cover & inner"}
                                 </SelectItem>
