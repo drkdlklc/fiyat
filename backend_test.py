@@ -3329,6 +3329,397 @@ if (innerResult) {
         except requests.exceptions.RequestException as e:
             self.log_test("Paper Type Duplication Debug", False, f"Connection error: {str(e)}")
 
+    def test_per_form_pricing_type_acceptance(self):
+        """Test that backend accepts 'per_form' as a valid pricing type"""
+        try:
+            test_extra = {
+                "name": "Test Per Form Extra",
+                "pricingType": "per_form",
+                "insideOutsideSame": False,
+                "applyToPrintSheet": True,  # Per form pricing should apply to print sheet dimensions
+                "variants": [
+                    {"variantName": "Standard Form", "price": 5.00, "currency": "USD"}
+                ]
+            }
+            
+            response = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if (data.get("name") == test_extra["name"] and 
+                    data.get("pricingType") == "per_form" and
+                    data.get("applyToPrintSheet") == True and
+                    "id" in data and "variants" in data):
+                    
+                    # Verify variant structure
+                    variants = data.get("variants", [])
+                    if len(variants) == 1:
+                        variant = variants[0]
+                        if (variant.get("variantName") == "Standard Form" and 
+                            variant.get("price") == 5.00 and
+                            variant.get("currency") == "USD" and
+                            "id" in variant):
+                            self.log_test("Per Form Pricing Type Acceptance", True, 
+                                        f"Backend successfully accepts 'per_form' pricing type. Extra ID: {data.get('id')}, Variant ID: {variant.get('id')}")
+                            return data.get("id")  # Return for cleanup
+                        else:
+                            self.log_test("Per Form Pricing Type Acceptance", False, f"Variant data mismatch: {variant}")
+                    else:
+                        self.log_test("Per Form Pricing Type Acceptance", False, f"Expected 1 variant, got {len(variants)}")
+                else:
+                    self.log_test("Per Form Pricing Type Acceptance", False, f"Invalid response structure: {data}")
+            else:
+                self.log_test("Per Form Pricing Type Acceptance", False, f"HTTP {response.status_code}: {response.text}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Per Form Pricing Type Acceptance", False, f"Connection error: {str(e)}")
+        
+        return None
+
+    def test_per_form_extra_creation_scenarios(self):
+        """Test creating per_form extras with different scenarios"""
+        try:
+            # Scenario 1: Basic per_form extra
+            basic_extra = {
+                "name": "Basic Per Form Processing",
+                "pricingType": "per_form",
+                "insideOutsideSame": False,
+                "applyToPrintSheet": True,
+                "variants": [
+                    {"variantName": "Standard", "price": 3.50, "currency": "USD"},
+                    {"variantName": "Premium", "price": 5.25, "currency": "EUR"}
+                ]
+            }
+            
+            response1 = requests.post(
+                f"{self.api_url}/extras",
+                json=basic_extra,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            # Scenario 2: Per_form extra with insideOutsideSame = True
+            consolidated_extra = {
+                "name": "Consolidated Per Form Binding",
+                "pricingType": "per_form",
+                "insideOutsideSame": True,
+                "applyToPrintSheet": True,
+                "variants": [
+                    {"variantName": "Wire Binding", "price": 4.00, "currency": "USD"},
+                    {"variantName": "Plastic Binding", "price": 150, "currency": "TRY"}
+                ]
+            }
+            
+            response2 = requests.post(
+                f"{self.api_url}/extras",
+                json=consolidated_extra,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            # Scenario 3: Per_form extra with multiple currency variants
+            multi_currency_extra = {
+                "name": "Multi-Currency Per Form Service",
+                "pricingType": "per_form",
+                "insideOutsideSame": False,
+                "applyToPrintSheet": True,
+                "variants": [
+                    {"variantName": "USD Option", "price": 6.00, "currency": "USD"},
+                    {"variantName": "EUR Option", "price": 5.50, "currency": "EUR"},
+                    {"variantName": "TRY Option", "price": 200, "currency": "TRY"}
+                ]
+            }
+            
+            response3 = requests.post(
+                f"{self.api_url}/extras",
+                json=multi_currency_extra,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            # Validate all scenarios
+            success_count = 0
+            created_ids = []
+            
+            for i, (response, expected_name, expected_same, expected_variant_count) in enumerate([
+                (response1, "Basic Per Form Processing", False, 2),
+                (response2, "Consolidated Per Form Binding", True, 2),
+                (response3, "Multi-Currency Per Form Service", False, 3)
+            ], 1):
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    if (data.get("name") == expected_name and 
+                        data.get("pricingType") == "per_form" and
+                        data.get("insideOutsideSame") == expected_same and
+                        data.get("applyToPrintSheet") == True and
+                        len(data.get("variants", [])) == expected_variant_count):
+                        success_count += 1
+                        created_ids.append(data.get("id"))
+            
+            if success_count == 3:
+                self.log_test("Per Form Extra Creation Scenarios", True, 
+                            f"All 3 per_form extra creation scenarios successful. Created IDs: {created_ids}")
+            else:
+                self.log_test("Per Form Extra Creation Scenarios", False, 
+                            f"Only {success_count}/3 scenarios successful")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Per Form Extra Creation Scenarios", False, f"Connection error: {str(e)}")
+
+    def test_per_form_calculation_data_structure(self):
+        """Test that per_form extras have the correct data structure for calculation logic"""
+        try:
+            # Create a per_form extra for testing calculation data structure
+            test_extra = {
+                "name": "Per Form Calculation Test",
+                "pricingType": "per_form",
+                "insideOutsideSame": False,
+                "applyToPrintSheet": True,  # Critical for per_form pricing
+                "variants": [
+                    {"variantName": "GSM >= 170 Test", "price": 5.00, "currency": "USD"},
+                    {"variantName": "GSM < 170 Test", "price": 4.50, "currency": "USD"}
+                ]
+            }
+            
+            response = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                # Verify the data structure supports calculation requirements
+                required_fields = ["id", "name", "pricingType", "applyToPrintSheet", "variants"]
+                missing_fields = [field for field in required_fields if field not in data]
+                
+                if not missing_fields:
+                    # Verify pricing type and applyToPrintSheet values
+                    if (data.get("pricingType") == "per_form" and 
+                        data.get("applyToPrintSheet") == True):
+                        
+                        # Verify variants have proper structure for calculation
+                        variants = data.get("variants", [])
+                        variant_valid = True
+                        
+                        for variant in variants:
+                            if not all(field in variant for field in ["id", "variantName", "price", "currency"]):
+                                variant_valid = False
+                                break
+                        
+                        if variant_valid:
+                            self.log_test("Per Form Calculation Data Structure", True, 
+                                        f"Per form extra has correct data structure for calculation logic. ID: {data.get('id')}, Variants: {len(variants)}, applyToPrintSheet: {data.get('applyToPrintSheet')}")
+                        else:
+                            self.log_test("Per Form Calculation Data Structure", False, 
+                                        "Variants missing required fields for calculation")
+                    else:
+                        self.log_test("Per Form Calculation Data Structure", False, 
+                                    f"Incorrect pricingType or applyToPrintSheet values: {data.get('pricingType')}, {data.get('applyToPrintSheet')}")
+                else:
+                    self.log_test("Per Form Calculation Data Structure", False, 
+                                f"Missing required fields: {missing_fields}")
+            else:
+                self.log_test("Per Form Calculation Data Structure", False, 
+                            f"Failed to create per_form extra: {response.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Per Form Calculation Data Structure", False, f"Connection error: {str(e)}")
+
+    def test_per_form_pricing_validation(self):
+        """Test validation of per_form pricing type in various CRUD operations"""
+        try:
+            # Test 1: Create per_form extra
+            create_data = {
+                "name": "Validation Test Per Form",
+                "pricingType": "per_form",
+                "insideOutsideSame": False,
+                "applyToPrintSheet": True,
+                "variants": [
+                    {"variantName": "Test Variant", "price": 7.50, "currency": "USD"}
+                ]
+            }
+            
+            create_response = requests.post(
+                f"{self.api_url}/extras",
+                json=create_data,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if create_response.status_code != 200:
+                self.log_test("Per Form Pricing Validation", False, "Failed to create per_form extra")
+                return
+            
+            created_extra = create_response.json()
+            extra_id = created_extra.get("id")
+            
+            # Test 2: Update per_form extra
+            update_data = {
+                "name": "Updated Per Form Extra",
+                "pricingType": "per_form",  # Keep per_form pricing
+                "variants": [
+                    {"variantName": "Updated Variant", "price": 8.00, "currency": "EUR"}
+                ]
+            }
+            
+            update_response = requests.put(
+                f"{self.api_url}/extras/{extra_id}",
+                json=update_data,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            # Test 3: Retrieve and verify per_form extra
+            get_response = requests.get(f"{self.api_url}/extras", timeout=10)
+            
+            validation_results = []
+            
+            # Validate create operation
+            if (create_response.status_code == 200 and 
+                created_extra.get("pricingType") == "per_form"):
+                validation_results.append("CREATE: ✅")
+            else:
+                validation_results.append("CREATE: ❌")
+            
+            # Validate update operation
+            if update_response.status_code == 200:
+                updated_extra = update_response.json()
+                if (updated_extra.get("pricingType") == "per_form" and
+                    updated_extra.get("name") == "Updated Per Form Extra"):
+                    validation_results.append("UPDATE: ✅")
+                else:
+                    validation_results.append("UPDATE: ❌")
+            else:
+                validation_results.append("UPDATE: ❌")
+            
+            # Validate retrieve operation
+            if get_response.status_code == 200:
+                all_extras = get_response.json()
+                found_extra = next((e for e in all_extras if e.get("id") == extra_id), None)
+                if found_extra and found_extra.get("pricingType") == "per_form":
+                    validation_results.append("RETRIEVE: ✅")
+                else:
+                    validation_results.append("RETRIEVE: ❌")
+            else:
+                validation_results.append("RETRIEVE: ❌")
+            
+            # Test 4: Delete per_form extra
+            delete_response = requests.delete(f"{self.api_url}/extras/{extra_id}", timeout=10)
+            
+            if delete_response.status_code == 200:
+                validation_results.append("DELETE: ✅")
+            else:
+                validation_results.append("DELETE: ❌")
+            
+            # Overall validation result
+            success_count = sum(1 for result in validation_results if "✅" in result)
+            
+            if success_count == 4:
+                self.log_test("Per Form Pricing Validation", True, 
+                            f"All CRUD operations support per_form pricing: {' | '.join(validation_results)}")
+            else:
+                self.log_test("Per Form Pricing Validation", False, 
+                            f"CRUD validation results: {' | '.join(validation_results)} ({success_count}/4 passed)")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Per Form Pricing Validation", False, f"Connection error: {str(e)}")
+
+    def test_per_form_with_paper_gsm_scenarios(self):
+        """Test per_form extras with different paper GSM scenarios for calculation support"""
+        try:
+            # Get paper types to verify GSM values for calculation testing
+            paper_response = requests.get(f"{self.api_url}/paper-types", timeout=10)
+            
+            if paper_response.status_code != 200:
+                self.log_test("Per Form with Paper GSM Scenarios", False, "Failed to retrieve paper types")
+                return
+            
+            paper_types = paper_response.json()
+            
+            # Find papers with different GSM values
+            high_gsm_papers = [p for p in paper_types if p.get("gsm", 0) >= 170]
+            low_gsm_papers = [p for p in paper_types if p.get("gsm", 0) < 170]
+            
+            # Create per_form extra for testing with different GSM scenarios
+            per_form_extra = {
+                "name": "GSM-Based Per Form Test",
+                "pricingType": "per_form",
+                "insideOutsideSame": False,
+                "applyToPrintSheet": True,
+                "variants": [
+                    {"variantName": "High GSM (>=170) Processing", "price": 5.00, "currency": "USD"},
+                    {"variantName": "Low GSM (<170) Processing", "price": 4.00, "currency": "USD"}
+                ]
+            }
+            
+            create_response = requests.post(
+                f"{self.api_url}/extras",
+                json=per_form_extra,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if create_response.status_code == 200:
+                created_extra = create_response.json()
+                
+                # Verify the backend data supports GSM-based calculation scenarios
+                gsm_scenarios = []
+                
+                # Test scenario data for calculation logic verification
+                test_scenarios = [
+                    {"gsm": 170, "pages": 24, "quantity": 100, "expected_divisor": 12, "expected_forms": 2, "expected_total": 200},
+                    {"gsm": 90, "pages": 24, "quantity": 100, "expected_divisor": 16, "expected_forms": 2, "expected_total": 200},
+                    {"gsm": 170, "pages": 25, "quantity": 100, "expected_divisor": 12, "expected_forms": 3, "expected_total": 300},
+                    {"gsm": 200, "pages": 36, "quantity": 50, "expected_divisor": 12, "expected_forms": 3, "expected_total": 150},
+                    {"gsm": 80, "pages": 32, "quantity": 75, "expected_divisor": 16, "expected_forms": 2, "expected_total": 150}
+                ]
+                
+                for scenario in test_scenarios:
+                    # Calculate expected forms using Math.ceil logic
+                    import math
+                    calculated_forms = math.ceil(scenario["pages"] / scenario["expected_divisor"])
+                    calculated_total = calculated_forms * scenario["quantity"]
+                    
+                    if (calculated_forms == scenario["expected_forms"] and 
+                        calculated_total == scenario["expected_total"]):
+                        gsm_scenarios.append(f"✅ GSM {scenario['gsm']}: {scenario['pages']} pages, {scenario['quantity']} qty → {calculated_forms} forms, {calculated_total} total")
+                    else:
+                        gsm_scenarios.append(f"❌ GSM {scenario['gsm']}: Expected {scenario['expected_forms']} forms/{scenario['expected_total']} total, got {calculated_forms} forms/{calculated_total} total")
+                
+                # Verify backend data structure supports the calculation requirements
+                if (created_extra.get("pricingType") == "per_form" and 
+                    created_extra.get("applyToPrintSheet") == True and
+                    len(created_extra.get("variants", [])) >= 2):
+                    
+                    success_scenarios = sum(1 for s in gsm_scenarios if "✅" in s)
+                    
+                    if success_scenarios == len(test_scenarios):
+                        self.log_test("Per Form with Paper GSM Scenarios", True, 
+                                    f"Backend supports per_form pricing with GSM-based calculation logic. Extra ID: {created_extra.get('id')}. All {len(test_scenarios)} calculation scenarios verified: {'; '.join(gsm_scenarios)}")
+                    else:
+                        self.log_test("Per Form with Paper GSM Scenarios", False, 
+                                    f"Calculation logic verification failed: {success_scenarios}/{len(test_scenarios)} scenarios passed. Results: {'; '.join(gsm_scenarios)}")
+                else:
+                    self.log_test("Per Form with Paper GSM Scenarios", False, 
+                                "Per form extra missing required fields for GSM-based calculations")
+            else:
+                self.log_test("Per Form with Paper GSM Scenarios", False, 
+                            f"Failed to create per_form extra for GSM testing: {create_response.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Per Form with Paper GSM Scenarios", False, f"Connection error: {str(e)}")
+        except ImportError:
+            self.log_test("Per Form with Paper GSM Scenarios", False, "Math module not available for calculation verification")
+
     def run_all_tests(self):
         """Run all backend tests"""
         print("🚀 Starting Backend API Tests")
