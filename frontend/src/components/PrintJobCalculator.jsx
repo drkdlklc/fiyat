@@ -2477,10 +2477,10 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
                               <div className="flex-1">
                                 <span className="font-medium">{extra.extraName}</span>
                                 <div className="text-xs text-gray-600 mt-1">
-                                  {extra.pricingType === 'per_page' && `${extra.units} ${extra.unitType} × €${convertToEURSync(extra.pricePerUnit, extra.originalPrice?.currency || 'EUR').toFixed(2)} per page`}
-                                  {extra.pricingType === 'per_booklet' && `${extra.units} booklets × €${convertToEURSync(extra.pricePerUnit, extra.originalPrice?.currency || 'EUR').toFixed(2)} per booklet`}
+                                  {extra.pricingType === 'per_page' && `${extra.units} ${extra.unitType} × ${formatEURPriceDynamic(convertToEURSync(extra.pricePerUnit, extra.originalPrice?.currency || 'EUR'))} per page`}
+                                  {extra.pricingType === 'per_booklet' && `${extra.units} booklets × ${formatEURPriceDynamic(convertToEURSync(extra.pricePerUnit, extra.originalPrice?.currency || 'EUR'))} per booklet`}
                                   {extra.pricingType === 'per_length' && (
-                                    `${extra.units} ${extra.unitType} × ${extra.edgeLength?.toFixed(1) || '0.0'}cm edge × €${convertToEURSync(extra.pricePerUnit, extra.originalPrice?.currency || 'EUR').toFixed(2)} per cm`
+                                    `${extra.units} ${extra.unitType} × ${extra.edgeLength?.toFixed(1) || '0.0'}cm edge × ${formatEURPriceDynamic(convertToEURSync(extra.pricePerUnit, extra.originalPrice?.currency || 'EUR'))} per cm`
                                   )}
                                 </div>
                               </div>
