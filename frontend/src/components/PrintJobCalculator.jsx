@@ -742,7 +742,22 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
             
             // Use actual print sheets needed from calculation results
             if (job.isBookletMode) {
-              if (bookletSection === 'cover' && calculationResults && calculationResults.coverResults) {
+              if (shouldCalculateForBoth) {
+                // For Inside/Outside = Same extras, use combined cover + inner print sheets
+                let coverSheets = 0;
+                let innerSheets = 0;
+                
+                if (calculationResults && calculationResults.coverResults && job.hasCover) {
+                  coverSheets = calculationResults.coverResults.printSheetsNeeded;
+                }
+                if (calculationResults && calculationResults.innerPagesResults) {
+                  innerSheets = calculationResults.innerPagesResults.printSheetsNeeded;
+                }
+                
+                units = coverSheets + innerSheets;
+                unitType = 'all print sheets (cover + inner)';
+                console.log('Using combined print sheets for Inside/Outside = Same:', units);
+              } else if (bookletSection === 'cover' && calculationResults && calculationResults.coverResults) {
                 // Use actual cover print sheets from calculation
                 units = calculationResults.coverResults.printSheetsNeeded;
                 unitType = 'cover print sheets';
