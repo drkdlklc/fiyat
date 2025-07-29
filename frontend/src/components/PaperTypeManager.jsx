@@ -173,11 +173,8 @@ const PaperTypeManager = ({ paperTypes, onAddPaperType, onUpdatePaperType, onDel
 
       const reorderedPapers = arrayMove(paperTypes, oldIndex, newIndex);
       
-      // Update each paper type with new order - this assumes the parent component can handle reordering
-      // In a real implementation, you might want to add an onReorderPaperTypes prop
-      reorderedPapers.forEach((paper, index) => {
-        onUpdatePaperType(paper.id, { ...paper, order: index });
-      });
+      // Update the state immediately for visual feedback
+      onReorderPaperTypes(reorderedPapers);
       
       toast({
         title: "Success",
