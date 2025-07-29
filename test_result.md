@@ -1018,6 +1018,8 @@ test_plan:
   test_priority: "high_first"
 
 agent_communication:
+  - agent: "testing"
+    message: "SETUP COST FUNCTIONALITY TESTING COMPLETED: ❌ CRITICAL FINDING: The setup cost functionality for extras is NOT IMPLEMENTED in the backend. All 6 comprehensive tests failed because the Extra and ExtraVariant models lack setupCost and setupCostCurrency fields. The backend currently supports: id, name, pricingType, insideOutsideSame, supportsDoubleSided, applyToPrintSheet, variants (with id, variantName, price, currency). MISSING IMPLEMENTATION: setupCost and setupCostCurrency fields need to be added to the Extra model, similar to how machines have setupCost and setupCostCurrency fields. The backend API endpoints need to be updated to accept, validate, store, and return these fields. Backend test success rate: 83.5% (76/91 tests passed). The setup cost functionality must be implemented in the backend before it can be used by the frontend or tested further."
   - agent: "main"
     message: "JOB DIMENSIONS DEFAULT VALUES FIX: Resolved 0.0cm edge length issue by fixing job object construction. Root cause: finalWidth/finalHeight constructed from empty string jobData values, parseFloat('') returns NaN causing 0 calculations. Fix: Enhanced job construction with A4 defaults (210mm width, 297mm height) when dimensions not set. Expected results: Long edge = 21.0cm (210÷10), short edge = 29.7cm (297÷10). Simplified validation logic since job object now has guaranteed valid dimensions. Updated both PrintJobCalculator and mockData functions for consistency."
   - agent: "testing"
