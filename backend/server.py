@@ -309,6 +309,8 @@ async def update_extra(extra_id: int, extra_update: ExtraUpdate):
         update_data["supportsDoubleSided"] = extra_update.supportsDoubleSided
     if extra_update.applyToPrintSheet is not None:
         update_data["applyToPrintSheet"] = extra_update.applyToPrintSheet
+    if extra_update.bookletApplicationScope is not None:
+        update_data["bookletApplicationScope"] = extra_update.bookletApplicationScope
     
     # Handle variants update
     if extra_update.variants is not None:
