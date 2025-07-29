@@ -349,6 +349,18 @@ metadata:
   test_sequence: 1
   run_ui: false
 
+  - task: "Set default binding edge to 'Long Edge' for both cover and inner pages"
+    implemented: true
+    working: false
+    file: "frontend/src/components/PrintJobCalculator.jsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "USER REQUEST: Set both 'Pages Binding Edge' and 'Cover Binding Edge' to default to 'Long Edge Binding'. IMPLEMENTATION COMPLETED: Updated state initialization for coverBindingEdge and innerBindingEdge from 'short' to 'long'. Also updated main jobData.bindingEdge default from 'short' to 'long' for consistency. Updated both initial state (line 91) and reset function (line 974). All binding edges now default to long edge binding instead of short edge."
+
   - task: "Convert all display prices to EUR with live exchange rates"
     implemented: true
     working: false
