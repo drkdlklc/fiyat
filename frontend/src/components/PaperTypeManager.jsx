@@ -148,6 +148,25 @@ const PaperTypeManager = ({ paperTypes, onAddPaperType, onUpdatePaperType, onDel
     }
   };
 
+  const handleDuplicate = (paper) => {
+    const duplicatedPaper = {
+      name: `Copy of ${paper.name}`,
+      gsm: paper.gsm,
+      pricePerTon: paper.pricePerTon,
+      currency: paper.currency || 'USD',
+      stockSheetSizes: paper.stockSheetSizes.map(size => ({
+        ...size,
+        id: Date.now() + Math.random() // Generate new IDs for duplicated stock sheet sizes
+      }))
+    };
+
+    onAddPaperType(duplicatedPaper);
+    toast({
+      title: "Success",
+      description: "Paper type duplicated successfully"
+    });
+  };
+
   return (
     <Card className="w-full">
       <CardHeader>
