@@ -712,7 +712,11 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
         case 'per_booklet':
           units = job.quantity;
           if (job.isBookletMode) {
-            unitType = bookletSection ? `${bookletSection} sections` : 'booklets';
+            if (shouldCalculateForBoth) {
+              unitType = 'booklets (cover + inner)';
+            } else {
+              unitType = bookletSection ? `${bookletSection} sections` : 'booklets';
+            }
           } else {
             unitType = 'units';
           }
