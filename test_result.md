@@ -787,6 +787,18 @@ backend:
         agent: "testing"
         comment: "PER_PRINT_SHEET IMPLEMENTATION TESTING COMPLETED: ✅ New pricing type 'per_print_sheet' successfully added to Extra model and accepted by all CRUD operations. ✅ Example extra 'Print Sheet Setup' with per_print_sheet pricing and two variants (Standard Setup: 2.5 USD, Premium Setup: 4.0 EUR) created and tested successfully. ✅ Model validation working correctly - per_print_sheet accepted alongside existing pricing types (per_page, per_booklet, per_length). ✅ Database persistence verified - per_print_sheet extras stored, retrieved, and updated correctly. ✅ Complete CRUD cycle tested: Created Print Sheet Setup extra → Retrieved successfully → Updated name and variants → Pricing type preserved throughout operations. ✅ Variants system compatibility confirmed - per_print_sheet works seamlessly with existing variants structure and currency fields. ✅ No regressions detected in existing functionality. The per_print_sheet pricing type implementation is production-ready and fully integrated with the existing extras system."
 
+  - task: "Inside/Outside Same extras filtering functionality testing"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "INSIDE/OUTSIDE SAME FILTERING FUNCTIONALITY TESTING COMPLETED: ✅ SCENARIO 1 (Has Cover = True): Successfully verified that Inside/Outside Same extras (Staple Binding, Spiral Binding, Perfect Binding) only appear in cover section, while regular extras (Cellophane Lamination, UV Coating, Print Sheet Processing) appear in both sections. Backend data structure supports filtering logic with 6 total extras in cover section and 3 regular extras in inner section. ✅ SCENARIO 2 (Has Cover = False): Successfully verified that when cover is disabled, Inside/Outside Same extras appear in inner section only, with all 6 extras available in inner section and 0 in disabled cover section. ✅ CALCULATION LOGIC: All Inside/Outside Same extras have correct calculation properties - Staple Binding (per_booklet, 2 variants), Spiral Binding (per_length with print sheet dimensions, 2 variants), Perfect Binding (per_booklet, 2 variants). All support calculations for both cover and inner pages with 100% success rate. ✅ BACKEND API SUPPORT: All required endpoints working correctly - GET /api/extras returns proper insideOutsideSame field values, CRUD operations maintain field integrity, default data initialization creates appropriate test scenarios. ✅ DATA STRUCTURE VERIFICATION: Backend provides complete support for filtering requirements with proper categorization of 3 Inside/Outside Same extras and 3 regular extras. The Inside/Outside Same extras filtering functionality is fully functional and ready for production use."
+
 frontend:
   - task: "Frontend API integration for persistent storage"
     implemented: true
