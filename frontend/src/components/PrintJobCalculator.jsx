@@ -927,6 +927,14 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
           return;
       }
 
+      // Calculate setup cost (one-time per job)
+      let setupCost = 0;
+      if (extra.setupCost && extra.setupCost > 0) {
+        setupCost = convertToEURSync(extra.setupCost, extra.setupCostCurrency || 'USD');
+      }
+      
+      const totalCostWithSetup = cost + setupCost;
+
       const resultObject = {
         extraId: extra.id,
         variantId: selectedExtra.variantId,
@@ -940,7 +948,9 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
         units,
         unitType,
         edgeLength: extra.pricingType === 'per_length' ? edgeLength : 0,
-        totalCost: cost
+        setupCost: setupCost,
+        setupCostCurrency: extra.setupCostCurrency || 'USD',
+        totalCost: totalCostWithSetup
       };
       
       console.log('=== RESULT OBJECT CREATED ===');
