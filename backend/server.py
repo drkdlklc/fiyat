@@ -112,6 +112,7 @@ class Extra(BaseModel):
     insideOutsideSame: bool = False
     supportsDoubleSided: bool = False  # New field for single/double-sided application
     applyToPrintSheet: bool = False  # New field: apply pricing to print sheet dimensions
+    bookletApplicationScope: str = "both"  # New field: 'both', 'cover_only', 'inner_only'
     variants: List[ExtraVariant]
 
 class ExtraVariantCreate(BaseModel):
