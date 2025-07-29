@@ -166,12 +166,19 @@ const PaperTypeManager = ({ paperTypes, onAddPaperType, onUpdatePaperType, onDel
   // Handle drag end for reordering paper types
   const handleDragEnd = (event) => {
     const { active, over } = event;
+    
+    console.log('Drag event:', { activeId: active.id, overId: over?.id });
+    console.log('Available paper types:', paperTypes.map(p => ({ id: p.id, name: p.name })));
 
     if (active.id !== over?.id) {
       const oldIndex = paperTypes.findIndex(paper => paper.id === active.id);
       const newIndex = paperTypes.findIndex(paper => paper.id === over.id);
+      
+      console.log('Reordering from index', oldIndex, 'to index', newIndex);
 
       const reorderedPapers = arrayMove(paperTypes, oldIndex, newIndex);
+      
+      console.log('New order:', reorderedPapers.map(p => p.name));
       
       // Update the state immediately for visual feedback
       onReorderPaperTypes(reorderedPapers);
@@ -180,6 +187,8 @@ const PaperTypeManager = ({ paperTypes, onAddPaperType, onUpdatePaperType, onDel
         title: "Success",
         description: "Paper types reordered successfully"
       });
+    } else {
+      console.log('No reordering needed - same position');
     }
   };
 
