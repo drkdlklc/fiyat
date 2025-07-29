@@ -3204,6 +3204,131 @@ if (innerResult) {
         except requests.exceptions.RequestException as e:
             self.log_test("Machine POST Validation", False, f"Connection error: {str(e)}")
 
+    def test_paper_type_duplication_debug(self):
+        """Debug the paper type duplication API issue - test the exact payload causing 422 error"""
+        try:
+            # First, get existing paper types to understand the structure
+            get_response = requests.get(f"{self.api_url}/paper-types", timeout=10)
+            
+            if get_response.status_code != 200:
+                self.log_test("Paper Type Duplication Debug - GET", False, f"Failed to get existing paper types: {get_response.status_code}")
+                return
+            
+            existing_paper_types = get_response.json()
+            self.log_test("Paper Type Duplication Debug - GET", True, f"Retrieved {len(existing_paper_types)} existing paper types")
+            
+            if len(existing_paper_types) > 0:
+                print(f"    Sample paper type structure: {json.dumps(existing_paper_types[0], indent=2)}")
+            
+            # Test the exact duplication payload from the review request
+            duplication_payload = {
+                "name": "Copy of Mat Coated 90",
+                "gsm": 90,
+                "pricePerTon": 950,
+                "currency": "EUR",
+                "stockSheetSizes": [
+                    {
+                        "id": 1735464277123.456,  # This is the problematic float ID
+                        "name": "57x82",
+                        "width": 570,
+                        "height": 820
+                    }
+                ]
+            }
+            
+            # Test 1: Try the original payload with float ID (should fail with 422)
+            response1 = requests.post(
+                f"{self.api_url}/paper-types",
+                json=duplication_payload,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if response1.status_code == 422:
+                self.log_test("Paper Type Duplication - Float ID Test", True, f"Correctly rejected float ID with 422 error: {response1.text}")
+            else:
+                self.log_test("Paper Type Duplication - Float ID Test", False, f"Expected 422 error, got {response1.status_code}: {response1.text}")
+            
+            # Test 2: Fix the ID to integer and try again (should succeed)
+            fixed_payload = duplication_payload.copy()
+            fixed_payload["stockSheetSizes"] = [
+                {
+                    "id": int(1735464277123.456),  # Convert to integer
+                    "name": "57x82",
+                    "width": 570,
+                    "height": 820,
+                    "unit": "mm"  # Add missing unit field
+                }
+            ]
+            
+            response2 = requests.post(
+                f"{self.api_url}/paper-types",
+                json=fixed_payload,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if response2.status_code == 200:
+                created_paper_type = response2.json()
+                self.log_test("Paper Type Duplication - Fixed Payload", True, f"Successfully created paper type with integer ID: {created_paper_type.get('id')}")
+            else:
+                self.log_test("Paper Type Duplication - Fixed Payload", False, f"Failed to create with fixed payload: {response2.status_code}: {response2.text}")
+            
+            # Test 3: Test various field type validations
+            test_cases = [
+                {
+                    "name": "GSM String Test",
+                    "payload": {**fixed_payload, "gsm": "90"},  # String instead of int
+                    "should_fail": True
+                },
+                {
+                    "name": "Price String Test", 
+                    "payload": {**fixed_payload, "pricePerTon": "950"},  # String instead of float
+                    "should_fail": True
+                },
+                {
+                    "name": "Missing Currency Test",
+                    "payload": {k: v for k, v in fixed_payload.items() if k != "currency"},
+                    "should_fail": False  # Currency has default value
+                },
+                {
+                    "name": "Missing Unit Test",
+                    "payload": {
+                        **fixed_payload,
+                        "stockSheetSizes": [{
+                            "id": 1735464277124,
+                            "name": "57x82",
+                            "width": 570,
+                            "height": 820
+                            # Missing unit field
+                        }]
+                    },
+                    "should_fail": False  # Unit has default value
+                }
+            ]
+            
+            for test_case in test_cases:
+                response = requests.post(
+                    f"{self.api_url}/paper-types",
+                    json=test_case["payload"],
+                    headers={"Content-Type": "application/json"},
+                    timeout=10
+                )
+                
+                if test_case["should_fail"]:
+                    if response.status_code == 422:
+                        self.log_test(f"Validation Test - {test_case['name']}", True, f"Correctly rejected invalid data with 422")
+                    else:
+                        self.log_test(f"Validation Test - {test_case['name']}", False, f"Expected 422, got {response.status_code}")
+                else:
+                    if response.status_code == 200:
+                        self.log_test(f"Validation Test - {test_case['name']}", True, f"Correctly accepted valid data")
+                    else:
+                        self.log_test(f"Validation Test - {test_case['name']}", False, f"Expected 200, got {response.status_code}: {response.text}")
+                        
+        except requests.exceptions.RequestException as e:
+            self.log_test("Paper Type Duplication Debug", False, f"Connection error: {str(e)}")
+
     def run_all_tests(self):
         """Run all backend tests"""
         print("🚀 Starting Backend API Tests")
