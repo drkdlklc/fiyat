@@ -3345,6 +3345,7 @@ if (innerResult) {
         # DUPLICATION FUNCTIONALITY TESTS (Priority for review request)
         print("🔄 Testing Duplication Functionality for Paper Types and Machines")
         print()
+        self.test_paper_type_duplication_debug()  # NEW: Debug specific 422 error
         self.test_paper_type_duplication()
         self.test_machine_duplication()
         self.test_paper_type_post_validation()
