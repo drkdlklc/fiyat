@@ -601,14 +601,14 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Setup cost functionality for extras implementation"
+    - "Add bookletApplicationScope field to Extra models"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
   - agent: "main"
-    message: "TASK COMPLETED: Successfully moved exchange rates display from PrintJobCalculator component to above the tabbed navigation section in App.js. The rates now appear prominently above the tabs (Calculator, Paper Types, Machines, Extras) while maintaining the subtle styling. Exchange rates logic was moved to App.js and passed as prop to PrintJobCalculator for use in Final Total Price section. All functionality preserved and tested."
+    message: "BACKEND IMPLEMENTATION COMPLETED: Successfully added bookletApplicationScope field to all Extra models with string values ('both', 'cover_only', 'inner_only'). Updated create_extra and update_extra functions to properly handle the new field. Added the field to all default extras data with meaningful scopes for demonstration. Implementation includes proper model validation and database persistence. Ready for backend testing to verify CRUD operations work correctly with the new field."
   - agent: "testing"
     message: "INSIDE/OUTSIDE SAME FILTERING FUNCTIONALITY TESTING COMPLETED: Successfully tested all three scenarios specified in the review request. ✅ SCENARIO 1 (Has Cover = True): Verified that Inside/Outside Same extras (Staple Binding, Spiral Binding, Perfect Binding) only appear in cover section while regular extras appear in both sections. ✅ SCENARIO 2 (Has Cover = False): Verified that Inside/Outside Same extras only appear in inner section when cover is disabled. ✅ CALCULATION LOGIC: All Inside/Outside Same extras have proper calculation properties and can correctly calculate costs for both cover and inner pages. Backend API endpoints are working correctly and provide complete support for the filtering requirements. The functionality is ready for production use."
   - agent: "testing"
