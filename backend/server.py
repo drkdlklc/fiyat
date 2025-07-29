@@ -295,6 +295,10 @@ async def update_extra(extra_id: int, extra_update: ExtraUpdate):
         update_data["name"] = extra_update.name
     if extra_update.pricingType is not None:
         update_data["pricingType"] = extra_update.pricingType
+    if extra_update.setupCost is not None:
+        update_data["setupCost"] = extra_update.setupCost
+    if extra_update.setupCostCurrency is not None:
+        update_data["setupCostCurrency"] = extra_update.setupCostCurrency
     if extra_update.insideOutsideSame is not None:
         update_data["insideOutsideSame"] = extra_update.insideOutsideSame
     if extra_update.supportsDoubleSided is not None:
