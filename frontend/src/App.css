@@ -24,6 +24,28 @@
     color: #61dafb;
 }
 
+/* Disable scroll-based value changes on number inputs */
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Prevent wheel events from changing number input values */
+input[type="number"] {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+input[type="number"]:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
 @keyframes App-logo-spin {
     from {
         transform: rotate(0deg);
