@@ -41,6 +41,55 @@ api_router = APIRouter(prefix="/api")
 
 
 # Define Models
+# Authentication Models
+class UserPermissions(BaseModel):
+    can_access_calculator: bool = True
+    can_access_machines: bool = False
+    can_access_papers: bool = False
+    can_access_extras: bool = False
+    can_see_input_prices: bool = False  # If False, user only sees final results
+
+class User(BaseModel):
+    id: int
+    username: str
+    hashed_password: str
+    is_admin: bool = False
+    permissions: UserPermissions
+    price_multiplier: float = 1.0  # Custom price multiplier for this user
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class UserCreate(BaseModel):
+    username: str
+    password: str
+    is_admin: bool = False
+    permissions: UserPermissions
+    price_multiplier: float = 1.0
+
+class UserUpdate(BaseModel):
+    username: Optional[str] = None
+    password: Optional[str] = None
+    is_admin: Optional[bool] = None
+    permissions: Optional[UserPermissions] = None
+    price_multiplier: Optional[float] = None
+
+class UserLogin(BaseModel):
+    username: str
+    password: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class UserResponse(BaseModel):
+    id: int
+    username: str
+    is_admin: bool
+    permissions: UserPermissions
+    price_multiplier: float
+    created_at: datetime
+    updated_at: datetime
+
 class StatusCheck(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     client_name: str
