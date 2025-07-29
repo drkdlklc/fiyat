@@ -108,6 +108,28 @@ export const formatEURPrice = (price, decimals = 2) => {
 };
 
 /**
+ * Format price with EUR symbol and dynamic decimal places
+ * Automatically adjusts decimal places based on the price magnitude
+ * @param {number} price - Price in EUR
+ * @param {number} maxDecimals - Maximum decimal places (default: 4)
+ * @returns {string} - Formatted price string
+ */
+export const formatEURPriceDynamic = (price, maxDecimals = 4) => {
+  // For very small prices (< 0.01), use up to 4 decimal places
+  if (Math.abs(price) < 0.01 && Math.abs(price) > 0) {
+    return `€${price.toFixed(maxDecimals)}`;
+  }
+  // For small prices (< 1), use up to 3 decimal places
+  else if (Math.abs(price) < 1) {
+    return `€${price.toFixed(3)}`;
+  }
+  // For normal prices, use 2 decimal places
+  else {
+    return `€${price.toFixed(2)}`;
+  }
+};
+
+/**
  * Convert paper type cost to EUR
  * @param {object} paperType - Paper type object with pricePerTon and currency
  * @param {number} tons - Amount in tons
