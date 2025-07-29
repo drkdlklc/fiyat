@@ -256,6 +256,24 @@ const MachineManager = ({ machines, onAddMachine, onUpdateMachine, onDeleteMachi
     }
   };
 
+  const handleDuplicate = (machine) => {
+    const duplicatedMachine = {
+      name: `Copy of ${machine.name}`,
+      setupCost: machine.setupCost,
+      setupCostCurrency: machine.setupCostCurrency || 'USD',
+      printSheetSizes: machine.printSheetSizes.map(size => ({
+        ...size,
+        id: Date.now() + Math.random() // Generate new IDs for duplicated print sheet sizes
+      }))
+    };
+
+    onAddMachine(duplicatedMachine);
+    toast({
+      title: "Success",
+      description: "Machine duplicated successfully"
+    });
+  };
+
   return (
     <Card className="w-full">
       <CardHeader>
