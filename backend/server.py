@@ -553,6 +553,7 @@ async def initialize_default_data():
                 "insideOutsideSame": False,
                 "supportsDoubleSided": False,  # Applied per print sheet
                 "applyToPrintSheet": True,  # Use print sheet dimensions for calculation
+                "bookletApplicationScope": "inner_only",  # Apply only to inner pages
                 "variants": [
                     {"id": 11, "variantName": "Standard Processing", "price": 0.12, "currency": "USD"},  # price per cm of print sheet edge
                     {"id": 12, "variantName": "Premium Processing", "price": 0.18, "currency": "EUR"}   # price per cm of print sheet edge
