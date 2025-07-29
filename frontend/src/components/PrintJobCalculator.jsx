@@ -88,7 +88,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
     totalPages: '',
     useMultiPartConfiguration: false,
     useMultiPartInnerConfiguration: false,
-    bindingEdge: 'short' // 'short' or 'long'
+    bindingEdge: 'long' // 'short' or 'long' - defaults to long edge binding
   });
   const [selectedPaperType, setSelectedPaperType] = useState(null);
   const [selectedMachine, setSelectedMachine] = useState(null);
