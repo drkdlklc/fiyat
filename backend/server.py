@@ -145,6 +145,7 @@ class ExtraUpdate(BaseModel):
     insideOutsideSame: Optional[bool] = None
     supportsDoubleSided: Optional[bool] = None
     applyToPrintSheet: Optional[bool] = None  # New field: apply pricing to print sheet dimensions
+    bookletApplicationScope: Optional[str] = None  # New field: 'both', 'cover_only', 'inner_only'
     variants: Optional[List[ExtraVariantUpdate]] = None
 
 # Add your routes to the router instead of directly to app
