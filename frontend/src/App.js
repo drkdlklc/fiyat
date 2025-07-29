@@ -384,6 +384,7 @@ function App() {
                       paperTypes={paperTypes}
                       machines={machines}
                       extras={extras}
+                      exchangeRates={exchangeRates}
                     />
                   </TabsContent>
 
