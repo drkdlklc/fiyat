@@ -476,15 +476,20 @@ function AppContent() {
           </div>
         </main>
 
-        <footer className="bg-white border-t mt-12">
-          <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-            <div className="text-center text-sm text-gray-600">
-              <p>
-                Printing Cost Calculator - Professional printing estimation tool with advanced calculations
+        <footer className="bg-white border-t mt-8">
+          <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-gray-500">
+                Printing Cost Calculator - Professional tool for print job estimation
               </p>
-              <p className="mt-2">
-                <strong>Note:</strong> Data is now persistently stored in the database and will be preserved across restarts.
-              </p>
+              <button 
+                onClick={handleRefresh}
+                className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
+                disabled={loading}
+              >
+                <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+                Refresh Data
+              </button>
             </div>
           </div>
         </footer>
