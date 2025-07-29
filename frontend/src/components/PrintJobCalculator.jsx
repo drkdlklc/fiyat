@@ -2493,7 +2493,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
                           <div className="flex justify-between items-center pt-2 border-t">
                             <span className="font-semibold text-orange-800">Inner Extras Total:</span>
                             <span className="font-bold text-orange-600">
-                              €{results.extrasResults.innerExtras.reduce((sum, extra) => sum + convertToEURSync(extra.totalCost, extra.originalPrice?.currency || 'EUR'), 0).toFixed(2)}
+                              {formatEURPriceDynamic(results.extrasResults.innerExtras.reduce((sum, extra) => sum + convertToEURSync(extra.totalCost, extra.originalPrice?.currency || 'EUR'), 0))}
                             </span>
                           </div>
                         </div>
