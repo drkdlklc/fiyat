@@ -55,13 +55,18 @@ const LoginPage = () => {
             <img 
               src="https://www.printandsmile.com.tr/data/images/printandsmile-logo.svg" 
               alt="Print and Smile Logo" 
-              className="h-16 w-auto"
+              className="h-20 w-auto max-w-xs"
+              style={{ maxHeight: '80px' }}
+              onLoad={() => {
+                console.log('Print and Smile logo loaded successfully');
+              }}
               onError={(e) => {
+                console.log('Logo failed to load, hiding element');
                 e.target.style.display = 'none';
               }}
             />
           </div>
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+          <h2 className="text-3xl font-extrabold text-gray-900">
             Printing Cost Calculator
           </h2>
           <p className="mt-2 text-sm text-gray-600">
