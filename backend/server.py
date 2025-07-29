@@ -138,6 +138,8 @@ class ExtraVariantUpdate(BaseModel):
 class ExtraUpdate(BaseModel):
     name: Optional[str] = None
     pricingType: Optional[str] = None
+    setupCost: Optional[float] = None  # New setup cost field
+    setupCostCurrency: Optional[str] = None  # New setup cost currency field
     insideOutsideSame: Optional[bool] = None
     supportsDoubleSided: Optional[bool] = None
     applyToPrintSheet: Optional[bool] = None  # New field: apply pricing to print sheet dimensions
