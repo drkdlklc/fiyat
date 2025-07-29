@@ -137,7 +137,7 @@ const SortablePaperType = ({
   );
 };
 
-const PaperTypeManager = ({ paperTypes, onAddPaperType, onUpdatePaperType, onDeletePaperType }) => {
+const PaperTypeManager = ({ paperTypes, onAddPaperType, onUpdatePaperType, onDeletePaperType, onReorderPaperTypes }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
