@@ -969,7 +969,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
         : [];
       
       const innerExtrasResults = selectedInnerExtras.length > 0
-        ? calculateVariantExtrasCost(job, selectedInnerExtras, innerBindingEdge, 'inner', { innerPagesResults })
+        ? calculateVariantExtrasCost(job, selectedInnerExtras, innerBindingEdge, 'inner', { innerPagesResults }, paperTypes)
         : [];
       
       // Handle consolidation of extras with insideOutsideSame flag
