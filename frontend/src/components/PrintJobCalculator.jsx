@@ -1760,38 +1760,6 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
               </div>
             )}
 
-            {/* Binding Edge Selection for Normal Mode */}
-            {!jobData.isBookletMode && (
-              <div className="p-4 border rounded-lg bg-yellow-50 border-yellow-200">
-                <Label className="text-base font-semibold mb-2 block">Binding Edge for Length-Based Extras</Label>
-                <Select value={lengthBasedEdge} onValueChange={setLengthBasedEdge}>
-                  <SelectTrigger className="mb-2">
-                    <SelectValue placeholder="Choose which edge will be used for length calculations" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="short">
-                      <div className="flex flex-col">
-                        <span className="font-semibold">Short Edge ({jobData.finalHeight}mm)</span>
-                        <span className="text-xs text-gray-500">Use height for length calculations</span>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="long">
-                      <div className="flex flex-col">
-                        <span className="font-semibold">Long Edge ({jobData.finalWidth}mm)</span>
-                        <span className="text-xs text-gray-500">Use width for length calculations</span>
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-sm text-blue-600 mt-1">
-                  {lengthBasedEdge === 'short' 
-                    ? `Selected edge: ${jobData.finalHeight}mm (height) will be used for extras pricing`
-                    : `Selected edge: ${jobData.finalWidth}mm (width) will be used for extras pricing`
-                  }
-                </p>
-              </div>
-            )}
-
             {/* Extras Section */}
             <div className="p-4 border rounded-lg bg-purple-50">
               <h3 className="font-semibold text-lg mb-3 text-purple-800 flex items-center gap-2">
