@@ -11,7 +11,7 @@ import { findOptimalPrintSheetSize, calculateOptimalForPaperType, calculateCover
 import html2pdf from 'html2pdf.js';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import { convertToEURSync, formatEURPrice, convertExtraCostToEUR, fetchExchangeRates } from '../utils/currencyConverter';
+import { convertToEURSync, formatEURPrice, convertExtraCostToEUR } from '../utils/currencyConverter';
 
 const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => {
   
