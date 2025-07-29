@@ -122,6 +122,8 @@ class ExtraVariantCreate(BaseModel):
 class ExtraCreate(BaseModel):
     name: str
     pricingType: str
+    setupCost: float = 0.0  # New setup cost field
+    setupCostCurrency: str = "USD"  # New setup cost currency field
     insideOutsideSame: bool = False
     supportsDoubleSided: bool = False
     applyToPrintSheet: bool = False  # New field: apply pricing to print sheet dimensions
