@@ -2459,6 +2459,11 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
                                   {extra.pricingType === 'per_length' && (
                                     `${extra.units} ${extra.unitType} × ${extra.edgeLength?.toFixed(1) || '0.0'}cm edge × ${formatEURPriceDynamic(convertToEURSync(extra.pricePerUnit, extra.originalPrice?.currency || 'EUR'))} per cm`
                                   )}
+                                  {extra.setupCost && extra.setupCost > 0 && (
+                                    <div className="text-orange-600 font-medium">
+                                      + Setup Cost: {formatEURPriceDynamic(extra.setupCost)} (one-time)
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                               <div className="text-right">
