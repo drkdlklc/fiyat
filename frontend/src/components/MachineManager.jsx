@@ -4,8 +4,26 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Plus, Edit2, Trash2, Save, X, Settings, Copy } from 'lucide-react';
+import { Plus, Edit2, Trash2, Save, X, Settings, Copy, GripVertical } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import {
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 const MachineManager = ({ machines, onAddMachine, onUpdateMachine, onDeleteMachine }) => {
   const [isAdding, setIsAdding] = useState(false);
