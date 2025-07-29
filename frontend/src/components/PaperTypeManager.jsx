@@ -171,22 +171,26 @@ const PaperTypeManager = ({ paperTypes, onAddPaperType, onUpdatePaperType, onDel
     console.log('Available paper types:', paperTypes.map(p => ({ id: p.id, name: p.name })));
 
     if (active.id !== over?.id) {
-      const oldIndex = paperTypes.findIndex(paper => paper.id === active.id);
-      const newIndex = paperTypes.findIndex(paper => paper.id === over.id);
+      const oldIndex = paperTypes.findIndex(paper => paper.id.toString() === active.id);
+      const newIndex = paperTypes.findIndex(paper => paper.id.toString() === over.id);
       
       console.log('Reordering from index', oldIndex, 'to index', newIndex);
 
-      const reorderedPapers = arrayMove(paperTypes, oldIndex, newIndex);
-      
-      console.log('New order:', reorderedPapers.map(p => p.name));
-      
-      // Update the state immediately for visual feedback
-      onReorderPaperTypes(reorderedPapers);
-      
-      toast({
-        title: "Success",
-        description: "Paper types reordered successfully"
-      });
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const reorderedPapers = arrayMove(paperTypes, oldIndex, newIndex);
+        
+        console.log('New order:', reorderedPapers.map(p => p.name));
+        
+        // Update the state immediately for visual feedback
+        onReorderPaperTypes(reorderedPapers);
+        
+        toast({
+          title: "Success",
+          description: "Paper types reordered successfully"
+        });
+      } else {
+        console.log('Could not find indices for reordering');
+      }
     } else {
       console.log('No reordering needed - same position');
     }
