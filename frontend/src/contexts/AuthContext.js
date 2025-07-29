@@ -34,14 +34,17 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
+      console.log('Attempting login with username:', username);
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/login`, {
         username,
         password
       });
 
+      console.log('Login response status:', response.status);
       const { access_token } = response.data;
       
       if (!access_token) {
+        console.error('No access token received in response');
         return { success: false, error: 'No access token received' };
       }
       
@@ -53,15 +56,31 @@ export const AuthProvider = ({ children }) => {
       axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
       
       // Get user info directly and set user state
+      console.log('Fetching user info...');
       const userResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/me`);
+      console.log('User info response:', userResponse.status);
       setUser(userResponse.data);
 
       return { success: true };
     } catch (error) {
       console.error('Login failed:', error);
+      console.error('Error status:', error.response?.status);
+      console.error('Error data:', error.response?.data);
+      
+      let errorMessage = 'Login failed';
+      if (error.response?.status === 401) {
+        errorMessage = error.response?.data?.detail || 'Incorrect username or password';
+      } else if (error.response?.status === 403) {
+        errorMessage = 'Access forbidden';
+      } else if (error.response?.status >= 500) {
+        errorMessage = 'Server error. Please try again later.';
+      } else if (error.message === 'Network Error') {
+        errorMessage = 'Network error. Please check your connection.';
+      }
+      
       return { 
         success: false, 
-        error: error.response?.data?.detail || 'Login failed' 
+        error: errorMessage
       };
     }
   };
