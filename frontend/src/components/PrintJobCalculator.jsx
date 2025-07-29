@@ -2013,7 +2013,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
                               </span>
                               <div className="flex items-center gap-2">
                                 <span className="text-sm text-gray-600">
-                                  €{convertToEURSync(selected.price, selected.currency || 'EUR').toFixed(2)}{selected.isDoubleSided && " x2"} per {
+                                  {formatEURPriceDynamic(convertToEURSync(selected.price, selected.currency || 'EUR'))}{selected.isDoubleSided && " x2"} per {
                                     extra?.pricingType === 'per_page' ? 'page' :
                                     extra?.pricingType === 'per_booklet' ? 'booklet' :
                                     'cm'
