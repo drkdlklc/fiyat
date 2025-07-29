@@ -2024,11 +2024,17 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
                             <SelectContent>
                               {extras
                                 .filter(extra => {
+                                  // First, check bookletApplicationScope - only show if applicable to inner pages
+                                  if (extra.bookletApplicationScope === 'cover_only') {
+                                    return false; // Don't show cover_only extras in inner section
+                                  }
+                                  
+                                  // Then apply existing insideOutsideSame logic
                                   // If has cover, hide insideOutsideSame extras from inner section
                                   if (jobData.hasCover) {
                                     return !extra.insideOutsideSame;
                                   } else {
-                                    // If no cover, show all extras including insideOutsideSame ones in inner section
+                                    // If no cover, show all remaining extras including insideOutsideSame ones in inner section
                                     return true;
                                   }
                                 })
