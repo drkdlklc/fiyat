@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import AutocompleteSelect from './ui/autocomplete-select';
 import { Calculator, FileText, Award, Settings, CheckCircle, Plus, Minus, TrendingUp, DollarSign, X, Printer, Info } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
+import { useAuth } from '../contexts/AuthContext';
 import { findOptimalPrintSheetSize, calculateOptimalForPaperType, calculateCoverCost, calculateInnerPagesCost, calculateMultiPartCost, calculateMultiPartInnerPagesCost, calculateExtrasCost } from '../data/mockData';
 import html2pdf from 'html2pdf.js';
 import html2canvas from 'html2canvas';
