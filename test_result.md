@@ -349,6 +349,18 @@ metadata:
   test_sequence: 1
   run_ui: false
 
+  - task: "Remove 'Made with Emergent' watermark"
+    implemented: true
+    working: false
+    file: "frontend/public/index.html"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "USER REQUEST: Remove 'Made with Emergent' sign/watermark from application. IMPLEMENTATION COMPLETED: Removed entire emergent-badge element from index.html (lines 36-82) that displayed the 'Made with Emergent' watermark in bottom-right corner. Also updated page title from 'Emergent | Fullstack App' to 'Printing Cost Calculator' and meta description to be more appropriate for the printing calculator application. Application now displays without any Emergent branding."
+
   - task: "Set default binding edge to 'Long Edge' for both cover and inner pages"
     implemented: true
     working: false
