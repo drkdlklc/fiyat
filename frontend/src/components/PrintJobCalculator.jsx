@@ -1348,18 +1348,14 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="coverPaperType">Cover Paper Type</Label>
-                        <Select value={selectedCoverPaperType?.toString()} onValueChange={handleCoverPaperTypeChange}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select cover paper type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {paperTypes.map((paperType) => (
-                              <SelectItem key={paperType.id} value={paperType.id.toString()}>
-                                {paperType.name} ({paperType.gsm} GSM)
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <AutocompleteSelect
+                          value={selectedCoverPaperType?.toString()}
+                          onValueChange={handleCoverPaperTypeChange}
+                          options={paperTypes}
+                          placeholder="Select or type to search cover paper type"
+                          displayValue={(paper) => `${paper.name} (${paper.gsm} GSM)`}
+                          searchValue={(paper) => `${paper.name} ${paper.gsm} GSM`.toLowerCase()}
+                        />
                       </div>
                       <div>
                         <Label htmlFor="coverMachine">Cover Printing Machine</Label>
