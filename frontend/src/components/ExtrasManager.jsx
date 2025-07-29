@@ -87,6 +87,8 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
     const extraData = {
       name: formData.name,
       pricingType: formData.pricingType,
+      setupCost: formData.setupCost ? parseFloat(formData.setupCost) : 0,
+      setupCostCurrency: formData.setupCostCurrency || 'USD',
       insideOutsideSame: formData.insideOutsideSame,
       supportsDoubleSided: formData.supportsDoubleSided,
       applyToPrintSheet: formData.applyToPrintSheet,
