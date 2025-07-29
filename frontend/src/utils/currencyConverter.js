@@ -177,6 +177,7 @@ export default {
   convertToEURSync,
   convertPricesToEURTotal,
   formatEURPrice,
+  formatEURPriceDynamic,
   convertPaperCostToEUR,
   convertMachineCostToEUR,
   convertExtraCostToEUR,
