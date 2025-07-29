@@ -96,14 +96,14 @@ const UserManager = () => {
           updateData.password = formData.password;
         }
 
-        await axios.put(`${process.env.REACT_APP_BACKEND_URL}/users/${editingId}`, updateData);
+        await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/users/${editingId}`, updateData);
         toast({
           title: "Success",
           description: "User updated successfully"
         });
       } else {
         // Create user
-        await axios.post(`${process.env.REACT_APP_BACKEND_URL}/users`, formData);
+        await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users`, formData);
         toast({
           title: "Success",
           description: "User created successfully"
