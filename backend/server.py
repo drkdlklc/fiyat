@@ -589,8 +589,16 @@ async def initialize_default_data():
     """Initialize the database with default paper types, machines, and users if they don't exist"""
     
     # Initialize default admin user
-    existing_users = await db.users.count_documents({})
-    if existing_users == 0:
+    existing_admin = await db.users.find_one({"username": "Emre"})
+    if existing_admin:
+        # Update existing user to be admin if not already
+        if not existing_admin.get("is_admin", False):
+            await db.users.update_one(
+                {"username": "Emre"}, 
+                {"$set": {"is_admin": True, "updated_at": datetime.utcnow()}}
+            )
+    else:
+        # Create new admin user
         admin_user = User(
             id=1,
             username="Emre",
