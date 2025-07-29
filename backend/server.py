@@ -272,6 +272,8 @@ async def create_extra(extra: ExtraCreate):
         id=new_id, 
         name=extra.name,
         pricingType=extra.pricingType,
+        setupCost=extra.setupCost,
+        setupCostCurrency=extra.setupCostCurrency,
         insideOutsideSame=extra.insideOutsideSame,
         supportsDoubleSided=extra.supportsDoubleSided,
         applyToPrintSheet=extra.applyToPrintSheet,
