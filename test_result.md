@@ -570,7 +570,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Move exchange rates display to above tabbed navigation section"
+    - "Per Form Pricing functionality implementation"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
