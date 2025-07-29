@@ -116,6 +116,8 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
     setFormData({
       name: extra.name,
       pricingType: extra.pricingType,
+      setupCost: extra.setupCost ? extra.setupCost.toString() : '',
+      setupCostCurrency: extra.setupCostCurrency || 'USD',
       insideOutsideSame: extra.insideOutsideSame || false,
       supportsDoubleSided: extra.supportsDoubleSided || false,
       applyToPrintSheet: extra.applyToPrintSheet || false,
