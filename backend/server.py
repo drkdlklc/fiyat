@@ -264,7 +264,116 @@ async def get_admin_user(current_user: User = Depends(get_current_user)):
 async def root():
     return {"message": "Hello World"}
 
-@api_router.post("/status", response_model=StatusCheck)
+# Authentication API Endpoints
+@api_router.post("/login", response_model=Token)
+async def login(user_login: UserLogin):
+    """Authenticate user and return JWT token"""
+    user = await db.users.find_one({"username": user_login.username})
+    if not user or not verify_password(user_login.password, user["hashed_password"]):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user["username"]}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+@api_router.get("/me", response_model=UserResponse)
+async def get_current_user_info(current_user: User = Depends(get_current_user)):
+    """Get current user information"""
+    return UserResponse(**current_user.dict())
+
+# User Management API Endpoints (Admin only)
+@api_router.get("/users", response_model=List[UserResponse])
+async def get_users(admin_user: User = Depends(get_admin_user)):
+    """Get all users (admin only)"""
+    users = await db.users.find().to_list(1000)
+    return [UserResponse(**user) for user in users]
+
+@api_router.post("/users", response_model=UserResponse)
+async def create_user(user_create: UserCreate, admin_user: User = Depends(get_admin_user)):
+    """Create a new user (admin only)"""
+    # Check if username already exists
+    existing_user = await db.users.find_one({"username": user_create.username})
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username already exists"
+        )
+    
+    # Generate new user ID
+    existing_users = await db.users.find().sort("id", -1).limit(1).to_list(1)
+    new_id = 1 if not existing_users else existing_users[0]["id"] + 1
+    
+    # Create user object
+    user_obj = User(
+        id=new_id,
+        username=user_create.username,
+        hashed_password=hash_password(user_create.password),
+        is_admin=user_create.is_admin,
+        permissions=user_create.permissions,
+        price_multiplier=user_create.price_multiplier
+    )
+    
+    await db.users.insert_one(user_obj.dict())
+    return UserResponse(**user_obj.dict())
+
+@api_router.put("/users/{user_id}", response_model=UserResponse)
+async def update_user(user_id: int, user_update: UserUpdate, admin_user: User = Depends(get_admin_user)):
+    """Update a user (admin only)"""
+    existing_user = await db.users.find_one({"id": user_id})
+    if not existing_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    update_data = {}
+    if user_update.username is not None:
+        # Check if new username already exists
+        username_exists = await db.users.find_one({"username": user_update.username, "id": {"$ne": user_id}})
+        if username_exists:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Username already exists"
+            )
+        update_data["username"] = user_update.username
+    
+    if user_update.password is not None:
+        update_data["hashed_password"] = hash_password(user_update.password)
+    
+    if user_update.is_admin is not None:
+        update_data["is_admin"] = user_update.is_admin
+    
+    if user_update.permissions is not None:
+        update_data["permissions"] = user_update.permissions.dict()
+    
+    if user_update.price_multiplier is not None:
+        update_data["price_multiplier"] = user_update.price_multiplier
+    
+    if update_data:
+        update_data["updated_at"] = datetime.utcnow()
+        await db.users.update_one({"id": user_id}, {"$set": update_data})
+    
+    updated_user = await db.users.find_one({"id": user_id})
+    return UserResponse(**updated_user)
+
+@api_router.delete("/users/{user_id}")
+async def delete_user(user_id: int, admin_user: User = Depends(get_admin_user)):
+    """Delete a user (admin only)"""
+    # Prevent deleting the default admin
+    user_to_delete = await db.users.find_one({"id": user_id})
+    if user_to_delete and user_to_delete.get("username") == "Emre":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot delete default admin user"
+        )
+    
+    result = await db.users.delete_one({"id": user_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"message": "User deleted successfully"}
 async def create_status_check(input: StatusCheckCreate):
     status_dict = input.dict()
     status_obj = StatusCheck(**status_dict)
