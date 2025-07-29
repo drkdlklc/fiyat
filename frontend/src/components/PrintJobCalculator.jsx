@@ -678,9 +678,22 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
         basePrice = basePrice * 2;
       }
 
-      // Handle "Inside/Outside = Same" extras - they should calculate for both cover and inner
+      // Handle "Inside/Outside = Same" extras and bookletApplicationScope
       const isInsideOutsideSame = extra.insideOutsideSame;
-      const shouldCalculateForBoth = isInsideOutsideSame && job.isBookletMode;
+      const bookletScope = extra.bookletApplicationScope || 'both';
+      
+      // Check if this extra should be calculated for the current section
+      const shouldCalculateForBoth = isInsideOutsideSame && job.isBookletMode && bookletScope === 'both';
+      
+      // Skip calculation if the extra doesn't apply to this section
+      if (job.isBookletMode && bookletSection) {
+        if (bookletScope === 'cover_only' && bookletSection !== 'cover') {
+          return; // Skip if it's cover_only but we're calculating for inner
+        }
+        if (bookletScope === 'inner_only' && bookletSection !== 'inner') {
+          return; // Skip if it's inner_only but we're calculating for cover
+        }
+      }
 
       switch (extra.pricingType) {
         case 'per_page':
