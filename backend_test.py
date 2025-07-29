@@ -4571,6 +4571,17 @@ if (innerResult) {
         self.test_setup_cost_default_extras_verification()
         self.test_setup_cost_calculation_integration()
         
+        # NEW: BookletApplicationScope Field Tests (for review request)
+        print("📖 Testing BookletApplicationScope Field Functionality")
+        print()
+        self.test_booklet_application_scope_field_support()
+        self.test_booklet_application_scope_crud_operations()
+        self.test_booklet_application_scope_default_values()
+        self.test_booklet_application_scope_validation()
+        self.test_booklet_application_scope_default_extras_verification()
+        self.test_booklet_application_scope_database_persistence()
+        self.test_booklet_application_scope_model_validation()
+        
         # Print summary
         print("=" * 60)
         print("📊 TEST SUMMARY")
