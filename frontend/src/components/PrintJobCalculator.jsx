@@ -3174,7 +3174,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
                           <div className="flex justify-between items-center p-4 bg-blue-100 rounded-lg border-2 border-blue-300">
                             <span className="text-xl font-bold text-blue-900">Grand Total (EUR):</span>
                             <span className="text-2xl font-bold text-blue-800">
-                              {formatEURPrice((displayResults[0]?.totalCost || 0) + 
+                              {formatUserPriceEUR((displayResults[0]?.totalCost || 0) + 
                                 (results.extrasResults ? results.extrasResults.reduce((sum, extra) => {
                                   const currency = extra.originalPrice?.currency || 'EUR';
                                   return sum + convertToEURSync(extra.totalCost, currency);
