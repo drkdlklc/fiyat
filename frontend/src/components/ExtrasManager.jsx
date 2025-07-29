@@ -477,6 +477,14 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
                       ✓ Print Sheet Dimensions - Uses print sheet size for calculations
                     </p>
                   )}
+                  {/* Booklet Application Scope Display */}
+                  {extra.bookletApplicationScope && extra.bookletApplicationScope !== 'both' && (
+                    <p className="text-xs text-indigo-600 mt-1 flex items-center gap-1">
+                      ✓ Booklet Scope: {extra.bookletApplicationScope === 'cover_only' ? 'Cover Only' : 
+                                        extra.bookletApplicationScope === 'inner_only' ? 'Inner Pages Only' : 'Both'}
+                      {extra.bookletApplicationScope !== 'both' && ' - Only appears in selected section(s)'}
+                    </p>
+                  )}
                 </div>
                 <div className="flex gap-2">
                   <Button
