@@ -109,7 +109,7 @@ backend:
     implemented: true
     working: false
     file: "backend/server.py"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
@@ -119,6 +119,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "SETUP COST FUNCTIONALITY RE-TESTING COMPLETED: ❌ CRITICAL FINDING: Setup cost functionality is PARTIALLY IMPLEMENTED but NOT WORKING correctly. ❌ BACKEND MODEL ANALYSIS: The Extra and ExtraCreate models DO include setupCost and setupCostCurrency fields (lines 110-111, 125-126), and default extras data includes setup costs (lines 464, 492, 506, 520, 534). However, there's a critical implementation bug. ❌ SPECIFIC TEST FAILURES: (1) Setup Cost Basic Acceptance: When creating extra with setupCost=25.50 EUR, backend returns setupCost=0.0 USD instead, (2) Setup Cost Currency Support: Failed to create extras with setup costs in different currencies correctly, (3) Setup Cost CRUD Operations: READ operation failed because setup cost fields not persisted correctly, (4) Setup Cost Default Extras Verification: Default extras have setupCost=0.0 USD instead of expected values (Cellophane Lamination: expected 15.0 USD got 0.0 USD, Spiral Binding: expected 25.0 EUR got 0.0 USD, Perfect Binding: expected 50.0 USD got 0.0 USD, UV Coating: expected 30.0 EUR got 0.0 USD). ❌ ROOT CAUSE: The create_extra function (lines 271-281) is not properly passing setupCost and setupCostCurrency from ExtraCreate to Extra model. ✅ POSITIVE FINDINGS: (1) Setup Cost Zero Value: Zero setup cost handled correctly, (2) Setup Cost API Responses: All extras have setupCost/setupCostCurrency fields (defaulting to 0.0 USD), (3) Setup Cost Calculation Integration: Data structure supports calculation integration. ❌ BACKEND TEST SUCCESS RATE: 85.9% (79/92 tests passed). The setup cost functionality needs the create_extra and update_extra functions fixed to properly handle setupCost fields."
+      - working: false
+        agent: "testing"
+        comment: "SETUP COST FUNCTIONALITY FINAL TESTING COMPLETED: ❌ CRITICAL FINDING: Setup cost functionality is STILL NOT WORKING correctly after database reinitialization. ❌ COMPREHENSIVE TEST RESULTS: 6 out of 7 setup cost tests passed, but the most critical test failed. ✅ SUCCESSFUL TESTS: (1) Setup Cost Basic Acceptance: ✅ Backend can create new extras with setup costs (25.5 EUR), (2) Setup Cost Currency Support: ✅ All 3 currencies work (USD: 15.00, EUR: 12.50, TRY: 350.00), (3) Setup Cost CRUD Operations: ✅ Complete CRUD cycle successful (CREATE 30.00 USD → UPDATE 45.00 EUR → DELETE), (4) Setup Cost Zero Value: ✅ Zero setup costs handled correctly (0.0 USD), (5) Setup Cost API Response Structure: ✅ All 158 extras have setupCost/setupCostCurrency fields, (6) Setup Cost Calculation Integration: ✅ Data structure supports calculations. ❌ CRITICAL FAILURE: Setup Cost Default Extras Verification: Default extras in database have setupCost=0.0 USD instead of expected values: Cellophane Lamination (expected 15.0 USD, got 0.0 USD), Spiral Binding (expected 25.0 EUR, got 0.0 USD), Perfect Binding (expected 50.0 USD, got 0.0 USD), UV Coating (expected 30.0 EUR, got 0.0 USD). ❌ ROOT CAUSE ANALYSIS: The backend code (lines 470, 498, 512, 526) DOES include correct setup costs in default data, but the create_extra function is not properly passing setupCost fields from ExtraCreate to Extra model during database initialization. ❌ BACKEND TEST SUCCESS RATE: 89.1% (82/92 tests passed). The setup cost functionality works for NEW extras but fails for DEFAULT extras due to initialization bug in create_extra function."
 
   - task: "Currency support for paper types implementation"
     implemented: true
