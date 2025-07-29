@@ -1474,21 +1474,14 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
                           <div key={part.id} className="grid grid-cols-4 gap-3 mb-2">
                             <div>
                               <Label>Paper Type {index + 1}</Label>
-                              <Select 
-                                value={part.paperTypeId?.toString() || ''} 
+                              <AutocompleteSelect
+                                value={part.paperTypeId?.toString() || ''}
                                 onValueChange={(value) => updateMultiPartInnerConfiguration(part.id, 'paperTypeId', value ? parseInt(value) : null)}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select paper" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {paperTypes.map((paperType) => (
-                                    <SelectItem key={paperType.id} value={paperType.id.toString()}>
-                                      {paperType.name} ({paperType.gsm} GSM)
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                                options={paperTypes}
+                                placeholder="Select or type to search paper type"
+                                displayValue={(paper) => `${paper.name} (${paper.gsm} GSM)`}
+                                searchValue={(paper) => `${paper.name} ${paper.gsm} GSM`.toLowerCase()}
+                              />
                             </div>
                             <div>
                               <Label>Machine {index + 1}</Label>
