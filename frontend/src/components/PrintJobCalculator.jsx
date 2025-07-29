@@ -684,7 +684,11 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
       switch (extra.pricingType) {
         case 'per_page':
           if (job.isBookletMode && bookletSection) {
-            if (bookletSection === 'cover') {
+            if (shouldCalculateForBoth) {
+              // For Inside/Outside = Same extras, calculate for all pages regardless of section
+              units = job.quantity * job.totalPages;
+              unitType = 'all pages (cover + inner)';
+            } else if (bookletSection === 'cover') {
               // Cover pages: always 4 pages per booklet (1 cover = 4 pages)
               units = job.quantity * 4;
               unitType = 'cover pages';
