@@ -3429,6 +3429,15 @@ if (innerResult) {
         self.test_cover_calculation_logic()
         self.test_inner_pages_calculation_logic()
         
+        # NEW: Per Form Pricing Tests (for review request)
+        print("📋 Testing Per Form Pricing Functionality")
+        print()
+        self.test_per_form_pricing_type_acceptance()
+        self.test_per_form_extra_creation_scenarios()
+        self.test_per_form_calculation_data_structure()
+        self.test_per_form_pricing_validation()
+        self.test_per_form_with_paper_gsm_scenarios()
+        
         # Print summary
         print("=" * 60)
         print("📊 TEST SUMMARY")
