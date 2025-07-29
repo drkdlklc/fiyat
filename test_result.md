@@ -150,6 +150,9 @@ frontend:
       - working: true
         agent: "testing"
         comment: "AUTHENTICATION CONTEXT AND LOGIN SYSTEM TESTING COMPLETED: ✅ Login Page Display - All elements correctly displayed including title, username/password fields, and demo credentials (Emre/169681ymc). ✅ Login Process - Successfully authenticated with demo admin credentials, JWT token properly generated and stored. ✅ Authentication State Management - User authentication state properly managed with localStorage persistence. ✅ AuthContext Integration - Login/logout functions working correctly with proper state updates. ✅ Axios Interceptors - JWT tokens automatically included in API requests. ✅ Permission System - hasPermission() function working correctly for UI rendering. ✅ Token Handling - JWT tokens properly stored, retrieved, and cleared on logout. Minor: Default admin user shows is_admin: false instead of true (backend data issue), but core authentication functionality is fully working."
+      - working: true
+        agent: "testing"
+        comment: "CRITICAL BUG FIX VERIFIED: ✅ LOGIN ERROR FIX (FIRST ATTEMPT) - Successfully verified that login with valid credentials (Emre/169681ymc) works on the FIRST attempt without any 'Not authenticated' errors. The race condition fix in AuthContext.js is working correctly - Authorization header is set immediately before /api/me call (lines 52-53). Login process is now smooth and seamless. ✅ REMEMBER ME FUNCTIONALITY - Successfully verified that the 'Remember my username on this device' checkbox is present and functional. Username is correctly remembered when checkbox is checked and forgotten when unchecked. localStorage functionality is working properly across browser sessions. The authentication system improvements are significant and address the major user experience issues."
 
   - task: "Implement protected routes and permission-based UI"
     implemented: true
