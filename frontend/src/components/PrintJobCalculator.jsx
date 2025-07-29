@@ -475,39 +475,34 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
   };
 
   // Function to consolidate extras that have insideOutsideSame flag
-  const consolidateExtrasForBooklet = (coverExtras, innerExtras, extrasData, selectedCoverExtras, selectedInnerExtras) => {
-    // Find extras that are selected for both cover and inner and have insideOutsideSame = true
+  const consolidateExtrasForBooklet = (coverExtras, innerExtras, extrasData, selectedCoverExtras, selectedInnerExtras, hasCover) => {
+    // If has cover: insideOutsideSame extras should only appear in cover section
+    // If no cover: insideOutsideSame extras should only appear in inner section
+    // In both cases, they should be marked as applying to both cover and inner
+    
     const consolidatedCover = [...coverExtras];
-    const consolidatedInner = [];
+    const consolidatedInner = [...innerExtras];
     
-    // Get IDs of cover extras
-    const coverExtraIds = selectedCoverExtras.map(se => se.extraId);
-    const innerExtraIds = selectedInnerExtras.map(se => se.extraId);
+    // Update consolidated extras to indicate they apply to both sections
+    consolidatedCover.forEach((coverExtra, index) => {
+      const extraData = extrasData.find(e => e.id === coverExtra.extraId);
+      if (extraData && extraData.insideOutsideSame && hasCover) {
+        consolidatedCover[index] = {
+          ...coverExtra,
+          unitType: 'booklet (cover + inner)',
+          isConsolidated: true
+        };
+      }
+    });
     
-    innerExtras.forEach(innerExtra => {
+    consolidatedInner.forEach((innerExtra, index) => {
       const extraData = extrasData.find(e => e.id === innerExtra.extraId);
-      const isAlsoInCover = coverExtraIds.includes(innerExtra.extraId);
-      
-      if (extraData && extraData.insideOutsideSame && isAlsoInCover) {
-        // This extra should be consolidated - skip adding to inner, already in cover
-        // But we need to update the cover extra to include both costs
-        const coverExtraIndex = consolidatedCover.findIndex(ce => ce.extraId === innerExtra.extraId && ce.variantId === innerExtra.variantId);
-        if (coverExtraIndex >= 0) {
-          // Combine the costs and update description
-          const combinedCost = consolidatedCover[coverExtraIndex].totalCost + innerExtra.totalCost;
-          const combinedUnits = consolidatedCover[coverExtraIndex].units + innerExtra.units;
-          
-          consolidatedCover[coverExtraIndex] = {
-            ...consolidatedCover[coverExtraIndex],
-            totalCost: combinedCost,
-            units: combinedUnits,
-            unitType: 'booklet (cover + inner)',
-            isConsolidated: true
-          };
-        }
-      } else {
-        // Add to inner extras as normal
-        consolidatedInner.push(innerExtra);
+      if (extraData && extraData.insideOutsideSame && !hasCover) {
+        consolidatedInner[index] = {
+          ...innerExtra,
+          unitType: 'booklet (cover + inner)',
+          isConsolidated: true
+        };
       }
     });
     
