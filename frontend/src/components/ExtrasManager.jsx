@@ -93,6 +93,7 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
       insideOutsideSame: formData.insideOutsideSame,
       supportsDoubleSided: formData.supportsDoubleSided,
       applyToPrintSheet: formData.applyToPrintSheet,
+      bookletApplicationScope: formData.bookletApplicationScope || 'both', // Include new field
       variants: variants
     };
 
