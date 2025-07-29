@@ -878,23 +878,23 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
           
           if (job.isBookletMode) {
             if (bookletSection === 'cover' && selectedCoverPaperType) {
-              const coverPaper = paperTypes.find(p => p.id === selectedCoverPaperType);
+              const coverPaper = paperTypesData.find(p => p.id === selectedCoverPaperType);
               paperGSM = coverPaper?.gsm;
               totalPages = 4; // Cover always has 4 pages
             } else if (bookletSection === 'inner' && selectedInnerPaperType) {
-              const innerPaper = paperTypes.find(p => p.id === selectedInnerPaperType);
+              const innerPaper = paperTypesData.find(p => p.id === selectedInnerPaperType);
               paperGSM = innerPaper?.gsm;
               totalPages = job.hasCover ? Math.max(0, job.totalPages - 4) : job.totalPages;
             } else if (shouldCalculateForBoth) {
               // For Inside/Outside = Same, use inner paper GSM for both
-              const innerPaper = paperTypes.find(p => p.id === selectedInnerPaperType);
+              const innerPaper = paperTypesData.find(p => p.id === selectedInnerPaperType);
               paperGSM = innerPaper?.gsm;
               totalPages = job.totalPages;
             }
           } else {
             // Normal mode
             if (selectedPaperType) {
-              const paper = paperTypes.find(p => p.id === selectedPaperType);
+              const paper = paperTypesData.find(p => p.id === selectedPaperType);
               paperGSM = paper?.gsm;
             }
             totalPages = job.totalPages || 1;
