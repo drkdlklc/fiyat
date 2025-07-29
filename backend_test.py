@@ -4186,6 +4186,7 @@ if (innerResult) {
         self.test_setup_cost_crud_operations()
         self.test_setup_cost_zero_value()
         self.test_setup_cost_api_responses()
+        self.test_setup_cost_default_extras_verification()
         self.test_setup_cost_calculation_integration()
         
         # Print summary
