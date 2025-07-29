@@ -132,8 +132,6 @@ export const AuthProvider = ({ children }) => {
     applyPriceMultiplier
   };
 
-  console.log('AuthProvider value - isAuthenticated:', !!user, 'user:', user);
-
   return (
     <AuthContext.Provider value={value}>
       {children}
