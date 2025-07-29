@@ -100,6 +100,18 @@ const LoginPage = () => {
                 />
               </div>
               
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="rememberMe"
+                  checked={rememberMe}
+                  onCheckedChange={setRememberMe}
+                  disabled={loading}
+                />
+                <Label htmlFor="rememberMe" className="text-sm">
+                  Remember my username on this device
+                </Label>
+              </div>
+              
               <Button 
                 type="submit" 
                 className="w-full" 
