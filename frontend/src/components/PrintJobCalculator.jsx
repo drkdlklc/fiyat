@@ -769,7 +769,17 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
                 console.log('Using inner print sheets from calculation:', units);
               } else {
                 // Fallback to old calculation if results not available
-                if (bookletSection === 'cover') {
+                if (shouldCalculateForBoth) {
+                  // For Inside/Outside = Same, combine cover and inner fallback calculations
+                  const coverSheets = job.hasCover ? job.quantity : 0; // 1 sheet per booklet for cover
+                  const innerPagesPerBooklet = job.hasCover ? Math.max(0, job.totalPages - 4) : job.totalPages;
+                  const innerSheetsPerBooklet = Math.ceil(innerPagesPerBooklet / 4);
+                  const innerSheets = innerSheetsPerBooklet * job.quantity;
+                  
+                  units = coverSheets + innerSheets;
+                  unitType = 'all print sheets (cover + inner) (fallback)';
+                  console.log('Using combined fallback calculation for Inside/Outside = Same:', units);
+                } else if (bookletSection === 'cover') {
                   units = job.quantity; // Fallback: 1 sheet per booklet
                   unitType = 'cover print sheets (fallback)';
                 } else {
