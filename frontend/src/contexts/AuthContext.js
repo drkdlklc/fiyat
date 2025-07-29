@@ -49,6 +49,9 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('token', access_token);
       setToken(access_token);
       
+      // Immediately set the Authorization header for the next request
+      axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+      
       // Get user info directly and set user state
       const userResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/me`);
       setUser(userResponse.data);
