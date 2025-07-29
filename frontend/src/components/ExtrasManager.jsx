@@ -421,6 +421,15 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
                     )}
                   </div>
                   
+                  {/* Setup Cost Display */}
+                  {extra.setupCost && extra.setupCost > 0 && (
+                    <div className="mt-2">
+                      <p className="text-sm font-medium text-orange-600">
+                        Setup Cost: {formatPriceDynamic(extra.setupCost, extra.setupCostCurrency || 'USD')} (one-time per job)
+                      </p>
+                    </div>
+                  )}
+                  
                   {extra.pricingType === 'per_length' && (
                     <p className="text-xs text-blue-600 mt-1">
                       Length-based pricing (cm): Uses bound edge in Booklet Mode, user-selected edge in Normal Mode
