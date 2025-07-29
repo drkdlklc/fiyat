@@ -51,12 +51,12 @@ const LoginPage = () => {
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           {/* Official Logo */}
-          <div className="flex justify-center mb-6">
+          <div className="flex justify-center mb-8">
             <img 
               src="https://www.printandsmile.com.tr/data/images/printandsmile-logo.svg" 
               alt="Print and Smile Logo" 
-              className="h-20 w-auto max-w-xs"
-              style={{ maxHeight: '80px' }}
+              className="h-24 w-auto max-w-sm"
+              style={{ maxHeight: '96px' }}
               onLoad={() => {
                 console.log('Print and Smile logo loaded successfully');
               }}
