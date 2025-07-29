@@ -3135,12 +3135,12 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
                                 <div className="flex justify-between items-center p-4 bg-blue-100 rounded-lg border-2 border-blue-300">
                                   <span className="text-xl font-bold text-blue-900">Grand Total (EUR):</span>
                                   <span className="text-2xl font-bold text-blue-800">
-                                    {formatEURPrice(eurCosts.totalEUR)}
+                                    {formatUserPriceEUR(eurCosts.totalEUR)}
                                   </span>
                                 </div>
                                 
                                 <div className="text-center text-sm text-gray-600 mt-3">
-                                  <p>Price per booklet (EUR): {formatEURPrice(eurCosts.totalEUR / results.job.quantity, 4)}</p>
+                                  <p>Price per booklet (EUR): {formatUserPriceEUR(eurCosts.totalEUR / results.job.quantity)}</p>
                                   <p className="text-xs text-blue-600 mt-1">* All prices converted to EUR using current exchange rates</p>
                                 </div>
                               </>
