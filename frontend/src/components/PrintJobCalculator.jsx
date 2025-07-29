@@ -1792,12 +1792,21 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
                               </SelectTrigger>
                               <SelectContent>
                                 {extras
-                                  .filter(extra => !extra.insideOutsideSame) // Only show non-consolidated extras in inner section
+                                  .filter(extra => {
+                                    // If has cover, show all extras including insideOutsideSame ones in cover section
+                                    if (jobData.hasCover) {
+                                      return true; // Show all extras in cover section
+                                    } else {
+                                      // If no cover, hide insideOutsideSame extras from cover section (shouldn't appear anyway)
+                                      return !extra.insideOutsideSame;
+                                    }
+                                  })
                                   .map((extra) => (
                                   <SelectItem key={extra.id} value={extra.id.toString()}>
                                     {extra.name} ({extra.pricingType === 'per_page' ? 'Per Page' : 
                                                     extra.pricingType === 'per_booklet' ? 'Per Booklet' : 
                                                     'Per Length (cm)'})
+                                    {extra.insideOutsideSame && " ✓ Applies to both cover & inner"}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
