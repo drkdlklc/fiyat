@@ -815,6 +815,18 @@ backend:
         agent: "testing"
         comment: "INSIDE/OUTSIDE SAME FILTERING FUNCTIONALITY TESTING COMPLETED: ✅ SCENARIO 1 (Has Cover = True): Successfully verified that Inside/Outside Same extras (Staple Binding, Spiral Binding, Perfect Binding) only appear in cover section, while regular extras (Cellophane Lamination, UV Coating, Print Sheet Processing) appear in both sections. Backend data structure supports filtering logic with 6 total extras in cover section and 3 regular extras in inner section. ✅ SCENARIO 2 (Has Cover = False): Successfully verified that when cover is disabled, Inside/Outside Same extras appear in inner section only, with all 6 extras available in inner section and 0 in disabled cover section. ✅ CALCULATION LOGIC: All Inside/Outside Same extras have correct calculation properties - Staple Binding (per_booklet, 2 variants), Spiral Binding (per_length with print sheet dimensions, 2 variants), Perfect Binding (per_booklet, 2 variants). All support calculations for both cover and inner pages with 100% success rate. ✅ BACKEND API SUPPORT: All required endpoints working correctly - GET /api/extras returns proper insideOutsideSame field values, CRUD operations maintain field integrity, default data initialization creates appropriate test scenarios. ✅ DATA STRUCTURE VERIFICATION: Backend provides complete support for filtering requirements with proper categorization of 3 Inside/Outside Same extras and 3 regular extras. The Inside/Outside Same extras filtering functionality is fully functional and ready for production use."
 
+  - task: "Debug paper type duplication API 422 error"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "PAPER TYPE DUPLICATION 422 ERROR DEBUGGING COMPLETED: ✅ ROOT CAUSE IDENTIFIED: The frontend is generating float IDs (e.g., 1735464277123.456) using Date.now() + Math.random(), but the backend StockSheetSize model expects integer IDs. ✅ VALIDATION CONFIRMED: Backend correctly rejects float IDs with 422 error: 'Input should be a valid integer, got a number with a fractional part'. ✅ SOLUTION VERIFIED: Converting float IDs to integers (int(1735464277123.456)) allows successful paper type creation. ✅ BACKEND API WORKING CORRECTLY: The duplication functionality works perfectly when proper integer IDs are provided. ✅ FIELD VALIDATION TESTED: GSM and pricePerTon fields accept both string and numeric values (Pydantic auto-conversion), currency and unit fields have proper defaults. ✅ COMPREHENSIVE TESTING: Overall backend test success rate 88.8% (71/80 tests passed). The 422 error is NOT a backend bug - it's correct validation behavior. The frontend duplication logic needs to generate integer IDs instead of float IDs for stockSheetSizes."
+
 frontend:
   - task: "Frontend API integration for persistent storage"
     implemented: true
