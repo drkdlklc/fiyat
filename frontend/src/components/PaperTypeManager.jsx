@@ -347,6 +347,16 @@ const PaperTypeManager = ({ paperTypes, onAddPaperType, onUpdatePaperType, onDel
                   <Button
                     variant="outline"
                     size="sm"
+                    onClick={() => handleDuplicate(paper)}
+                    disabled={isAdding || editingId}
+                    className="flex items-center gap-1"
+                  >
+                    <Copy size={14} />
+                    Duplicate
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={() => handleEdit(paper)}
                     disabled={isAdding || editingId}
                     className="flex items-center gap-1"
