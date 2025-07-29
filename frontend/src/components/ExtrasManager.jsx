@@ -42,6 +42,8 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
     setFormData({
       name: '',
       pricingType: 'per_page',
+      setupCost: '',
+      setupCostCurrency: 'USD',
       insideOutsideSame: false,
       supportsDoubleSided: false,
       applyToPrintSheet: false,
