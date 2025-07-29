@@ -178,6 +178,15 @@ function App() {
     }
   };
 
+  const handleReorderPaperTypes = (reorderedPaperTypes) => {
+    // Update the state immediately for visual feedback
+    setPaperTypes(reorderedPaperTypes);
+    
+    // Optionally, persist the new order to the backend
+    // Note: This would require a backend endpoint to handle bulk order updates
+    // For now, we'll just update the local state
+  };
+
   // Machine management
   const handleAddMachine = async (machineData) => {
     try {
