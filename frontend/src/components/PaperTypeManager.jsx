@@ -41,7 +41,7 @@ const SortablePaperType = ({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: paper.id });
+  } = useSortable({ id: paper.id.toString() });
 
   const style = {
     transform: CSS.Transform.toString(transform),
