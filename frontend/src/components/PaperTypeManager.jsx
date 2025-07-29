@@ -493,79 +493,34 @@ const PaperTypeManager = ({ paperTypes, onAddPaperType, onUpdatePaperType, onDel
           </form>
         )}
 
-        <div className="grid gap-4">
-          {paperTypes.map((paper) => (
-            <div key={paper.id} className="p-4 border rounded-lg bg-white hover:bg-gray-50 transition-colors">
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <h3 className="font-semibold text-lg">{paper.name}</h3>
-                  <div className="flex gap-4 mt-1 text-sm text-gray-600">
-                    <span><strong>GSM:</strong> {paper.gsm}</span>
-                    <span><strong>Price:</strong> {paper.pricePerTon} {paper.currency || 'USD'}/ton</span>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDuplicate(paper)}
-                    disabled={isAdding || editingId}
-                    className="flex items-center gap-1"
-                  >
-                    <Copy size={14} />
-                    Duplicate
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEdit(paper)}
-                    disabled={isAdding || editingId}
-                    className="flex items-center gap-1"
-                  >
-                    <Edit2 size={14} />
-                    Edit
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDelete(paper.id)}
-                    disabled={isAdding || editingId}
-                    className="flex items-center gap-1 text-red-600 hover:text-red-700"
-                  >
-                    <Trash2 size={14} />
-                    Delete
-                  </Button>
-                </div>
+        <div className="space-y-4">
+          <div className="text-sm text-gray-600">
+            Drag the handle (⋮⋮) to reorder paper types manually
+          </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={paperTypes.map(paper => paper.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="grid gap-4">
+                {paperTypes.map((paper) => (
+                  <SortablePaperType
+                    key={paper.id}
+                    paper={paper}
+                    isAdding={isAdding}
+                    editingId={editingId}
+                    handleDuplicate={handleDuplicate}
+                    handleEdit={handleEdit}
+                    handleDelete={handleDelete}
+                  />
+                ))}
               </div>
-              
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  <FileText size={16} />
-                  Stock Sheet Sizes ({paper.stockSheetSizes.length})
-                </div>
-                <div className="grid gap-2">
-                  {paper.stockSheetSizes.map((stockSheet) => (
-                    <div key={stockSheet.id} className="pl-4 p-2 bg-gray-100 rounded text-sm">
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                        <div>
-                          <span className="font-medium">{stockSheet.name}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">{stockSheet.width} × {stockSheet.height} mm</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">{((stockSheet.width * stockSheet.height) / 1000000).toFixed(3)} m²</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">{paper.gsm} GSM</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ))}
+            </SortableContext>
+          </DndContext>
         </div>
       </CardContent>
     </Card>
