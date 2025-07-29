@@ -8,6 +8,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Plus, Edit2, Trash2, Save, X, Scissors, Minus } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
 
+// Helper function to format price with appropriate decimal places
+const formatPriceDynamic = (price, currency = 'USD', maxDecimals = 4) => {
+  const numPrice = parseFloat(price) || 0;
+  // For very small prices (< 0.01), use up to 4 decimal places
+  if (Math.abs(numPrice) < 0.01 && Math.abs(numPrice) > 0) {
+    return `${numPrice.toFixed(maxDecimals)} ${currency}`;
+  }
+  // For small prices (< 1), use up to 3 decimal places
+  else if (Math.abs(numPrice) < 1) {
+    return `${numPrice.toFixed(3)} ${currency}`;
+  }
+  // For normal prices, use 2 decimal places
+  else {
+    return `${numPrice.toFixed(2)} ${currency}`;
+  }
+};
+
 const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState(null);
