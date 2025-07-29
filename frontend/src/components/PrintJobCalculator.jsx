@@ -965,7 +965,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
     if (job.isBookletMode) {
       // Booklet mode: separate cover and inner page extras
       const coverExtrasResults = job.hasCover && selectedCoverExtras.length > 0 
-        ? calculateVariantExtrasCost(job, selectedCoverExtras, coverBindingEdge, 'cover', { coverResults })
+        ? calculateVariantExtrasCost(job, selectedCoverExtras, coverBindingEdge, 'cover', { coverResults }, paperTypes)
         : [];
       
       const innerExtrasResults = selectedInnerExtras.length > 0
