@@ -349,6 +349,18 @@ metadata:
   test_sequence: 1
   run_ui: false
 
+  - task: "Add subtle exchange rates display at top of application"
+    implemented: true
+    working: false
+    file: "frontend/src/components/PrintJobCalculator.jsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "USER REQUEST: Display current exchange rates for USD/TRY and EUR/TRY at top of program in a subtle and minimal way - visible but not visually intrusive. IMPLEMENTATION COMPLETED: Added minimalist exchange rates display in CardHeader section just below the main title. Used very small text (text-xs), muted gray colors (text-gray-400), subtle background (bg-gray-50), rounded pill shape (rounded-full), and monospace font for rates. Shows USD/TRY and EUR/TRY with dot separator and 'Live' indicator. Positioned centrally but unobtrusive."
+
   - task: "Remove 'Made with Emergent' watermark"
     implemented: true
     working: false
