@@ -106,7 +106,9 @@ class ExtraVariant(BaseModel):
 class Extra(BaseModel):
     id: int
     name: str
-    pricingType: str  # 'per_page', 'per_booklet', 'per_length'
+    pricingType: str  # 'per_page', 'per_booklet', 'per_length', 'per_form'
+    setupCost: float = 0.0  # New setup cost field
+    setupCostCurrency: str = "USD"  # New setup cost currency field
     insideOutsideSame: bool = False
     supportsDoubleSided: bool = False  # New field for single/double-sided application
     applyToPrintSheet: bool = False  # New field: apply pricing to print sheet dimensions
