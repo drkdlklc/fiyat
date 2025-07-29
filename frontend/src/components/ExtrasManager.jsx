@@ -385,6 +385,27 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
                 Enable this for extras that should be priced based on print sheet dimensions rather than individual page dimensions
               </p>
             </div>
+
+            {/* Booklet Application Scope Selection */}
+            <div className="mt-4">
+              <Label htmlFor="bookletApplicationScope">Booklet Application Scope</Label>
+              <Select 
+                value={formData.bookletApplicationScope} 
+                onValueChange={(value) => setFormData({ ...formData, bookletApplicationScope: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select application scope" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="both">Both Cover and Inner Pages</SelectItem>
+                  <SelectItem value="cover_only">Cover Only</SelectItem>
+                  <SelectItem value="inner_only">Inner Pages Only</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-gray-500 mt-1">
+                In booklet mode, this extra will only appear in the selected section(s) and will only be calculated for those parts
+              </p>
+            </div>
             
             <div className="flex gap-2 mt-4">
               <Button type="submit" size="sm">
