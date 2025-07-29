@@ -36,6 +36,29 @@ function AppContent() {
     }
   }, [isAuthenticated]);
 
+  // Prevent scroll-based value changes on number inputs
+  useEffect(() => {
+    const handleWheel = (e) => {
+      if (e.target.type === 'number') {
+        e.preventDefault();
+      }
+    };
+
+    const handleKeyDown = (e) => {
+      if (e.target.type === 'number' && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+        e.preventDefault();
+      }
+    };
+
+    document.addEventListener('wheel', handleWheel, { passive: false });
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('wheel', handleWheel);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
   const handleRefresh = async () => {
     if (isAuthenticated) {
       await initializeData();
