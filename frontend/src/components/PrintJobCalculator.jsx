@@ -1175,18 +1175,6 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
             <Calculator size={20} />
             Print Job Calculator
           </CardTitle>
-          
-          {/* Subtle Exchange Rates Display */}
-          {exchangeRates && (
-            <div className="mt-2 flex justify-center">
-              <div className="text-xs text-gray-400 bg-gray-50 px-3 py-1 rounded-full border border-gray-200">
-                <span className="font-mono">USD/TRY: {(1/exchangeRates.TRY * exchangeRates.USD).toFixed(2)}</span>
-                <span className="mx-2 text-gray-300">•</span>
-                <span className="font-mono">EUR/TRY: {(1/exchangeRates.TRY).toFixed(2)}</span>
-                <span className="ml-2 text-gray-300 text-[10px]">Live</span>
-              </div>
-            </div>
-          )}
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
