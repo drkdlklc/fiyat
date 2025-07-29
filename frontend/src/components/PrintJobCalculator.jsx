@@ -3153,7 +3153,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
                           <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
                             <span className="font-semibold text-gray-800">Print Job Cost (EUR):</span>
                             <span className="font-bold text-gray-700">
-                              {displayResults[0]?.totalCost ? formatEURPrice(displayResults[0].totalCost) : '€0.00'}
+                              {displayResults[0]?.totalCost ? formatUserPriceEUR(displayResults[0].totalCost) : '€0.00'}
                             </span>
                           </div>
                           
