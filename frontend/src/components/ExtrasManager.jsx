@@ -123,6 +123,7 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
       insideOutsideSame: extra.insideOutsideSame || false,
       supportsDoubleSided: extra.supportsDoubleSided || false,
       applyToPrintSheet: extra.applyToPrintSheet || false,
+      bookletApplicationScope: extra.bookletApplicationScope || 'both', // Include new field
       variants: extra.variants?.map(v => ({
         id: v.id,
         variantName: v.variantName,
