@@ -489,7 +489,7 @@ const MachineManager = ({ machines, onAddMachine, onUpdateMachine, onDeleteMachi
       setupCostCurrency: machine.setupCostCurrency || 'USD',
       printSheetSizes: machine.printSheetSizes.map(size => ({
         ...size,
-        id: Date.now() + Math.random() // Generate new IDs for duplicated print sheet sizes
+        id: Math.floor(Date.now() + Math.random() * 1000) // Generate integer IDs
       }))
     };
 
