@@ -394,9 +394,9 @@ function AppContent() {
               <div className="mb-6 text-center">
                 <div className="inline-flex items-center gap-4 px-4 py-2 bg-gray-50 rounded-full text-xs text-gray-400 font-mono">
                   <span className="text-green-500">● Live</span>
-                  <span>USD/TRY: {(1 / exchangeRates.USD).toFixed(2)}</span>
+                  <span>USD/TRY: {exchangeRates.source_rates ? exchangeRates.source_rates.USD_to_TRY.toFixed(2) : (exchangeRates.USD * (1/exchangeRates.TRY)).toFixed(2)}</span>
                   <span>•</span>
-                  <span>EUR/TRY: {(1 / exchangeRates.TRY).toFixed(2)}</span>
+                  <span>EUR/TRY: {exchangeRates.source_rates ? exchangeRates.source_rates.EUR_to_TRY.toFixed(2) : (1 / exchangeRates.TRY).toFixed(2)}</span>
                 </div>
               </div>
             )}
