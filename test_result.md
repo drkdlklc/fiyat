@@ -588,7 +588,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Per Form Pricing functionality implementation"
+    - "Setup cost functionality for extras implementation"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
