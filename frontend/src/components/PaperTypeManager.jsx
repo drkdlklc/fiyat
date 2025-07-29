@@ -509,7 +509,7 @@ const PaperTypeManager = ({ paperTypes, onAddPaperType, onUpdatePaperType, onDel
             onDragEnd={handleDragEnd}
           >
             <SortableContext
-              items={paperTypes.map(paper => paper.id)}
+              items={paperTypes.map(paper => paper.id.toString())}
               strategy={verticalListSortingStrategy}
             >
               <div className="grid gap-4">
