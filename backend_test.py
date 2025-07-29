@@ -3720,6 +3720,355 @@ if (innerResult) {
         except ImportError:
             self.log_test("Per Form with Paper GSM Scenarios", False, "Math module not available for calculation verification")
 
+    # Setup Cost Functionality Tests
+    def test_setup_cost_basic_acceptance(self):
+        """Test creating extras with setup cost fields"""
+        try:
+            # Test 1: Create extra with setupCost field
+            test_extra_with_setup = {
+                "name": "Test Setup Extra",
+                "pricingType": "per_page",
+                "setupCost": 25.00,
+                "setupCostCurrency": "USD",
+                "variants": [
+                    {"variantName": "Standard", "price": 0.15, "currency": "USD"}
+                ]
+            }
+            
+            response1 = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra_with_setup,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if response1.status_code == 200:
+                data1 = response1.json()
+                if (data1.get("setupCost") == 25.00 and 
+                    data1.get("setupCostCurrency") == "USD" and
+                    data1.get("name") == "Test Setup Extra"):
+                    self.log_test("Setup Cost Basic Acceptance", True, 
+                                f"Extra with setup cost created successfully: {data1.get('name')}, setupCost: {data1.get('setupCost')} {data1.get('setupCostCurrency')}")
+                    # Clean up
+                    requests.delete(f"{self.api_url}/extras/{data1.get('id')}", timeout=10)
+                else:
+                    self.log_test("Setup Cost Basic Acceptance", False, 
+                                f"Setup cost fields not properly saved: setupCost={data1.get('setupCost')}, currency={data1.get('setupCostCurrency')}")
+            elif response1.status_code == 422:
+                self.log_test("Setup Cost Basic Acceptance", False, 
+                            "Backend rejected setup cost fields - functionality not implemented")
+            else:
+                self.log_test("Setup Cost Basic Acceptance", False, 
+                            f"Unexpected response: HTTP {response1.status_code}: {response1.text}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Setup Cost Basic Acceptance", False, f"Connection error: {str(e)}")
+
+    def test_setup_cost_currency_support(self):
+        """Test setup costs with different currencies (USD, EUR, TRY)"""
+        try:
+            currencies_to_test = [
+                ("USD", 25.00),
+                ("EUR", 50.00),
+                ("TRY", 1200.00)
+            ]
+            
+            created_ids = []
+            
+            for currency, amount in currencies_to_test:
+                test_extra = {
+                    "name": f"Test Setup {currency}",
+                    "pricingType": "per_page",
+                    "setupCost": amount,
+                    "setupCostCurrency": currency,
+                    "variants": [
+                        {"variantName": "Standard", "price": 0.15, "currency": currency}
+                    ]
+                }
+                
+                response = requests.post(
+                    f"{self.api_url}/extras",
+                    json=test_extra,
+                    headers={"Content-Type": "application/json"},
+                    timeout=10
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    if (data.get("setupCost") == amount and 
+                        data.get("setupCostCurrency") == currency):
+                        created_ids.append(data.get("id"))
+                    else:
+                        self.log_test("Setup Cost Currency Support", False, 
+                                    f"Currency {currency} not properly saved: expected {amount} {currency}, got {data.get('setupCost')} {data.get('setupCostCurrency')}")
+                        return
+                else:
+                    self.log_test("Setup Cost Currency Support", False, 
+                                f"Failed to create extra with {currency}: HTTP {response.status_code}")
+                    return
+            
+            if len(created_ids) == 3:
+                self.log_test("Setup Cost Currency Support", True, 
+                            f"Setup costs work with all currencies: {[f'{amount} {currency}' for currency, amount in currencies_to_test]}")
+                
+                # Clean up
+                for extra_id in created_ids:
+                    requests.delete(f"{self.api_url}/extras/{extra_id}", timeout=10)
+            else:
+                self.log_test("Setup Cost Currency Support", False, 
+                            f"Only {len(created_ids)} out of 3 currencies worked")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Setup Cost Currency Support", False, f"Connection error: {str(e)}")
+
+    def test_setup_cost_crud_operations(self):
+        """Test CRUD operations with setup cost fields"""
+        try:
+            # CREATE
+            test_extra = {
+                "name": "CRUD Test Setup Extra",
+                "pricingType": "per_booklet",
+                "setupCost": 30.00,
+                "setupCostCurrency": "EUR",
+                "variants": [
+                    {"variantName": "Standard", "price": 5.00, "currency": "EUR"}
+                ]
+            }
+            
+            create_response = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if create_response.status_code != 200:
+                self.log_test("Setup Cost CRUD Operations", False, 
+                            f"CREATE failed: HTTP {create_response.status_code}")
+                return
+            
+            created_extra = create_response.json()
+            extra_id = created_extra.get("id")
+            
+            # READ - Verify creation
+            get_response = requests.get(f"{self.api_url}/extras", timeout=10)
+            if get_response.status_code == 200:
+                all_extras = get_response.json()
+                found_extra = next((e for e in all_extras if e.get("id") == extra_id), None)
+                
+                if not found_extra or found_extra.get("setupCost") != 30.00:
+                    self.log_test("Setup Cost CRUD Operations", False, 
+                                "READ failed: Created extra not found or setup cost missing")
+                    return
+            else:
+                self.log_test("Setup Cost CRUD Operations", False, 
+                            f"READ failed: HTTP {get_response.status_code}")
+                return
+            
+            # UPDATE
+            update_data = {
+                "setupCost": 45.00,
+                "setupCostCurrency": "USD"
+            }
+            
+            update_response = requests.put(
+                f"{self.api_url}/extras/{extra_id}",
+                json=update_data,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if update_response.status_code == 200:
+                updated_extra = update_response.json()
+                if (updated_extra.get("setupCost") == 45.00 and 
+                    updated_extra.get("setupCostCurrency") == "USD"):
+                    
+                    # DELETE
+                    delete_response = requests.delete(f"{self.api_url}/extras/{extra_id}", timeout=10)
+                    
+                    if delete_response.status_code == 200:
+                        self.log_test("Setup Cost CRUD Operations", True, 
+                                    "All CRUD operations successful: CREATE (30.00 EUR) → READ → UPDATE (45.00 USD) → DELETE")
+                    else:
+                        self.log_test("Setup Cost CRUD Operations", False, 
+                                    f"DELETE failed: HTTP {delete_response.status_code}")
+                else:
+                    self.log_test("Setup Cost CRUD Operations", False, 
+                                f"UPDATE failed: expected 45.00 USD, got {updated_extra.get('setupCost')} {updated_extra.get('setupCostCurrency')}")
+            else:
+                self.log_test("Setup Cost CRUD Operations", False, 
+                            f"UPDATE failed: HTTP {update_response.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Setup Cost CRUD Operations", False, f"Connection error: {str(e)}")
+
+    def test_setup_cost_zero_value(self):
+        """Test extras with setupCost 0 (should work without setup cost)"""
+        try:
+            test_extra_zero = {
+                "name": "Zero Setup Cost Extra",
+                "pricingType": "per_page",
+                "setupCost": 0.00,
+                "setupCostCurrency": "USD",
+                "variants": [
+                    {"variantName": "Standard", "price": 0.20, "currency": "USD"}
+                ]
+            }
+            
+            response = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra_zero,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if (data.get("setupCost") == 0.00 and 
+                    data.get("setupCostCurrency") == "USD"):
+                    self.log_test("Setup Cost Zero Value", True, 
+                                f"Extra with zero setup cost works correctly: {data.get('name')}")
+                    
+                    # Clean up
+                    requests.delete(f"{self.api_url}/extras/{data.get('id')}", timeout=10)
+                else:
+                    self.log_test("Setup Cost Zero Value", False, 
+                                f"Zero setup cost not properly handled: {data.get('setupCost')}")
+            else:
+                self.log_test("Setup Cost Zero Value", False, 
+                            f"Failed to create extra with zero setup cost: HTTP {response.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Setup Cost Zero Value", False, f"Connection error: {str(e)}")
+
+    def test_setup_cost_api_responses(self):
+        """Test that extras with setup costs show correctly in API responses"""
+        try:
+            # Create test extra with setup cost
+            test_extra = {
+                "name": "API Response Test Extra",
+                "pricingType": "per_length",
+                "setupCost": 35.50,
+                "setupCostCurrency": "EUR",
+                "variants": [
+                    {"variantName": "Standard", "price": 0.12, "currency": "EUR"}
+                ]
+            }
+            
+            create_response = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if create_response.status_code != 200:
+                self.log_test("Setup Cost API Responses", False, 
+                            f"Failed to create test extra: HTTP {create_response.status_code}")
+                return
+            
+            created_extra = create_response.json()
+            extra_id = created_extra.get("id")
+            
+            # Test GET /api/extras includes setup cost fields
+            get_response = requests.get(f"{self.api_url}/extras", timeout=10)
+            
+            if get_response.status_code == 200:
+                all_extras = get_response.json()
+                found_extra = next((e for e in all_extras if e.get("id") == extra_id), None)
+                
+                if found_extra:
+                    required_fields = ["id", "name", "pricingType", "setupCost", "setupCostCurrency", "variants"]
+                    missing_fields = [field for field in required_fields if field not in found_extra]
+                    
+                    if not missing_fields:
+                        setup_cost = found_extra.get("setupCost")
+                        setup_currency = found_extra.get("setupCostCurrency")
+                        
+                        if setup_cost == 35.50 and setup_currency == "EUR":
+                            self.log_test("Setup Cost API Responses", True, 
+                                        f"API responses correctly include setup cost fields: {setup_cost} {setup_currency}")
+                        else:
+                            self.log_test("Setup Cost API Responses", False, 
+                                        f"Setup cost values incorrect in API response: {setup_cost} {setup_currency}")
+                    else:
+                        self.log_test("Setup Cost API Responses", False, 
+                                    f"API response missing required fields: {missing_fields}")
+                else:
+                    self.log_test("Setup Cost API Responses", False, 
+                                "Created extra not found in API response")
+                
+                # Clean up
+                requests.delete(f"{self.api_url}/extras/{extra_id}", timeout=10)
+            else:
+                self.log_test("Setup Cost API Responses", False, 
+                            f"Failed to get extras: HTTP {get_response.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Setup Cost API Responses", False, f"Connection error: {str(e)}")
+
+    def test_setup_cost_calculation_integration(self):
+        """Test that setup costs are included in total calculations"""
+        try:
+            # This test verifies that the backend provides the necessary data structure
+            # for frontend calculations to include setup costs
+            
+            # Create an extra with setup cost
+            test_extra = {
+                "name": "Calculation Test Extra",
+                "pricingType": "per_booklet",
+                "setupCost": 20.00,
+                "setupCostCurrency": "USD",
+                "applyToPrintSheet": False,
+                "variants": [
+                    {"variantName": "Standard", "price": 3.00, "currency": "USD"}
+                ]
+            }
+            
+            create_response = requests.post(
+                f"{self.api_url}/extras",
+                json=test_extra,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if create_response.status_code == 200:
+                created_extra = create_response.json()
+                
+                # Verify the data structure supports calculation integration
+                required_calc_fields = ["setupCost", "setupCostCurrency", "pricingType", "applyToPrintSheet", "variants"]
+                has_all_fields = all(field in created_extra for field in required_calc_fields)
+                
+                if has_all_fields:
+                    # Verify the values are correct for calculation
+                    setup_cost = created_extra.get("setupCost")
+                    pricing_type = created_extra.get("pricingType")
+                    variants = created_extra.get("variants", [])
+                    
+                    if (setup_cost == 20.00 and 
+                        pricing_type == "per_booklet" and 
+                        len(variants) > 0 and 
+                        variants[0].get("price") == 3.00):
+                        
+                        self.log_test("Setup Cost Calculation Integration", True, 
+                                    f"Backend provides complete data structure for setup cost calculations: setupCost={setup_cost}, variant price={variants[0].get('price')}")
+                    else:
+                        self.log_test("Setup Cost Calculation Integration", False, 
+                                    f"Data structure incomplete for calculations: setupCost={setup_cost}, variants={len(variants)}")
+                else:
+                    missing_fields = [field for field in required_calc_fields if field not in created_extra]
+                    self.log_test("Setup Cost Calculation Integration", False, 
+                                f"Missing fields required for calculation: {missing_fields}")
+                
+                # Clean up
+                requests.delete(f"{self.api_url}/extras/{created_extra.get('id')}", timeout=10)
+            else:
+                self.log_test("Setup Cost Calculation Integration", False, 
+                            f"Failed to create test extra: HTTP {create_response.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Setup Cost Calculation Integration", False, f"Connection error: {str(e)}")
+
     def run_all_tests(self):
         """Run all backend tests"""
         print("🚀 Starting Backend API Tests")
