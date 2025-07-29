@@ -364,92 +364,116 @@ function AppContent() {
           </div>
         </header>
 
-        <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-          <Routes>
-            <Route path="/" element={
-              <div className="space-y-6">
-                <div className="text-center">
-                  <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                    Professional Printing Cost Calculator
-                  </h2>
-                  <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-                    Calculate precise printing costs with custom paper types, machine configurations, 
-                    and automated optimization for the best cost-effective solutions.
-                  </p>
+        <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+          <div className="px-4 py-6 sm:px-0">
+            {/* Exchange Rates Display */}
+            {exchangeRates && (
+              <div className="mb-6 text-center">
+                <div className="inline-flex items-center gap-4 px-4 py-2 bg-gray-50 rounded-full text-xs text-gray-400 font-mono">
+                  <span className="text-green-500">● Live</span>
+                  <span>USD/TRY: {(1 / exchangeRates.USD * 1 / exchangeRates.TRY).toFixed(2)}</span>
+                  <span>•</span>
+                  <span>EUR/TRY: {(1 / exchangeRates.TRY).toFixed(2)}</span>
                 </div>
+              </div>
+            )}
 
-                {/* Subtle Exchange Rates Display */}
-                {exchangeRates && (
-                  <div className="mt-4 flex justify-center">
-                    <div className="text-xs text-gray-400 bg-gray-50 px-3 py-1 rounded-full border border-gray-200">
-                      <span className="font-mono">USD/TRY: {(1/exchangeRates.TRY * exchangeRates.USD).toFixed(2)}</span>
-                      <span className="mx-2 text-gray-300">•</span>
-                      <span className="font-mono">EUR/TRY: {(1/exchangeRates.TRY).toFixed(2)}</span>
-                      <span className="ml-2 text-gray-300 text-[10px]">Live</span>
-                    </div>
-                  </div>
+            <Tabs defaultValue="calculator" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
+                {hasPermission('calculator') && (
+                  <TabsTrigger value="calculator" className="flex items-center gap-2">
+                    <Calculator size={16} />
+                    Calculator
+                  </TabsTrigger>
                 )}
+                {hasPermission('papers') && (
+                  <TabsTrigger value="papers" className="flex items-center gap-2">
+                    <FileText size={16} />
+                    Paper Types
+                  </TabsTrigger>
+                )}
+                {hasPermission('machines') && (
+                  <TabsTrigger value="machines" className="flex items-center gap-2">
+                    <Settings size={16} />
+                    Machines
+                  </TabsTrigger>
+                )}
+                {hasPermission('extras') && (
+                  <TabsTrigger value="extras" className="flex items-center gap-2">
+                    <Scissors size={16} />
+                    Extras
+                  </TabsTrigger>
+                )}
+                {user?.is_admin && (
+                  <TabsTrigger value="users" className="flex items-center gap-2">
+                    <Users size={16} />
+                    Users
+                  </TabsTrigger>
+                )}
+              </TabsList>
 
-                <Tabs defaultValue="calculator" className="w-full">
-                  <TabsList className="grid w-full grid-cols-4">
-                    <TabsTrigger value="calculator" className="flex items-center gap-2">
-                      <Calculator size={16} />
-                      Calculator
-                    </TabsTrigger>
-                    <TabsTrigger value="papers" className="flex items-center gap-2">
-                      <FileText size={16} />
-                      Paper Types
-                    </TabsTrigger>
-                    <TabsTrigger value="machines" className="flex items-center gap-2">
-                      <Printer size={16} />
-                      Machines
-                    </TabsTrigger>
-                    <TabsTrigger value="extras" className="flex items-center gap-2">
-                      <Scissors size={16} />
-                      Extras
-                    </TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="calculator" className="space-y-6">
+              {hasPermission('calculator') && (
+                <TabsContent value="calculator">
+                  <ProtectedRoute requiredPermission="calculator">
                     <PrintJobCalculator 
-                      paperTypes={paperTypes}
+                      paperTypes={paperTypes} 
                       machines={machines}
                       extras={extras}
                       exchangeRates={exchangeRates}
                     />
-                  </TabsContent>
+                  </ProtectedRoute>
+                </TabsContent>
+              )}
 
-                  <TabsContent value="papers" className="space-y-6">
-                    <PaperTypeManager
-                      paperTypes={paperTypes}
+              {hasPermission('papers') && (
+                <TabsContent value="papers">
+                  <ProtectedRoute requiredPermission="papers">
+                    <PaperTypeManager 
+                      paperTypes={paperTypes} 
                       onAddPaperType={handleAddPaperType}
                       onUpdatePaperType={handleUpdatePaperType}
                       onDeletePaperType={handleDeletePaperType}
                       onReorderPaperTypes={handleReorderPaperTypes}
                     />
-                  </TabsContent>
+                  </ProtectedRoute>
+                </TabsContent>
+              )}
 
-                  <TabsContent value="machines" className="space-y-6">
-                    <MachineManager
-                      machines={machines}
+              {hasPermission('machines') && (
+                <TabsContent value="machines">
+                  <ProtectedRoute requiredPermission="machines">
+                    <MachineManager 
+                      machines={machines} 
                       onAddMachine={handleAddMachine}
                       onUpdateMachine={handleUpdateMachine}
                       onDeleteMachine={handleDeleteMachine}
                     />
-                  </TabsContent>
-                  
-                  <TabsContent value="extras">
-                    <ExtrasManager
-                      extras={extras}
+                  </ProtectedRoute>
+                </TabsContent>
+              )}
+
+              {hasPermission('extras') && (
+                <TabsContent value="extras">
+                  <ProtectedRoute requiredPermission="extras">
+                    <ExtrasManager 
+                      extras={extras} 
                       onAddExtra={handleAddExtra}
                       onUpdateExtra={handleUpdateExtra}
                       onDeleteExtra={handleDeleteExtra}
                     />
-                  </TabsContent>
-                </Tabs>
-              </div>
-            } />
-          </Routes>
+                  </ProtectedRoute>
+                </TabsContent>
+              )}
+
+              {user?.is_admin && (
+                <TabsContent value="users">
+                  <ProtectedRoute>
+                    <UserManager />
+                  </ProtectedRoute>
+                </TabsContent>
+              )}
+            </Tabs>
+          </div>
         </main>
 
         <footer className="bg-white border-t mt-12">
