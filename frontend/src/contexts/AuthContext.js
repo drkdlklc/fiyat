@@ -16,8 +16,6 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(localStorage.getItem('token'));
 
-  console.log('AuthProvider render - user:', user, 'loading:', loading, 'token:', !!token);
-
   // Set up axios interceptor to include token in requests
   useEffect(() => {
     if (token) {
