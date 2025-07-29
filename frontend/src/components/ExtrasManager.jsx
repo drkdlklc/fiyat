@@ -211,6 +211,7 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
                     <SelectItem value="per_page">Per Page</SelectItem>
                     <SelectItem value="per_booklet">Per Booklet/Unit</SelectItem>
                     <SelectItem value="per_length">Per Length (cm)</SelectItem>
+                    <SelectItem value="per_form">Per Form Pricing</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
