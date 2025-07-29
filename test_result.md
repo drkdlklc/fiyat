@@ -102,7 +102,20 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Fix the extras calculation logic to use the actual calculated 'print sheets needed' (e.g., 4 sheets) instead of the job's quantity (e.g., 100 units) when the 'Apply to Print Sheet Dimensions' option is selected for an extra."
+user_problem_statement: "For extras in Booklet Mode, add an option that lets the user choose where the extra should be applied: 'Cover only', 'Inner pages only', or 'Both'. Based on this selection, the extra should only appear in the corresponding section(s) of the calculation screen, and should only be included in the price calculation for the selected part(s)."
+
+backend:
+  - task: "Add bookletApplicationScope field to Extra models"
+    implemented: true
+    working: false
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "BACKEND IMPLEMENTATION COMPLETED: Added bookletApplicationScope field to all Extra models (Extra, ExtraCreate, ExtraUpdate) with values 'both', 'cover_only', 'inner_only'. Updated create_extra and update_extra functions to handle the new field. Updated default extras data with different scopes: Cellophane Lamination (both), Staple Binding (cover_only), Spiral Binding (inner_only), Perfect Binding (both), UV Coating (cover_only), Print Sheet Processing (inner_only). Ready for backend testing."
 
 backend:
   - task: "Setup cost functionality for extras implementation"
