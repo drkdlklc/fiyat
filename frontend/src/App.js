@@ -17,6 +17,10 @@ function App() {
   const [machines, setMachines] = useState([]);
   const [extras, setExtras] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // Exchange rates state
+  const [exchangeRates, setExchangeRates] = useState(null);
+  
   const { toast } = useToast();
 
   // Initialize data on component mount
