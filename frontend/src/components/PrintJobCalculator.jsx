@@ -1933,7 +1933,17 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
                               <SelectValue placeholder="Select an extra..." />
                             </SelectTrigger>
                             <SelectContent>
-                              {extras.map((extra) => (
+                              {extras
+                                .filter(extra => {
+                                  // If has cover, hide insideOutsideSame extras from inner section
+                                  if (jobData.hasCover) {
+                                    return !extra.insideOutsideSame;
+                                  } else {
+                                    // If no cover, show all extras including insideOutsideSame ones in inner section
+                                    return true;
+                                  }
+                                })
+                                .map((extra) => (
                                 <SelectItem key={extra.id} value={extra.id.toString()}>
                                   {extra.name} ({extra.pricingType === 'per_page' ? 'Per Page' : 
                                                   extra.pricingType === 'per_booklet' ? 'Per Booklet' : 
