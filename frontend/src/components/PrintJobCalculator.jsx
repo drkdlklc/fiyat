@@ -113,8 +113,8 @@ const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
   const [selectedCoverExtras, setSelectedCoverExtras] = useState([]);
   const [selectedInnerExtras, setSelectedInnerExtras] = useState([]);
   const [lengthBasedEdge, setLengthBasedEdge] = useState('long'); // For Normal Mode length-based extras
-  const [coverBindingEdge, setCoverBindingEdge] = useState('short'); // Separate binding edge for cover
-  const [innerBindingEdge, setInnerBindingEdge] = useState('short'); // Separate binding edge for inner
+  const [coverBindingEdge, setCoverBindingEdge] = useState('long'); // Separate binding edge for cover - defaults to long edge
+  const [innerBindingEdge, setInnerBindingEdge] = useState('long'); // Separate binding edge for inner - defaults to long edge
 
   // New state for improved extras workflow
   const [selectedExtraId, setSelectedExtraId] = useState(''); // Currently selected extra from dropdown
