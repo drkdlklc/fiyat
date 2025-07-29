@@ -4,7 +4,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Plus, Edit2, Trash2, Save, X, FileText } from 'lucide-react';
+import { Plus, Edit2, Trash2, Save, X, FileText, Copy } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
 
 const PaperTypeManager = ({ paperTypes, onAddPaperType, onUpdatePaperType, onDeletePaperType }) => {
