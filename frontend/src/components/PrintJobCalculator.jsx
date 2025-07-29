@@ -2445,6 +2445,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
                                 <div className="text-xs text-gray-600 mt-1">
                                   {extra.pricingType === 'per_page' && `${extra.units} ${extra.unitType} × ${formatEURPriceDynamic(convertToEURSync(extra.pricePerUnit, extra.originalPrice?.currency || 'EUR'))} per page`}
                                   {extra.pricingType === 'per_booklet' && `${extra.units} booklets × ${formatEURPriceDynamic(convertToEURSync(extra.pricePerUnit, extra.originalPrice?.currency || 'EUR'))} per booklet`}
+                                  {extra.pricingType === 'per_form' && `${extra.units} ${extra.unitType} × ${formatEURPriceDynamic(convertToEURSync(extra.pricePerUnit, extra.originalPrice?.currency || 'EUR'))} per form`}
                                   {extra.pricingType === 'per_length' && (
                                     `${extra.units} ${extra.unitType} × ${extra.edgeLength?.toFixed(1) || '0.0'}cm edge × ${formatEURPriceDynamic(convertToEURSync(extra.pricePerUnit, extra.originalPrice?.currency || 'EUR'))} per cm`
                                   )}
