@@ -3,13 +3,18 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
 import { Toaster } from './components/ui/toaster';
 import { useToast } from './hooks/use-toast';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import LoginPage from './components/LoginPage';
+import UserManager from './components/UserManager';
 import PaperTypeManager from './components/PaperTypeManager';
 import MachineManager from './components/MachineManager';
 import ExtrasManager from './components/ExtrasManager';
 import PrintJobCalculator from './components/PrintJobCalculator';
 import { apiService } from './services/api';
 import { fetchExchangeRates } from './utils/currencyConverter';
-import { Calculator, FileText, Settings, Printer, RefreshCw, Scissors } from 'lucide-react';
+import { Calculator, FileText, Settings, Printer, RefreshCw, Scissors, Users, LogOut } from 'lucide-react';
+import { Button } from './components/ui/button';
 import './App.css';
 
 function App() {
