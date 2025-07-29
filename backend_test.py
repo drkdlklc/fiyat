@@ -4909,6 +4909,535 @@ if (innerResult) {
         except requests.exceptions.RequestException as e:
             self.log_test("BookletApplicationScope Model Validation", False, f"Connection error: {str(e)}")
 
+    def test_authentication_login_valid_credentials(self):
+        """Test POST /api/login with valid credentials (Emre/169681ymc)"""
+        try:
+            # Initialize data to ensure default admin user exists
+            init_response = requests.post(f"{self.api_url}/initialize-data", timeout=10)
+            
+            login_data = {
+                "username": "Emre",
+                "password": "169681ymc"
+            }
+            
+            response = requests.post(
+                f"{self.api_url}/login",
+                json=login_data,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if ("access_token" in data and "token_type" in data and 
+                    data.get("token_type") == "bearer" and 
+                    isinstance(data.get("access_token"), str) and 
+                    len(data.get("access_token")) > 0):
+                    self.log_test("Authentication - Login Valid Credentials", True, 
+                                f"Login successful with valid credentials. Token type: {data.get('token_type')}, Token length: {len(data.get('access_token'))}")
+                    return data.get("access_token")  # Return token for other tests
+                else:
+                    self.log_test("Authentication - Login Valid Credentials", False, 
+                                f"Invalid response structure: {data}")
+            else:
+                self.log_test("Authentication - Login Valid Credentials", False, 
+                            f"HTTP {response.status_code}: {response.text}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Authentication - Login Valid Credentials", False, f"Connection error: {str(e)}")
+        
+        return None
+
+    def test_authentication_login_invalid_credentials(self):
+        """Test POST /api/login with invalid credentials"""
+        try:
+            invalid_credentials = [
+                {"username": "Emre", "password": "wrongpassword"},
+                {"username": "wronguser", "password": "169681ymc"},
+                {"username": "admin", "password": "admin"},
+                {"username": "", "password": ""},
+            ]
+            
+            for i, creds in enumerate(invalid_credentials):
+                response = requests.post(
+                    f"{self.api_url}/login",
+                    json=creds,
+                    headers={"Content-Type": "application/json"},
+                    timeout=10
+                )
+                
+                if response.status_code != 401:
+                    self.log_test("Authentication - Login Invalid Credentials", False, 
+                                f"Test {i+1} failed: Expected 401, got {response.status_code} for {creds}")
+                    return
+            
+            self.log_test("Authentication - Login Invalid Credentials", True, 
+                        f"All {len(invalid_credentials)} invalid credential tests returned 401 Unauthorized as expected")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Authentication - Login Invalid Credentials", False, f"Connection error: {str(e)}")
+
+    def test_authentication_get_current_user_with_token(self):
+        """Test GET /api/me with valid token"""
+        try:
+            # First get a valid token
+            token = self.test_authentication_login_valid_credentials()
+            if not token:
+                self.log_test("Authentication - Get Current User With Token", False, 
+                            "Could not obtain valid token for testing")
+                return
+            
+            headers = {"Authorization": f"Bearer {token}"}
+            response = requests.get(f"{self.api_url}/me", headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                required_fields = ["id", "username", "is_admin", "permissions", "price_multiplier", "created_at", "updated_at"]
+                
+                if all(field in data for field in required_fields):
+                    if (data.get("username") == "Emre" and 
+                        data.get("is_admin") == True and
+                        isinstance(data.get("permissions"), dict) and
+                        data.get("price_multiplier") == 1.0):
+                        self.log_test("Authentication - Get Current User With Token", True, 
+                                    f"User info retrieved successfully. Username: {data.get('username')}, Admin: {data.get('is_admin')}, Price Multiplier: {data.get('price_multiplier')}")
+                    else:
+                        self.log_test("Authentication - Get Current User With Token", False, 
+                                    f"User data validation failed: {data}")
+                else:
+                    missing_fields = [field for field in required_fields if field not in data]
+                    self.log_test("Authentication - Get Current User With Token", False, 
+                                f"Missing required fields: {missing_fields}")
+            else:
+                self.log_test("Authentication - Get Current User With Token", False, 
+                            f"HTTP {response.status_code}: {response.text}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Authentication - Get Current User With Token", False, f"Connection error: {str(e)}")
+
+    def test_authentication_get_current_user_without_token(self):
+        """Test GET /api/me without token"""
+        try:
+            response = requests.get(f"{self.api_url}/me", timeout=10)
+            
+            if response.status_code == 401:
+                self.log_test("Authentication - Get Current User Without Token", True, 
+                            "Correctly returned 401 Unauthorized when no token provided")
+            else:
+                self.log_test("Authentication - Get Current User Without Token", False, 
+                            f"Expected 401, got {response.status_code}: {response.text}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Authentication - Get Current User Without Token", False, f"Connection error: {str(e)}")
+
+    def test_authentication_get_all_users_admin_only(self):
+        """Test GET /api/users (admin only)"""
+        try:
+            # First get admin token
+            token = self.test_authentication_login_valid_credentials()
+            if not token:
+                self.log_test("Authentication - Get All Users Admin Only", False, 
+                            "Could not obtain admin token for testing")
+                return
+            
+            headers = {"Authorization": f"Bearer {token}"}
+            response = requests.get(f"{self.api_url}/users", headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if isinstance(data, list) and len(data) >= 1:
+                    # Should at least have the default admin user
+                    admin_user = next((user for user in data if user.get("username") == "Emre"), None)
+                    if admin_user and admin_user.get("is_admin") == True:
+                        self.log_test("Authentication - Get All Users Admin Only", True, 
+                                    f"Retrieved {len(data)} users including default admin 'Emre'")
+                    else:
+                        self.log_test("Authentication - Get All Users Admin Only", False, 
+                                    "Default admin user 'Emre' not found in users list")
+                else:
+                    self.log_test("Authentication - Get All Users Admin Only", False, 
+                                f"Expected non-empty list, got: {type(data)} with length {len(data) if isinstance(data, list) else 'N/A'}")
+            else:
+                self.log_test("Authentication - Get All Users Admin Only", False, 
+                            f"HTTP {response.status_code}: {response.text}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Authentication - Get All Users Admin Only", False, f"Connection error: {str(e)}")
+
+    def test_authentication_create_user_admin_only(self):
+        """Test POST /api/users (admin only)"""
+        try:
+            # First get admin token
+            token = self.test_authentication_login_valid_credentials()
+            if not token:
+                self.log_test("Authentication - Create User Admin Only", False, 
+                            "Could not obtain admin token for testing")
+                return
+            
+            test_user = {
+                "username": f"testuser_{int(time.time())}",
+                "password": "testpass123",
+                "is_admin": False,
+                "permissions": {
+                    "can_access_calculator": True,
+                    "can_access_machines": False,
+                    "can_access_papers": False,
+                    "can_access_extras": False,
+                    "can_see_input_prices": False
+                },
+                "price_multiplier": 1.2
+            }
+            
+            headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+            response = requests.post(f"{self.api_url}/users", json=test_user, headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if (data.get("username") == test_user["username"] and
+                    data.get("is_admin") == test_user["is_admin"] and
+                    data.get("price_multiplier") == test_user["price_multiplier"] and
+                    "id" in data and "created_at" in data):
+                    
+                    # Verify permissions structure
+                    permissions = data.get("permissions", {})
+                    if (permissions.get("can_access_calculator") == True and
+                        permissions.get("can_access_machines") == False):
+                        self.log_test("Authentication - Create User Admin Only", True, 
+                                    f"User created successfully. ID: {data.get('id')}, Username: {data.get('username')}, Price Multiplier: {data.get('price_multiplier')}")
+                        return data.get("id")  # Return for cleanup
+                    else:
+                        self.log_test("Authentication - Create User Admin Only", False, 
+                                    f"Permissions validation failed: {permissions}")
+                else:
+                    self.log_test("Authentication - Create User Admin Only", False, 
+                                f"User data validation failed: {data}")
+            else:
+                self.log_test("Authentication - Create User Admin Only", False, 
+                            f"HTTP {response.status_code}: {response.text}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Authentication - Create User Admin Only", False, f"Connection error: {str(e)}")
+        
+        return None
+
+    def test_authentication_update_user_admin_only(self):
+        """Test PUT /api/users/{id} (admin only)"""
+        try:
+            # First get admin token
+            token = self.test_authentication_login_valid_credentials()
+            if not token:
+                self.log_test("Authentication - Update User Admin Only", False, 
+                            "Could not obtain admin token for testing")
+                return
+            
+            # Create a test user first
+            user_id = self.test_authentication_create_user_admin_only()
+            if not user_id:
+                self.log_test("Authentication - Update User Admin Only", False, 
+                            "Could not create test user for update testing")
+                return
+            
+            update_data = {
+                "permissions": {
+                    "can_access_calculator": True,
+                    "can_access_machines": True,
+                    "can_access_papers": True,
+                    "can_access_extras": False,
+                    "can_see_input_prices": True
+                },
+                "price_multiplier": 1.5
+            }
+            
+            headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+            response = requests.put(f"{self.api_url}/users/{user_id}", json=update_data, headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                permissions = data.get("permissions", {})
+                if (data.get("price_multiplier") == 1.5 and
+                    permissions.get("can_access_machines") == True and
+                    permissions.get("can_access_papers") == True and
+                    permissions.get("can_see_input_prices") == True):
+                    self.log_test("Authentication - Update User Admin Only", True, 
+                                f"User updated successfully. ID: {user_id}, New Price Multiplier: {data.get('price_multiplier')}")
+                else:
+                    self.log_test("Authentication - Update User Admin Only", False, 
+                                f"Update validation failed: {data}")
+            else:
+                self.log_test("Authentication - Update User Admin Only", False, 
+                            f"HTTP {response.status_code}: {response.text}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Authentication - Update User Admin Only", False, f"Connection error: {str(e)}")
+
+    def test_authentication_delete_user_admin_only(self):
+        """Test DELETE /api/users/{id} (admin only)"""
+        try:
+            # First get admin token
+            token = self.test_authentication_login_valid_credentials()
+            if not token:
+                self.log_test("Authentication - Delete User Admin Only", False, 
+                            "Could not obtain admin token for testing")
+                return
+            
+            # Create a test user first
+            user_id = self.test_authentication_create_user_admin_only()
+            if not user_id:
+                self.log_test("Authentication - Delete User Admin Only", False, 
+                            "Could not create test user for deletion testing")
+                return
+            
+            headers = {"Authorization": f"Bearer {token}"}
+            response = requests.delete(f"{self.api_url}/users/{user_id}", headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("message") == "User deleted successfully":
+                    # Verify user is actually deleted
+                    get_response = requests.get(f"{self.api_url}/users", headers=headers, timeout=10)
+                    if get_response.status_code == 200:
+                        users = get_response.json()
+                        deleted_user_exists = any(user.get("id") == user_id for user in users)
+                        if not deleted_user_exists:
+                            self.log_test("Authentication - Delete User Admin Only", True, 
+                                        f"User deleted successfully. ID: {user_id}")
+                        else:
+                            self.log_test("Authentication - Delete User Admin Only", False, 
+                                        "User still exists after deletion")
+                    else:
+                        self.log_test("Authentication - Delete User Admin Only", False, 
+                                    "Could not verify deletion")
+                else:
+                    self.log_test("Authentication - Delete User Admin Only", False, 
+                                f"Unexpected response: {data}")
+            else:
+                self.log_test("Authentication - Delete User Admin Only", False, 
+                            f"HTTP {response.status_code}: {response.text}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Authentication - Delete User Admin Only", False, f"Connection error: {str(e)}")
+
+    def test_authentication_default_admin_user(self):
+        """Test default admin user 'Emre' was created with correct credentials"""
+        try:
+            # Initialize data to ensure default admin user exists
+            init_response = requests.post(f"{self.api_url}/initialize-data", timeout=10)
+            
+            # Test login with default credentials
+            login_data = {"username": "Emre", "password": "169681ymc"}
+            login_response = requests.post(
+                f"{self.api_url}/login",
+                json=login_data,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            if login_response.status_code == 200:
+                token = login_response.json().get("access_token")
+                
+                # Get user info to verify admin permissions
+                headers = {"Authorization": f"Bearer {token}"}
+                me_response = requests.get(f"{self.api_url}/me", headers=headers, timeout=10)
+                
+                if me_response.status_code == 200:
+                    user_data = me_response.json()
+                    permissions = user_data.get("permissions", {})
+                    
+                    if (user_data.get("username") == "Emre" and
+                        user_data.get("is_admin") == True and
+                        permissions.get("can_access_calculator") == True and
+                        permissions.get("can_access_machines") == True and
+                        permissions.get("can_access_papers") == True and
+                        permissions.get("can_access_extras") == True and
+                        permissions.get("can_see_input_prices") == True and
+                        user_data.get("price_multiplier") == 1.0):
+                        self.log_test("Authentication - Default Admin User", True, 
+                                    f"Default admin 'Emre' created correctly with full permissions and price multiplier 1.0")
+                    else:
+                        self.log_test("Authentication - Default Admin User", False, 
+                                    f"Default admin permissions validation failed: {user_data}")
+                else:
+                    self.log_test("Authentication - Default Admin User", False, 
+                                f"Could not get user info: {me_response.status_code}")
+            else:
+                self.log_test("Authentication - Default Admin User", False, 
+                            f"Default admin login failed: {login_response.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Authentication - Default Admin User", False, f"Connection error: {str(e)}")
+
+    def test_authentication_jwt_token_validation(self):
+        """Test JWT token generation and validation"""
+        try:
+            # Get a valid token
+            token = self.test_authentication_login_valid_credentials()
+            if not token:
+                self.log_test("Authentication - JWT Token Validation", False, 
+                            "Could not obtain token for validation testing")
+                return
+            
+            # Test with valid token
+            headers = {"Authorization": f"Bearer {token}"}
+            response1 = requests.get(f"{self.api_url}/me", headers=headers, timeout=10)
+            
+            # Test with invalid token
+            invalid_headers = {"Authorization": "Bearer invalid_token_here"}
+            response2 = requests.get(f"{self.api_url}/me", headers=invalid_headers, timeout=10)
+            
+            # Test with malformed authorization header
+            malformed_headers = {"Authorization": "InvalidFormat token"}
+            response3 = requests.get(f"{self.api_url}/me", headers=malformed_headers, timeout=10)
+            
+            if (response1.status_code == 200 and 
+                response2.status_code == 401 and 
+                response3.status_code == 401):
+                self.log_test("Authentication - JWT Token Validation", True, 
+                            "JWT token validation working correctly: valid token accepted, invalid tokens rejected")
+            else:
+                self.log_test("Authentication - JWT Token Validation", False, 
+                            f"Token validation failed. Valid: {response1.status_code}, Invalid: {response2.status_code}, Malformed: {response3.status_code}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Authentication - JWT Token Validation", False, f"Connection error: {str(e)}")
+
+    def test_authentication_permission_system(self):
+        """Test different permission levels and price multiplier functionality"""
+        try:
+            # First get admin token
+            token = self.test_authentication_login_valid_credentials()
+            if not token:
+                self.log_test("Authentication - Permission System", False, 
+                            "Could not obtain admin token for testing")
+                return
+            
+            # Create users with different permission levels
+            test_users = [
+                {
+                    "username": f"calculator_user_{int(time.time())}",
+                    "password": "testpass123",
+                    "is_admin": False,
+                    "permissions": {
+                        "can_access_calculator": True,
+                        "can_access_machines": False,
+                        "can_access_papers": False,
+                        "can_access_extras": False,
+                        "can_see_input_prices": False
+                    },
+                    "price_multiplier": 1.2
+                },
+                {
+                    "username": f"full_access_user_{int(time.time())}",
+                    "password": "testpass123",
+                    "is_admin": False,
+                    "permissions": {
+                        "can_access_calculator": True,
+                        "can_access_machines": True,
+                        "can_access_papers": True,
+                        "can_access_extras": True,
+                        "can_see_input_prices": True
+                    },
+                    "price_multiplier": 0.8
+                }
+            ]
+            
+            created_users = []
+            headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+            
+            for user_data in test_users:
+                response = requests.post(f"{self.api_url}/users", json=user_data, headers=headers, timeout=10)
+                if response.status_code == 200:
+                    created_user = response.json()
+                    created_users.append(created_user)
+            
+            if len(created_users) == 2:
+                # Verify permission structures
+                calculator_user = created_users[0]
+                full_access_user = created_users[1]
+                
+                calc_perms = calculator_user.get("permissions", {})
+                full_perms = full_access_user.get("permissions", {})
+                
+                if (calc_perms.get("can_access_calculator") == True and
+                    calc_perms.get("can_access_machines") == False and
+                    calculator_user.get("price_multiplier") == 1.2 and
+                    full_perms.get("can_access_calculator") == True and
+                    full_perms.get("can_access_machines") == True and
+                    full_perms.get("can_access_papers") == True and
+                    full_perms.get("can_access_extras") == True and
+                    full_perms.get("can_see_input_prices") == True and
+                    full_access_user.get("price_multiplier") == 0.8):
+                    
+                    self.log_test("Authentication - Permission System", True, 
+                                f"Permission system working correctly. Created users with different permission levels and price multipliers (1.2, 0.8)")
+                else:
+                    self.log_test("Authentication - Permission System", False, 
+                                f"Permission validation failed. Calculator user: {calc_perms}, Full access user: {full_perms}")
+            else:
+                self.log_test("Authentication - Permission System", False, 
+                            f"Could not create test users. Created: {len(created_users)}/2")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Authentication - Permission System", False, f"Connection error: {str(e)}")
+
+    def test_authentication_protected_routes(self):
+        """Test protected routes with/without valid tokens"""
+        try:
+            # Get a valid token
+            token = self.test_authentication_login_valid_credentials()
+            if not token:
+                self.log_test("Authentication - Protected Routes", False, 
+                            "Could not obtain token for protected route testing")
+                return
+            
+            protected_endpoints = [
+                ("GET", "/api/me"),
+                ("GET", "/api/users"),
+                ("POST", "/api/users"),
+            ]
+            
+            valid_results = []
+            invalid_results = []
+            
+            for method, endpoint in protected_endpoints:
+                # Test with valid token
+                headers = {"Authorization": f"Bearer {token}"}
+                if method == "GET":
+                    response1 = requests.get(f"{self.api_url}{endpoint.replace('/api', '')}", headers=headers, timeout=10)
+                elif method == "POST":
+                    test_data = {
+                        "username": f"test_{int(time.time())}",
+                        "password": "test123",
+                        "is_admin": False,
+                        "permissions": {"can_access_calculator": True, "can_access_machines": False, "can_access_papers": False, "can_access_extras": False, "can_see_input_prices": False},
+                        "price_multiplier": 1.0
+                    }
+                    headers["Content-Type"] = "application/json"
+                    response1 = requests.post(f"{self.api_url}{endpoint.replace('/api', '')}", json=test_data, headers=headers, timeout=10)
+                
+                valid_results.append((endpoint, response1.status_code))
+                
+                # Test without token
+                if method == "GET":
+                    response2 = requests.get(f"{self.api_url}{endpoint.replace('/api', '')}", timeout=10)
+                elif method == "POST":
+                    response2 = requests.post(f"{self.api_url}{endpoint.replace('/api', '')}", json=test_data, timeout=10)
+                
+                invalid_results.append((endpoint, response2.status_code))
+            
+            # Check results
+            valid_access = all(status in [200, 201] for _, status in valid_results)
+            invalid_blocked = all(status == 401 for _, status in invalid_results)
+            
+            if valid_access and invalid_blocked:
+                self.log_test("Authentication - Protected Routes", True, 
+                            f"Protected routes working correctly. Valid token: {valid_results}, No token: {invalid_results}")
+            else:
+                self.log_test("Authentication - Protected Routes", False, 
+                            f"Protected route validation failed. Valid token results: {valid_results}, No token results: {invalid_results}")
+                
+        except requests.exceptions.RequestException as e:
+            self.log_test("Authentication - Protected Routes", False, f"Connection error: {str(e)}")
+
     def run_all_tests(self):
         """Run all backend tests"""
         print("🚀 Starting Backend API Tests")
