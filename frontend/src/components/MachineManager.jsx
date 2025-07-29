@@ -226,6 +226,41 @@ const MachineManager = ({ machines, onAddMachine, onUpdateMachine, onDeleteMachi
   });
   const { toast } = useToast();
 
+  // Drag and drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // Handle drag end for reordering print sheet sizes
+  const handleDragEnd = (event, machineId) => {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      const machine = machines.find(m => m.id === machineId);
+      if (!machine) return;
+
+      const oldIndex = machine.printSheetSizes.findIndex(size => size.id === active.id);
+      const newIndex = machine.printSheetSizes.findIndex(size => size.id === over.id);
+
+      const reorderedSizes = arrayMove(machine.printSheetSizes, oldIndex, newIndex);
+      
+      const updatedMachine = {
+        ...machine,
+        printSheetSizes: reorderedSizes
+      };
+
+      onUpdateMachine(machineId, updatedMachine);
+      
+      toast({
+        title: "Success",
+        description: "Print sheet sizes reordered successfully"
+      });
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       name: '',
