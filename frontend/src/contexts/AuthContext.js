@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }) => {
     const checkAuth = async () => {
       if (token) {
         try {
-          const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/me`);
+          const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/me`);
           setUser(response.data);
         } catch (error) {
           console.error('Auth check failed:', error);
@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/login`, {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/login`, {
         username,
         password
       });
@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }) => {
       setToken(access_token);
       
       // Get user info
-      const userResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/me`);
+      const userResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/me`);
       setUser(userResponse.data);
 
       return { success: true };
