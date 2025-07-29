@@ -330,10 +330,10 @@ function AppContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <RefreshCw className="h-12 w-12 text-blue-600 animate-spin mx-auto mb-4" />
-          <p className="text-lg text-gray-600">Loading printing calculator...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Loading application...</p>
         </div>
       </div>
     );
