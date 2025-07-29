@@ -1430,18 +1430,14 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="innerPaperType">Inner Paper Type</Label>
-                        <Select value={selectedInnerPaperType?.toString()} onValueChange={handleInnerPaperTypeChange}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select inner paper type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {paperTypes.map((paperType) => (
-                              <SelectItem key={paperType.id} value={paperType.id.toString()}>
-                                {paperType.name} ({paperType.gsm} GSM)
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <AutocompleteSelect
+                          value={selectedInnerPaperType?.toString()}
+                          onValueChange={handleInnerPaperTypeChange}
+                          options={paperTypes}
+                          placeholder="Select or type to search inner paper type"
+                          displayValue={(paper) => `${paper.name} (${paper.gsm} GSM)`}
+                          searchValue={(paper) => `${paper.name} ${paper.gsm} GSM`.toLowerCase()}
+                        />
                       </div>
                       <div>
                         <Label htmlFor="innerMachine">Inner Pages Machine</Label>
