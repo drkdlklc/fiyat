@@ -1,95 +1,138 @@
 <analysis>
-The previous AI engineer successfully developed a complex web-based printing cost calculator from scratch, implementing core logic, UI, and a FastAPI/MongoDB backend. Key advancements included sophisticated booklet mode calculations, multi-part printing, and an elaborate Extras management system with variants and single/double-sided options. The recent phase focused on critical bug fixes and feature enhancements. Initial work involved adding PDF generation (which proved challenging, leading to blank PDFs and dual implementation with  and /). This was followed by comprehensive currency selection integration across all price-bearing entities (extras, machines, paper types). Subsequently, the per print sheet pricing for extras evolved from a separate type to a dynamic apply to print sheet dimensions checkbox, modifying existing pricing. The latest efforts were dominated by extensive debugging of extras calculation inaccuracies, specifically resolving  values, incorrect unit usage, and property mismatches, culminating in a fix for  not being used for print sheet calculations.
+The AI engineer successfully progressed the printing cost calculator MVP through several critical phases. Initial efforts focused on currency handling, moving exchange rate display, and fixing a bug where it was mistakenly removed and then restored. Concurrently, binding edge logic was refined, removing its selection from normal mode while preserving it in booklet mode. A significant improvement involved enhancing decimal formatting for extra unit prices, ensuring precision for very small values. The Inside/Outside = Same extras logic was fixed to correctly align with the Has Cover setting. Furthermore, robust duplication functionality was added for paper types and machines, addressing a crucial bug related to float IDs. Drag-and-drop reordering was implemented for machine print sizes and paper types. Finally, two new complex features were added: Per Form Pricing for extras, with GSM-based calculations and rounding, and a configurable Setup Cost for individual extras, mirroring machine setup costs. The work involved iterative debugging, especially for ID generation and drag-and-drop state management.
 </analysis>
 
 <product_requirements>
-The application is a web-based printing cost calculator designed for intricate job specifications, calculating total production costs (paper, click, setup) and per-unit costs while optimizing product fit per sheet.
-**Implemented Features:**
-1.  **Machine & Paper Management:** CRUD operations for machines and paper types, supporting multiple print/stock sheet sizes, with data persisted in MongoDB.
-2.  **Printing Options:** Single/double-sided printing, where double-sided doubles click cost.
-3.  **Booklet Mode:** Dedicated mode with Inner Paper/Machine Selection, Total Pages, and separate calculations for inner/cover pages (quantity represents booklets).
-4.  **Cover Integration:** Optional Has Cover feature with separate paper/machine selection.
-5.  **Multi-Part Printing:** Different paper/machine/page counts for sections of inner pages in Normal and Booklet modes.
-6.  **Calculation Logic:** Precise 1 cover = 4 pages and 1 inner sheet = 2/4 pages logic for booklet mode, correct binding edge influence (short/long edge).
-7.  **Extras Section:** Finishing options with flexible pricing (per page, per booklet, per length). Supports multiple variants, inside/outside same setting, length in centimeters. Extras can be applied single-sided or double-sided (doubling price).
-8.  **Currency Support:** Individual currency selection (USD, EUR, TRY) for each extra, machine, and paper type, storing and displaying its own selected currency.
-9.  **Apply to Print Sheet Checkbox:** Modifies existing pricing methods (e.g., 'per_length') to use print sheet dimensions/count instead of individual page dimensions/count when checked. When selected, always uses the long side (45.0cm) for length-based calculations.
-10. **Duplicate Prevention:** Extras are not re-added when UI changes are made.
-11. **PDF Generation:** A Print button generates a PDF of the output, including all details and Final Total Price, with attempts to fit content on a single page and proper branding (Print and Smile).
-12. **UI/Validation:** Setup Required defaults to unchecked; Multi-part sections hide default paper/machine; Multi-part pages match total pages; Normal Mode displays single best calculation; Final Total Price shown; 'Has Cover' unselected by default; 'Double-Sided' selected by default.
+The application is a web-based printing cost calculator designed for complex print jobs, focusing on optimizing product fit per sheet and calculating total production costs (paper, click, setup) and per-unit costs.
+
+**Currently Implemented Features:**
+1.  **Machine & Paper Management:** CRUD operations for machines and paper types, supporting multi-sheet sizes and persistent storage in MongoDB.
+2.  **Printing Options:** Supports single and double-sided printing configurations.
+3.  **Booklet Mode:** A dedicated mode that includes inner/cover paper/machine selection, total page calculations (1 cover = 4 pages, 1 sheet = 2/4 pages logic), and binding edge influence.
+4.  **Cover Integration:** Optional cover with separate paper and machine selections.
+5.  **Multi-Part Printing:** Allows different settings for various inner page sections.
+6.  **Extras Section:** Offers flexible pricing models (per page, per booklet, per length) with variants and single/double-sided options. The Apply to Print Sheet checkbox uses print sheet dimensions for pricing.
+7.  **Currency Support:** All calculations and displays are normalized to EUR using live exchange rates fetched from , with a subtle display of  and  rates.
+8.  **Duplicate Prevention:** Ensures extras are not re-added accidentally.
+9.  **PDF Generation:** A Print button facilitates PDF output of job details.
+10. **Binding Edge Logic:** Independent selection for cover and inner pages in booklet mode, defaulting to Long Edge Binding. The binding edge selection has been removed from normal mode for a cleaner interface.
+11. **UI/UX Refinements:** Includes default settings for Setup Required and multi-part hiding, precise total page matching, clear display of best calculations, default 'Has Cover' unselected, 'Double-Sided' default, removal of Made with Emergent watermark, and a subtle display of live exchange rates above the main tabs.
+12. **Enhanced Decimal Formatting:** Extras unit prices now display up to 4 decimal places where necessary to prevent rounding small values to zero.
+13. **Inside/Outside = Same Extras Logic:** Correctly displays these extras only under the Cover section if Has Cover is selected, or under the Inner Pages section if not, ensuring single, correct placement and accurate calculation for both parts.
+14. **Duplication Functionality:** Paper entries and machine entries can now be duplicated, copying all properties and generating new, valid integer IDs for nested items (stock/print sheet sizes).
+15. **Drag-and-Drop Reordering:** Print Sizes for machines and Paper Types can be manually reordered using drag-and-drop.
+16. **Autocomplete Paper Selection:** The paper selection dropdowns on the calculation screen now support live filtering by typing.
+17. **Per Form Pricing (New):** A new pricing type for extras that calculates cost based on forms (total pages divided by 12 or 16, rounded up, depending on paper grammage).
+18. **Changeable Setup Cost for Extras (New):** Extras can now have an optional, changeable one-time setup cost (similar to machines), which is added to the total job cost and supports multiple currencies.
 </product_requirements>
 
 <key_technical_concepts>
--   **React.js**: Frontend UI, state management, component architecture.
+-   **React.js**: Frontend for UI, state management, and component architecture.
 -   **FastAPI**: Python backend for RESTful APIs and business logic.
 -   **MongoDB**: NoSQL database for persistent data storage.
 -   **Tailwind CSS & Radix UI**: Styling and accessible UI components.
--   **API Integration**: Frontend-backend communication via environment variables.
+-   ****: React library for drag-and-drop functionality.
+-   **API Integration**: Frontend-backend communication via environment variables and  prefix.
 -   **Complex Calculation Logic**: Algorithms for sheet fitting, cost breakdown, booklet, and extra rules.
--   **PDF Generation**: Utilizes , and  with  for content rendering.
+-   **Live Exchange Rates**: Integration with  Python package.
 </key_technical_concepts>
 
 <code_architecture>
 
 
 -   ****:
-    -   **Summary**: Main React entry point, manages global state, routing.
-    -   **Changes**: No recent explicit changes in the trajectory, but implicitly uses updated components.
+    -   **Summary**: Main React entry point, manages global state and routing.
+    -   **Changes**:
+        -   **Exchange Rate Logic**: Now hosts the  state and  for fetching rates, passing  as a prop to . The exchange rate display HTML was moved here, positioned above the main tab navigation.
+        -   **Paper Type Reordering**: Added  function to update the order of paper types in the application state and persist it. This function is passed down to .
 
 -   ****:
-    -   **Summary**: Contains core calculation logic.
-    -   **Changes**: Heavily modified for booklet rules, binding edge.  adapted for new variant format, currency. Removed  case. Fixed  to use  and  for mm to cm conversion. Added debug logging.
+    -   **Summary**: Contains core calculation logic for print jobs.
+    -   **Changes**: No new explicit changes in the trajectory, but its functions like , , , and  implicitly utilize currency conversion and binding edge updates.
 
 -   ****:
     -   **Summary**: Central UI component for calculations, state, and logic.
     -   **Changes**:
-        -   **PDF Generation**: Added Print PDF and Alt PDF buttons,  for capturing content,  (using ) and  (using +). Debugged and fixed blank/missing content PDF issues by simplifying styling and providing fallbacks.
-        -   **Extras Duplication Fix**: Modified  to prevent duplicates based on , , .
-        -   **Apply to Print Sheet**: Updated  to use print sheet dimensions/count and always the long side (45.0cm) when  is true. Updated unit displays.
-        -   **Calculation Fixes**:
-            -   Corrected property access: / to /.
-            -   Fixed  calculation to multiply by .
-            -   Fixed  to use correct dimensions and mm-to-cm conversion.
-            -   Resolved  issue for  by initializing / in  object with A4 defaults (210, 297) when not provided.
-            -   Fixed  displaying 0 due to variable shadowing ( inside switch case removed).
-            -   Updated display units to cm edge and dynamic currency.
-            -   Added extensive debug logging for calculation steps.
+        -   **Exchange Rates Display**: Removed the exchange rates state, , and display from this component. It now receives  as a prop from .
+        -   **Binding Edge Management**: Removed the binding edge selection UI elements that were previously shown in normal mode (when ). Independent  and  controls remain for booklet mode.
+        -   **Extras Calculation Fix**: Modified  to accept  parameter.
+        -   **Decimal Formatting**: Replaced numerous  calls with  for displaying extras prices (variant selection, selected extras, detailed cost breakdowns), ensuring up to 4 decimal places for small values.
+        -   **Inside/Outside = Same Extras Logic**: Modified filtering logic for extra dropdowns in both cover and inner sections to ensure Inside/Outside = Same extras appear only once based on . The  function was updated to correctly factor in costs for both cover and inner pages regardless of where the extra is displayed.
+        -   **Per Form Pricing**: Added a new  to the switch statement in  to implement the new forms-based calculation logic (pages/12 or pages/16 based on GSM, rounded up).
+        -   **Setup Cost for Extras**: Updated  to include and sum the  from selected extras (converted to EUR) into the total extra cost. The display logic for extras results was updated to show the setup cost.
+        -   **Autocomplete Integration**: Replaced all instances of  components for paper type selection (normal mode, cover, inner, multi-part) with the new  component.
 
 -   ****:
     -   **Summary**: Manages machine definitions.
-    -   **Changes**: Added currency dropdowns for  and  per print sheet size. Implemented **inline edit/delete functionality for individual print sheet sizes** within a machine.
+    -   **Changes**:
+        -   **Duplication Functionality**: Added a Duplicate button and  logic. This copies a machine, prefixes its name with Copy of, and generates new, unique **integer** IDs () for its .
+        -   **Print Sizes Drag-and-Drop**: Integrated  to allow drag-and-drop reordering of  within a machine. This includes , ,  hook, and an  handler to update the order.
 
 -   ****:
     -   **Summary**: Manages paper type definitions.
-    -   **Changes**: Added currency dropdown for paper type prices.
+    -   **Changes**:
+        -   **Duplication Functionality**: Added a Duplicate button and  logic. This copies a paper type, prefixes its name with Copy of, and generates new, unique **integer** IDs () for its .
+        -   **Paper Types Drag-and-Drop**: Integrated  to allow drag-and-drop reordering of . This required adding an  prop received from , updating ,  (with string IDs),  hook, and an  handler to update the order.
 
 -   ****:
     -   **Summary**: FastAPI backend, handles API routes and database interactions.
     -   **Changes**:
-        -   **Currency Support**: Added  fields to ,  (, ), and  Pydantic models.
-        -   **Apply to Print Sheet**: Added  boolean field to  model.
-        -   **Default Data**: Updated  to include currency examples and  for relevant extras.
-        -   **CRUD Operations**: Adapted  and  endpoints to handle new currency and  fields.
+        -   **Exchange Rate API**: Existing  GET endpoint.
+        -   **Database Initialization**: Debugged and fixed  endpoint logic.
+        -   **Setup Cost for Extras**: Added  and  fields to , , and  Pydantic models. Updated  and  functions to correctly handle these new fields. Updated default data to include setup costs for some extras.
+        -   **Per Form Pricing (Implicit)**: The backend was updated to accept  as a valid  for extras, validating its structure but calculations are handled on the frontend.
+    -   **New Dependency**:  (version 0.0.2) was added to .
 
 -   ****:
     -   **Summary**: Centralized file for API calls.
-    -   **Changes**: Implicitly handles new currency and  fields.
+    -   **Changes**: Added  API call. Updated  and  to support reordering.
 
 -   ****:
     -   **Summary**: Manages extras definitions.
-    -   **Changes**: Added currency selection for each extra variant. Removed Per Print Sheet as a pricing type, and added an **Apply to Print Sheet Dimensions checkbox** with its corresponding state and form handling. Updated display to show a purple indicator for  extras.
+    -   **Changes**:
+        -   **Decimal Formatting**: Updated price displays to use  or a similar local helper, ensuring more decimal places for very small prices.
+        -   **Per Form Pricing**: Added Per Form Pricing as an option in the  dropdown.
+        -   **Setup Cost for Extras**: Added input fields for  and  to the Add New Extra and Edit Extra forms. Updated  and  to send/receive these fields, and added display logic to show the setup cost in the extras list.
+
+-   ****:
+    -   **Summary**: Utility functions for currency conversion.
+    -   **Changes**:
+        -   Integrated asynchronous  from backend.
+        -   Modified  to use dynamically fetched (or cached) rates.
+        -   **New Function**: Added  which formats prices intelligently, showing up to 4 decimal places for very small values (<0.01), 3 for small values (<1.00), and 2 for normal prices (>=1.00).
+
+-   ****:
+    -   **Summary**: Main HTML file for the React application.
+    -   **Changes**: Removed Made with Emergent watermark, updated page title and meta description.
+
+-   ** (NEW FILE)**:
+    -   **Summary**: A new reusable React component combining a dropdown with live filtering (autocomplete).
+    -   **Changes**: Implemented logic for filtering options based on user input, keyboard navigation, clear selection, and customizable display.
+
 </code_architecture>
 
 <pending_tasks>
-- Fix the extras calculation logic to use the actual calculated print sheets needed (e.g., 4 sheets) instead of the job's  (e.g., 100 units) when the Apply to Print Sheet Dimensions option is selected for an extra.
+- For extras in Booklet Mode, add an option that lets the user choose where the extra should be applied: ‘Cover only’, ‘Inner pages only’, or ‘Both’. Based on this selection, the extra should only appear in the corresponding section(s) of the calculation screen, and should only be included in the price calculation for the selected part(s).
 </pending_tasks>
 
 <current_work>
-The most immediate work revolved around debugging and fixing incorrect extra pricing calculations. The user reported that the  was still calculating incorrectly or displaying as 0, despite multiple previous fixes. Extensive debugging, including detailed console logs, revealed that while the  calculation itself was producing a correct non-zero value (e.g., 32cm), the value being stored in the final result object, and thus displayed, was 0. This was traced to a variable shadowing issue where a  declaration inside a  case block was overriding a function-level  variable. This specific shadowing was fixed by removing the duplicate declaration.
+The application is a comprehensive printing cost calculator with significant feature additions and refinements.
+The immediate preceding work focused on two major feature implementations: **Per Form Pricing for Extras** and **Changeable Setup Cost for Extras**.
 
-However, a new issue arose where the calculated Print Sheets Needed (e.g., 4) was not being correctly utilized by the extras calculation; instead, the  (e.g., 100) was being used, leading to an inflated print sheet count in the extra's cost display. The user explicitly highlighted this discrepancy with a screenshot and console output. The AI engineer diagnosed that the . This indicates a need to align the  parameter used in extra calculations with the dynamically calculated  when the Apply to Print Sheet Dimensions checkbox is active.
+**Per Form Pricing:** A new  pricing type was added for extras. This calculation dynamically determines the number of forms based on the total number of pages and the selected paper's grammage: if the paper's GSM is 170 or higher, pages are divided by 12; otherwise, they are divided by 16. The result is always rounded up using . This logic was implemented in the  function in , requiring paper type data to be passed to it. The  UI was updated to include Per Form Pricing as a selectable option, and display logic across the application now reflects this new unit (€/form). Backend APIs were verified to correctly accept and persist this new pricing type.
+
+**Changeable Setup Cost for Extras:** Each extra can now have an optional, one-time setup cost, similar to machine setup costs. This involved adding  and  fields to the  data models in  (Pydantic models and MongoDB interactions) and updating CRUD operations (, ). On the frontend,  was modified to include input fields for setup cost and its currency within the Add/Edit Extra form. The  function in  was updated to add this  (converted to EUR) to the total cost of the extra. The UI also displays these setup costs prominently, ensuring they are accounted for in calculations.
+
+Before these, recent critical work included successfully debugging and implementing:
+*   **Duplication Functionality:** Fixed a persistent Failed to add error for paper and machine duplication by ensuring new stock/print sheet size IDs generated on the frontend were integers () instead of floats.
+*   **Drag-and-Drop Reordering:** Made drag-and-drop for paper types fully functional, including visual updates and data persistence, by ensuring  was correctly handled in  and IDs were converted to strings for . Drag-and-drop for machine print sizes was also implemented and verified.
+*   **Autocomplete Paper Selection:** Implemented an  component and integrated it into all paper selection dropdowns, allowing live filtering by typing.
+*   **Decimal Place Formatting:** Enhanced display logic to show up to 4 decimal places for small extra unit prices using a dynamic formatting function.
+*   **Inside/Outside = Same Extras Logic:** Fixed the display and calculation of consolidated extras to correctly appear only in the cover section (if 'Has Cover' is true) or inner section (if 'Has Cover' is false), ensuring single display and correct calculation across both parts.
+
+The application is currently in a state where new extras can be created with 'Per Form Pricing' and optional 'Setup Costs', and existing features like duplication, reordering, and autocomplete are fully operational and visually consistent.
 </current_work>
 
 <optional_next_step>
-Modify the extras calculation in  to use the actual  instead of  for 'Apply to Print Sheet' extras.
+I will begin implementing the Booklet Application Scope functionality for extras, adding an option to apply extras to 'Cover only', 'Inner pages only', or 'Both'.
 </optional_next_step>
