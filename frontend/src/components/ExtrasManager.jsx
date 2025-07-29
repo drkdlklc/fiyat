@@ -217,6 +217,37 @@ const ExtrasManager = ({ extras, onAddExtra, onUpdateExtra, onDeleteExtra }) => 
                   </SelectContent>
                 </Select>
               </div>
+              
+              {/* Setup Cost Section */}
+              <div>
+                <Label htmlFor="setupCost">Setup Cost (Optional)</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <Input
+                    type="number"
+                    step="0.01"
+                    id="setupCost"
+                    value={formData.setupCost}
+                    onChange={(e) => setFormData({ ...formData, setupCost: e.target.value })}
+                    placeholder="0.00"
+                  />
+                  <Select 
+                    value={formData.setupCostCurrency} 
+                    onValueChange={(value) => setFormData({ ...formData, setupCostCurrency: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Currency" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="USD">USD ($)</SelectItem>
+                      <SelectItem value="EUR">EUR (€)</SelectItem>
+                      <SelectItem value="TRY">TRY (₺)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <p className="text-sm text-gray-500 mt-1">
+                  One-time setup cost applied once per job (like machine setup cost)
+                </p>
+              </div>
             </div>
 
             {/* Variants Section */}
