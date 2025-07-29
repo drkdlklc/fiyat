@@ -3829,6 +3829,16 @@ if (innerResult) {
         self.test_per_form_pricing_validation()
         self.test_per_form_with_paper_gsm_scenarios()
         
+        # NEW: Setup Cost Functionality Tests (for review request)
+        print("💰 Testing Setup Cost Functionality for Extras")
+        print()
+        self.test_setup_cost_basic_acceptance()
+        self.test_setup_cost_currency_support()
+        self.test_setup_cost_crud_operations()
+        self.test_setup_cost_zero_value()
+        self.test_setup_cost_api_responses()
+        self.test_setup_cost_calculation_integration()
+        
         # Print summary
         print("=" * 60)
         print("📊 TEST SUMMARY")
