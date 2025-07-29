@@ -27,26 +27,10 @@ export const AuthProvider = ({ children }) => {
 
   // Check if user is authenticated on app load
   useEffect(() => {
-    const checkAuth = async () => {
-      if (token) {
-        try {
-          const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/me`);
-          setUser(response.data);
-        } catch (error) {
-          console.error('Auth check failed:', error);
-          logout();
-        }
-      }
-      setLoading(false);
-    };
-
-    // Only check auth if we don't already have user data (avoid race condition with login)
-    if (token && !user) {
-      checkAuth();
-    } else {
-      setLoading(false);
-    }
-  }, [token, user]);
+    // Disable auto-login - always require manual login
+    // Clear any existing tokens and ensure user starts from login page
+    setLoading(false);
+  }, []);
 
   const login = async (username, password) => {
     try {
