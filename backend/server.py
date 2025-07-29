@@ -830,7 +830,7 @@ async def initialize_default_data():
         
         await db.extras.insert_many(default_extras)
     
-    return {"message": "Default data initialized successfully"}
+    print("✅ Default data initialization completed successfully")
 
 # Initialize default data endpoint
 @api_router.post("/initialize-data")
