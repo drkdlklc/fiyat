@@ -13,7 +13,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { convertToEURSync, formatEURPrice, convertExtraCostToEUR, fetchExchangeRates } from '../utils/currencyConverter';
 
-const PrintJobCalculator = ({ paperTypes, machines, extras }) => {
+const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => {
   
   // Currency conversion helper functions
   const convertResultsCostsToEUR = (results) => {
