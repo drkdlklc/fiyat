@@ -900,6 +900,15 @@ async def get_exchange_rates():
             "error": str(e)
         }
 
+@app.on_event("startup")
+async def startup_event():
+    """Initialize default data on application startup"""
+    try:
+        await initialize_default_data()
+        print("✅ Default data initialization completed on startup")
+    except Exception as e:
+        print(f"❌ Error initializing default data on startup: {e}")
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
