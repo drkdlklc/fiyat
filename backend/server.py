@@ -523,6 +523,7 @@ async def initialize_default_data():
                 "insideOutsideSame": True,
                 "supportsDoubleSided": False,  # Binding applies to whole booklet
                 "applyToPrintSheet": False,  # Binding is per booklet, not per sheet
+                "bookletApplicationScope": "both",  # Apply to both cover and inner
                 "variants": [
                     {"id": 7, "variantName": "Standard", "price": 15.00, "currency": "USD"},
                     {"id": 8, "variantName": "Premium", "price": 620, "currency": "TRY"}
