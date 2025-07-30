@@ -339,18 +339,18 @@ const UserManager = () => {
 
           <div className="space-y-3">
             {users.map((user) => (
-              <div key={user.id} className="p-4 border rounded-lg bg-white hover:bg-gray-50 transition-colors">
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h4 className="font-semibold text-lg">{user.username}</h4>
+              <div key={user.id} className="p-3 sm:p-4 border rounded-lg bg-white hover:bg-gray-50 transition-colors">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <h4 className="font-semibold text-base sm:text-lg truncate">{user.username}</h4>
                       {user.is_admin && (
-                        <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">
+                        <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full whitespace-nowrap">
                           Admin
                         </span>
                       )}
                       {user.username === 'Emre' && (
-                        <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                        <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full whitespace-nowrap">
                           Default Admin
                         </span>
                       )}
