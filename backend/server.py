@@ -48,6 +48,7 @@ class UserPermissions(BaseModel):
     can_access_papers: bool = False
     can_access_extras: bool = False
     can_see_input_prices: bool = False  # If False, user only sees final results
+    auto_save_calculations: bool = False  # Automatically save all calculations for this user
 
 class User(BaseModel):
     id: int
