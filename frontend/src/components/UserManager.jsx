@@ -42,7 +42,8 @@ const UserManager = () => {
         can_access_machines: false,
         can_access_papers: false,
         can_access_extras: false,
-        can_see_input_prices: false
+        can_see_input_prices: false,
+        auto_save_calculations: false
       },
       price_multiplier: 1.0
     });
