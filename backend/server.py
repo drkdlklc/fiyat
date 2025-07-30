@@ -399,6 +399,56 @@ async def delete_user(user_id: int, admin_user: User = Depends(get_admin_user)):
         raise HTTPException(status_code=404, detail="User not found")
     return {"message": "User deleted successfully"}
 
+# Saved Calculations API Endpoints
+@api_router.get("/saved-calculations", response_model=List[SavedCalculationResponse])
+async def get_saved_calculations(current_user: User = Depends(get_current_user)):
+    """Get saved calculations - admin sees all, users see only their own"""
+    if current_user.is_admin:
+        # Admin can see all saved calculations
+        calculations = await db.saved_calculations.find().sort("created_at", -1).to_list(1000)
+    else:
+        # Regular users see only their own calculations
+        calculations = await db.saved_calculations.find({"user_id": current_user.id}).sort("created_at", -1).to_list(1000)
+    
+    return [SavedCalculationResponse(**calc) for calc in calculations]
+
+@api_router.post("/saved-calculations", response_model=SavedCalculationResponse)
+async def save_calculation(calculation: SavedCalculationCreate, current_user: User = Depends(get_current_user)):
+    """Save a calculation for the current user"""
+    # Generate new calculation ID
+    existing_calculations = await db.saved_calculations.find().sort("id", -1).limit(1).to_list(1)
+    new_id = 1 if not existing_calculations else existing_calculations[0]["id"] + 1
+    
+    # Create saved calculation object
+    saved_calc = SavedCalculation(
+        id=new_id,
+        user_id=current_user.id,
+        username=current_user.username,
+        calculation_name=calculation.calculation_name,
+        calculation_data=calculation.calculation_data,
+        total_cost_eur=calculation.total_cost_eur
+    )
+    
+    await db.saved_calculations.insert_one(saved_calc.dict())
+    return SavedCalculationResponse(**saved_calc.dict())
+
+@api_router.delete("/saved-calculations/{calculation_id}")
+async def delete_saved_calculation(calculation_id: int, current_user: User = Depends(get_current_user)):
+    """Delete a saved calculation"""
+    # Find the calculation first
+    calculation = await db.saved_calculations.find_one({"id": calculation_id})
+    if not calculation:
+        raise HTTPException(status_code=404, detail="Calculation not found")
+    
+    # Check permissions - users can only delete their own calculations, admins can delete any
+    if not current_user.is_admin and calculation["user_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    
+    result = await db.saved_calculations.delete_one({"id": calculation_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Calculation not found")
+    return {"message": "Calculation deleted successfully"}
+
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):
     status_dict = input.dict()
