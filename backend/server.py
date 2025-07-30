@@ -91,6 +91,29 @@ class UserResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
+class SavedCalculation(BaseModel):
+    id: int
+    user_id: int
+    username: str  # For easy display
+    calculation_name: str
+    calculation_data: dict  # Store the complete calculation result
+    total_cost_eur: float  # For easy sorting and filtering
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class SavedCalculationCreate(BaseModel):
+    calculation_name: str
+    calculation_data: dict
+    total_cost_eur: float
+
+class SavedCalculationResponse(BaseModel):
+    id: int
+    user_id: int
+    username: str
+    calculation_name: str
+    calculation_data: dict
+    total_cost_eur: float
+    created_at: datetime
+
 class StatusCheck(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     client_name: str
