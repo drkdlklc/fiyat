@@ -1403,7 +1403,7 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
                   placeholder="3"
                 />
               </div>
-              <div className="col-span-2">
+              <div className="col-span-1 sm:col-span-2">
                 <Label htmlFor="quantity">
                   {jobData.isBookletMode ? 'Number of Booklets *' : 'Quantity *'}
                 </Label>
