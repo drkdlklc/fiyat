@@ -309,7 +309,7 @@ const UserManager = () => {
                     <Label htmlFor="can_access_extras">Extras Management</Label>
                   </div>
 
-                  <div className="flex items-center space-x-2 col-span-2">
+                  <div className="flex items-center space-x-2 col-span-1 sm:col-span-2">
                     <Checkbox
                       id="can_see_input_prices"
                       checked={formData.permissions.can_see_input_prices}
@@ -318,9 +318,24 @@ const UserManager = () => {
                         permissions: { ...formData.permissions, can_see_input_prices: checked }
                       })}
                     />
-                    <Label htmlFor="can_see_input_prices">Can See Input Prices</Label>
+                    <Label htmlFor="can_see_input_prices" className="text-sm leading-tight">Can See Input Prices</Label>
                     <p className="text-xs text-gray-500 ml-2">
                       (If disabled, user only sees final results)
+                    </p>
+                  </div>
+
+                  <div className="flex items-center space-x-2 col-span-1 sm:col-span-2">
+                    <Checkbox
+                      id="auto_save_calculations"
+                      checked={formData.permissions.auto_save_calculations}
+                      onCheckedChange={(checked) => setFormData({
+                        ...formData,
+                        permissions: { ...formData.permissions, auto_save_calculations: checked }
+                      })}
+                    />
+                    <Label htmlFor="auto_save_calculations" className="text-sm leading-tight">Automatically Save All Calculations</Label>
+                    <p className="text-xs text-gray-500 ml-2">
+                      (If enabled, all calculations are saved automatically)
                     </p>
                   </div>
                 </div>
