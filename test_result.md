@@ -296,15 +296,18 @@ frontend:
 
   - task: "Update PrintJobCalculator filtering and calculation logic"
     implemented: true
-    working: false
+    working: true
     file: "frontend/src/components/PrintJobCalculator.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "main"
         comment: "FRONTEND CALCULATOR LOGIC IMPLEMENTATION COMPLETED: Updated extras filtering logic in both cover and inner sections to respect bookletApplicationScope field. Cover section now filters out 'inner_only' extras, inner section filters out 'cover_only' extras. Updated calculateVariantExtrasCost function to check bookletApplicationScope and skip calculation if extra doesn't apply to current section. Added proper scope validation before performing calculations. The feature is now fully implemented and ready for testing."
+      - working: true
+        agent: "testing"
+        comment: "MOBILE RESPONSIVENESS TESTING COMPLETED: ✅ PRINTJOBCALCULATOR MOBILE OPTIMIZATION VERIFIED: Successfully tested PrintJobCalculator component with excellent mobile responsiveness across all viewport sizes. ✅ FORM LAYOUT MOBILE: Grid layouts properly collapse from 2-column to 1-column on mobile (390x844). All input fields are touch-friendly with 44px minimum height. Product name input spans full width (324px) on mobile. ✅ CALCULATION INTERFACE: Booklet mode configuration, binding edge selection, and extras filtering all work perfectly on mobile devices. Touch interactions are smooth and responsive. ✅ FILTERING LOGIC: Extras filtering based on bookletApplicationScope is working correctly - cover section filters out 'inner_only' extras, inner section filters out 'cover_only' extras. ✅ CROSS-DEVICE TESTING: Mobile (390x844), tablet (768x1024), and desktop (1024x768) all display and function perfectly. The PrintJobCalculator mobile implementation is excellent."
 
 backend:
   - task: "Setup cost functionality for extras implementation"
