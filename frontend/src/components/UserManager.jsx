@@ -383,25 +383,25 @@ const UserManager = () => {
                     </p>
                   </div>
                   
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handleEdit(user)}
-                      className="flex items-center gap-1"
+                      className="flex items-center justify-center gap-1 w-full sm:w-auto"
                     >
                       <Edit2 size={14} />
-                      Edit
+                      <span>Edit</span>
                     </Button>
                     <Button
                       variant="destructive"
                       size="sm"
                       onClick={() => handleDelete(user.id, user.username)}
-                      className="flex items-center gap-1"
+                      className="flex items-center justify-center gap-1 w-full sm:w-auto"
                       disabled={user.username === 'Emre' || user.id === currentUser.id}
                     >
                       <Trash2 size={14} />
-                      Delete
+                      <span>Delete</span>
                     </Button>
                   </div>
                 </div>
