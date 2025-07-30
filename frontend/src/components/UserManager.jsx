@@ -393,6 +393,9 @@ const UserManager = () => {
                       {user.permissions.can_see_input_prices && (
                         <span className="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded">Input Prices</span>
                       )}
+                      {user.permissions.auto_save_calculations && (
+                        <span className="px-2 py-1 bg-teal-100 text-teal-800 text-xs rounded">Auto-Save</span>
+                      )}
                     </div>
                     
                     <p className="text-xs text-gray-500">
