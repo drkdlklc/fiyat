@@ -47,15 +47,15 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-4 px-4 sm:py-12 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-6 sm:space-y-8">
         <div className="text-center">
           {/* Official Logo */}
-          <div className="flex justify-center mb-8">
+          <div className="flex justify-center mb-6 sm:mb-8">
             <img 
               src="https://www.printandsmile.com.tr/data/images/printandsmile-logo.svg" 
               alt="Print and Smile Logo" 
-              className="h-24 w-auto max-w-sm"
+              className="h-16 sm:h-20 md:h-24 w-auto max-w-xs sm:max-w-sm"
               style={{ maxHeight: '96px' }}
               onLoad={() => {
                 console.log('Print and Smile logo loaded successfully');
@@ -66,7 +66,7 @@ const LoginPage = () => {
               }}
             />
           </div>
-          <h2 className="text-3xl font-extrabold text-gray-900">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900">
             Printing Cost Calculator
           </h2>
           <p className="mt-2 text-sm text-gray-600">
@@ -74,22 +74,22 @@ const LoginPage = () => {
           </p>
         </div>
         
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <LogIn size={20} />
+        <Card className="shadow-lg">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+              <LogIn size={18} className="sm:size-5" />
               Sign In
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-md">
-                  <AlertCircle size={16} className="text-red-600" />
-                  <div>
-                    <span className="text-red-700 text-sm">{error}</span>
+                <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-md">
+                  <AlertCircle size={16} className="text-red-600 mt-0.5 flex-shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <span className="text-red-700 text-sm break-words">{error}</span>
                     {error.includes('Incorrect username or password') && (
-                      <div className="text-xs text-red-600 mt-1">
+                      <div className="text-xs text-red-600 mt-2 space-y-1">
                         <p>Please ensure you're using the correct credentials:</p>
                         <p><strong>Username:</strong> Emre (case-sensitive)</p>
                         <p><strong>Password:</strong> 169681ymc</p>
@@ -99,30 +99,34 @@ const LoginPage = () => {
                 </div>
               )}
               
-              <div>
-                <Label htmlFor="username">Username</Label>
-                <Input
-                  id="username"
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Enter your username"
-                  required
-                  disabled={loading}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  required
-                  disabled={loading}
-                />
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="username" className="text-sm font-medium">Username</Label>
+                  <Input
+                    id="username"
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Enter your username"
+                    required
+                    disabled={loading}
+                    className="mt-1 text-base" // Prevent zoom on iOS
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your password"
+                    required
+                    disabled={loading}
+                    className="mt-1 text-base" // Prevent zoom on iOS
+                  />
+                </div>
               </div>
               
               <div className="flex items-center space-x-2">
@@ -132,20 +136,20 @@ const LoginPage = () => {
                   onCheckedChange={setRememberMe}
                   disabled={loading}
                 />
-                <Label htmlFor="rememberMe" className="text-sm">
+                <Label htmlFor="rememberMe" className="text-sm leading-tight">
                   Remember my username on this device
                 </Label>
               </div>
               
               <Button 
                 type="submit" 
-                className="w-full" 
+                className="w-full py-3 text-base font-medium" 
                 disabled={loading}
               >
                 {loading ? (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center gap-2">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    Signing in...
+                    <span>Signing in...</span>
                   </div>
                 ) : (
                   'Sign In'
