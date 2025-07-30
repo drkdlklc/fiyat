@@ -365,16 +365,17 @@ function AppContent() {
   return (
     <BrowserRouter>
       <div className="min-h-screen bg-gray-50">
-        <header className="bg-white shadow-sm border-b">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-20">
-              <div className="flex items-center">
+        {/* Header */}
+        <header className="bg-white shadow-sm border-b sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+            <div className="flex items-center justify-between h-16 sm:h-20">
+              <div className="flex items-center min-w-0 flex-1">
                 {/* Official Logo */}
                 <img 
                   src="https://www.printandsmile.com.tr/data/images/printandsmile-logo.svg" 
                   alt="Print and Smile Logo" 
-                  className="h-16 w-auto mr-6"
-                  style={{ maxHeight: '64px', maxWidth: '240px' }}
+                  className="h-8 sm:h-12 md:h-16 w-auto mr-2 sm:mr-4 md:mr-6 flex-shrink-0"
+                  style={{ maxHeight: '64px', maxWidth: '180px' }}
                   onLoad={() => {
                     console.log('Header logo loaded successfully');
                   }}
@@ -383,67 +384,72 @@ function AppContent() {
                     e.target.style.display = 'none';
                   }}
                 />
-                <h1 className="text-2xl font-bold text-gray-900">Printing Cost Calculator</h1>
+                <h1 className="text-sm sm:text-lg md:text-2xl font-bold text-gray-900 truncate">Printing Cost Calculator</h1>
               </div>
               
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-gray-600">
+              <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+                <span className="text-xs sm:text-sm text-gray-600 hidden sm:block">
                   Welcome, {user?.username}
-                  {user?.is_admin && <span className="ml-1 px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded">Admin</span>}
+                  {user?.is_admin && <span className="ml-1 px-1 sm:px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded">Admin</span>}
                 </span>
-                <Button variant="outline" size="sm" onClick={logout}>
-                  <LogOut size={16} className="mr-1" />
-                  Logout
+                <span className="text-xs text-gray-600 block sm:hidden">
+                  {user?.username}
+                  {user?.is_admin && <span className="ml-1 px-1 py-1 bg-purple-100 text-purple-800 text-xs rounded">Admin</span>}
+                </span>
+                <Button variant="outline" size="sm" onClick={logout} className="text-xs sm:text-sm">
+                  <LogOut size={14} className="mr-1" />
+                  <span className="hidden sm:inline">Logout</span>
+                  <span className="sm:hidden">Out</span>
                 </Button>
               </div>
             </div>
           </div>
         </header>
 
-        <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-          <div className="px-4 py-6 sm:px-0">
+        <main className="max-w-7xl mx-auto py-2 sm:py-4 lg:py-6 px-2 sm:px-4 lg:px-8">
+          <div className="space-y-4 sm:space-y-6">
             {/* Exchange Rates Display */}
             {exchangeRates && (
-              <div className="mb-6 text-center">
-                <div className="inline-flex items-center gap-4 px-4 py-2 bg-gray-50 rounded-full text-xs text-gray-400 font-mono">
+              <div className="text-center">
+                <div className="inline-flex items-center gap-2 sm:gap-4 px-2 sm:px-4 py-1 sm:py-2 bg-gray-50 rounded-full text-xs text-gray-400 font-mono">
                   <span className="text-green-500">● Live</span>
                   <span>USD/TRY: {exchangeRates.source_rates ? exchangeRates.source_rates.USD_to_TRY.toFixed(2) : (exchangeRates.USD * (1/exchangeRates.TRY)).toFixed(2)}</span>
-                  <span>•</span>
+                  <span className="hidden sm:inline">•</span>
                   <span>EUR/TRY: {exchangeRates.source_rates ? exchangeRates.source_rates.EUR_to_TRY.toFixed(2) : (1 / exchangeRates.TRY).toFixed(2)}</span>
                 </div>
               </div>
             )}
 
             <Tabs defaultValue="calculator" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-1 h-auto p-1">
                 {hasPermission('calculator') && (
-                  <TabsTrigger value="calculator" className="flex items-center gap-2">
-                    <Calculator size={16} />
-                    Calculator
+                  <TabsTrigger value="calculator" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm">
+                    <Calculator size={14} className="sm:size-4" />
+                    <span>Calculator</span>
                   </TabsTrigger>
                 )}
                 {hasPermission('papers') && (
-                  <TabsTrigger value="papers" className="flex items-center gap-2">
-                    <FileText size={16} />
-                    Paper Types
+                  <TabsTrigger value="papers" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm">
+                    <FileText size={14} className="sm:size-4" />
+                    <span>Papers</span>
                   </TabsTrigger>
                 )}
                 {hasPermission('machines') && (
-                  <TabsTrigger value="machines" className="flex items-center gap-2">
-                    <Settings size={16} />
-                    Machines
+                  <TabsTrigger value="machines" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm">
+                    <Settings size={14} className="sm:size-4" />
+                    <span>Machines</span>
                   </TabsTrigger>
                 )}
                 {hasPermission('extras') && (
-                  <TabsTrigger value="extras" className="flex items-center gap-2">
-                    <Scissors size={16} />
-                    Extras
+                  <TabsTrigger value="extras" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm">
+                    <Scissors size={14} className="sm:size-4" />
+                    <span>Extras</span>
                   </TabsTrigger>
                 )}
                 {user?.is_admin && (
-                  <TabsTrigger value="users" className="flex items-center gap-2">
-                    <Users size={16} />
-                    Users
+                  <TabsTrigger value="users" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm">
+                    <Users size={14} className="sm:size-4" />
+                    <span>Users</span>
                   </TabsTrigger>
                 )}
               </TabsList>
