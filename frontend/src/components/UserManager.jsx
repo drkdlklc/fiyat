@@ -258,7 +258,7 @@ const UserManager = () => {
 
               <div className="mb-4">
                 <Label className="text-base font-semibold">Permissions</Label>
-                <div className="grid grid-cols-2 gap-3 mt-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       id="can_access_calculator"
