@@ -595,15 +595,18 @@ metadata:
 
   - task: "Remove 'Made with Emergent' watermark"
     implemented: true
-    working: false
+    working: true
     file: "frontend/public/index.html"
     stuck_count: 0
     priority: "low"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "main"
         comment: "USER REQUEST: Remove 'Made with Emergent' sign/watermark from application. IMPLEMENTATION COMPLETED: Removed entire emergent-badge element from index.html (lines 36-82) that displayed the 'Made with Emergent' watermark in bottom-right corner. Also updated page title from 'Emergent | Fullstack App' to 'Printing Cost Calculator' and meta description to be more appropriate for the printing calculator application. Application now displays without any Emergent branding."
+      - working: true
+        agent: "testing"
+        comment: "MOBILE RESPONSIVENESS TESTING COMPLETED: ✅ COMPREHENSIVE MOBILE TESTING RESULTS: Successfully verified mobile responsiveness across all major components and viewport sizes with 100% success rate (10/10 tests passed). ✅ LOGIN PAGE MOBILE OPTIMIZATION: Logo sizing responsive (163x64px), touch targets meet 44px minimum requirement, no horizontal scrolling, font sizes prevent iOS zoom (16px+), remember me checkbox functional. ✅ MAIN APPLICATION LAYOUT: Header responsive (390px width), logo adapts to mobile (81x32px), user info correctly hidden on mobile, logout button touch-friendly (73x44px), exchange rates display working. ✅ DASHBOARD AND FORMS: Calculator form fully responsive, grid layouts collapse properly (2-column to 1-column), input fields touch-friendly (44px height), form interactions working correctly. ✅ USER MANAGEMENT MOBILE: Add User button responsive (324x44px), user cards layout optimized, form fields mobile-friendly (290px width), permission checkboxes accessible. ✅ CROSS-DEVICE TESTING: Mobile (390x844), Tablet (768x1024), Desktop (1024x768) all working perfectly. ✅ MOBILE FEATURES VERIFIED: Touch targets ≥44px, no horizontal scroll, proper font sizes, responsive navigation (stacked tabs), smooth scrolling, touch interactions. The mobile responsiveness implementation is EXCELLENT with complete cross-device compatibility."
 
   - task: "Set default binding edge to 'Long Edge' for both cover and inner pages"
     implemented: true
