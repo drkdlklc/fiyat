@@ -324,12 +324,12 @@ const UserManager = () => {
                 </div>
               </div>
 
-              <div className="flex gap-2">
-                <Button type="submit" size="sm">
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button type="submit" className="w-full sm:w-auto">
                   <Save size={14} className="mr-1" />
                   {editingId ? 'Update' : 'Create'} User
                 </Button>
-                <Button type="button" variant="outline" size="sm" onClick={resetForm}>
+                <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={resetForm}>
                   <X size={14} className="mr-1" />
                   Cancel
                 </Button>
