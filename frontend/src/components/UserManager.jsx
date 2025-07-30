@@ -184,14 +184,14 @@ const UserManager = () => {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Users size={20} />
-              User Management
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+              <Users size={18} className="sm:size-5" />
+              <span>User Management</span>
             </CardTitle>
-            <Button onClick={() => setIsAdding(true)} disabled={isAdding}>
-              <Plus size={16} className="mr-1" />
-              Add User
+            <Button onClick={() => setIsAdding(true)} disabled={isAdding} className="w-full sm:w-auto">
+              <Plus size={14} className="mr-1 sm:mr-2" />
+              <span>Add User</span>
             </Button>
           </div>
         </CardHeader>
