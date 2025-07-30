@@ -688,7 +688,8 @@ async def initialize_default_data():
                     can_access_machines=True,
                     can_access_papers=True,
                     can_access_extras=True,
-                    can_see_input_prices=True
+                    can_see_input_prices=True,
+                    auto_save_calculations=False
                 ),
                 price_multiplier=1.0
             )
