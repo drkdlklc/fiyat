@@ -1309,8 +1309,8 @@ const PrintJobCalculator = ({ paperTypes, machines, extras, exchangeRates }) => 
                 <h3 className="font-semibold text-lg mb-3 text-blue-800">
                   Booklet Configuration
                 </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="totalPages">
                         {jobData.hasCover ? "Total Pages (including cover)" : "Total Pages"}
