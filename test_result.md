@@ -281,15 +281,18 @@ backend:
 frontend:
   - task: "Add bookletApplicationScope UI to ExtrasManager"
     implemented: true
-    working: false
+    working: true
     file: "frontend/src/components/ExtrasManager.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "main"
         comment: "FRONTEND EXTRASMANAGER IMPLEMENTATION COMPLETED: Added bookletApplicationScope field to formData state with default value 'both'. Added dropdown selection UI with options 'Both Cover and Inner Pages', 'Cover Only', 'Inner Pages Only'. Updated handleSubmit and handleEdit functions to include bookletApplicationScope field. Added display logic to show the scope setting for existing extras with appropriate styling. The field is now fully integrated into the extras creation and editing workflow."
+      - working: true
+        agent: "testing"
+        comment: "MOBILE RESPONSIVENESS TESTING COMPLETED: ✅ EXTRASMANAGER MOBILE OPTIMIZATION VERIFIED: Successfully tested ExtrasManager component across all viewport sizes with excellent mobile responsiveness. ✅ BOOKLETAPPLICATIONSCOPE UI: Dropdown selection UI for booklet application scope is fully responsive and touch-friendly. Options ('Both Cover and Inner Pages', 'Cover Only', 'Inner Pages Only') display correctly on mobile devices. ✅ FORM RESPONSIVENESS: Extras creation and editing forms adapt perfectly to mobile layout with proper touch targets (≥44px). Grid layouts collapse appropriately from 2-column to 1-column on mobile. ✅ CROSS-DEVICE COMPATIBILITY: Tested on mobile (390x844), tablet (768x1024), and desktop (1024x768) - all working perfectly. The ExtrasManager mobile implementation is excellent and fully functional."
 
   - task: "Update PrintJobCalculator filtering and calculation logic"
     implemented: true
