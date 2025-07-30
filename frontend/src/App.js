@@ -518,19 +518,19 @@ function AppContent() {
           </div>
         </main>
 
-        <footer className="bg-white border-t mt-8">
-          <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-500">
+        <footer className="bg-white border-t mt-4 sm:mt-8">
+          <div className="max-w-7xl mx-auto py-3 sm:py-4 px-2 sm:px-4 lg:px-8">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0">
+              <p className="text-xs sm:text-sm text-gray-500 text-center sm:text-left">
                 Printing Cost Calculator - Professional tool for print job estimation
               </p>
               <button 
                 onClick={handleRefresh}
-                className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
+                className="flex items-center gap-1 text-xs sm:text-sm text-gray-500 hover:text-gray-700 px-2 py-1 rounded"
                 disabled={loading}
               >
-                <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
-                Refresh Data
+                <RefreshCw size={12} className={`sm:size-3 ${loading ? 'animate-spin' : ''}`} />
+                <span>Refresh Data</span>
               </button>
             </div>
           </div>
