@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MJF Yerleşim Hesabı</title>
+<meta name="description" content="STL/STEP parçanın HP MJF 5600 baskı hacmine kaç adet sığdığını hesaplar.">
+<style>
+  :root {
+    --bg: #f4f5f7; --panel: #ffffff; --ink: #1b1f24; --muted: #6b7280;
+    --line: #e2e5ea; --accent: #0f6fff; --accent-ink: #ffffff; --ok: #15803d; --warn: #b45309; --err: #b91c1c;
+    --part: #93c5fd; --part-rot: #fcd34d; --plate: #fafafa;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1216; --panel: #171b21; --ink: #e6e8eb; --muted: #9aa3ad;
+      --line: #2a313a; --accent: #4d8dff; --accent-ink: #0b0f14; --ok: #4ade80; --warn: #fbbf24; --err: #f87171;
+      --part: #2f5f9e; --part-rot: #9a7a1a; --plate: #11151a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1216; --panel: #171b21; --ink: #e6e8eb; --muted: #9aa3ad;
+    --line: #2a313a; --accent: #4d8dff; --accent-ink: #0b0f14; --ok: #4ade80; --warn: #fbbf24; --err: #f87171;
+    --part: #2f5f9e; --part-rot: #9a7a1a; --plate: #11151a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { padding: 20px 16px 8px; max-width: 1100px; margin: 0 auto; }
+  header h1 { margin: 0; font-size: 22px; }
+  header p { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+  main { max-width: 1100px; margin: 0 auto; padding: 8px 16px 40px; display: grid; gap: 16px; grid-template-columns: 1fr; }
+  @media (min-width: 900px) { main { grid-template-columns: 340px 1fr; } }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .panel h2 { margin: 0 0 12px; font-size: 15px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  .drop { border: 2px dashed var(--line); border-radius: 12px; padding: 28px 16px; text-align: center; cursor: pointer; transition: border-color .15s, background .15s; }
+  .drop.over { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+  .drop strong { display: block; font-size: 16px; }
+  .drop span { color: var(--muted); font-size: 13px; }
+  .drop input { display: none; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
+  .grid .full { grid-column: 1 / -1; }
+  label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+  input[type=number], select { width: 100%; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); font: inherit; }
+  input[type=number]:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .check { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink); margin-top: 4px; }
+  .check input { width: 16px; height: 16px; }
+  .big { font-size: 56px; font-weight: 700; line-height: 1; letter-spacing: -.02em; }
+  .big small { font-size: 18px; font-weight: 500; color: var(--muted); margin-left: 6px; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; font-size: 14px; margin-top: 12px; }
+  .kv dt { color: var(--muted); margin: 0; }
+  .kv dd { margin: 0; font-variant-numeric: tabular-nums; }
+  .status { font-size: 13px; color: var(--muted); min-height: 1.4em; margin-top: 10px; }
+  .status.err { color: var(--err); }
+  .status.ok { color: var(--ok); }
+  canvas { width: 100%; height: auto; display: block; border: 1px solid var(--line); border-radius: 8px; background: var(--plate); }
+  .legend { display: flex; gap: 16px; font-size: 12px; color: var(--muted); margin-top: 8px; }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -2px; margin-right: 5px; border: 1px solid var(--line); }
+  .btn { display: inline-block; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); font: inherit; cursor: pointer; }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .hint { font-size: 12px; color: var(--muted); margin-top: 8px; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<header>
+  <h1>MJF Yerleşim Hesabı</h1>
+  <p>STL veya STEP dosyasını bırak: parça X ve Y'de 25° yatırılır, yerleşimde yalnızca Z ekseninde döndürülür ve HP MJF 5600 hacmine kaç adet sığdığı hesaplanır.</p>
+</header>
+<main>
+  <section class="panel">
+    <h2>Dosya</h2>
+    <label class="drop" id="drop">
+      <input type="file" id="file" accept=".stl,.stp,.step,.igs,.iges,.brep">
+      <strong>Dosyayı buraya sürükle</strong>
+      <span>veya tıklayıp seç · STL, STEP, IGES, BREP</span>
+    </label>
+    <div class="status" id="status">Dosya bekleniyor.</div>
+
+    <h2 style="margin-top:18px">Ayarlar</h2>
+    <div class="grid">
+      <div><label for="bx">Baskı alanı X (mm)</label><input type="number" id="bx" value="380" min="1" step="1"></div>
+      <div><label for="by">Baskı alanı Y (mm)</label><input type="number" id="by" value="284" min="1" step="1"></div>
+      <div><label for="bz">Baskı alanı Z (mm)</label><input type="number" id="bz" value="380" min="1" step="1"></div>
+      <div><label for="unit">STL birimi</label>
+        <select id="unit"><option value="1">mm</option><option value="10">cm</option><option value="25.4">inç</option><option value="1000">m</option></select></div>
+      <div><label for="tx">Yatırma X (°)</label><input type="number" id="tx" value="25" step="1"></div>
+      <div><label for="ty">Yatırma Y (°)</label><input type="number" id="ty" value="25" step="1"></div>
+      <div><label for="gap">Parça arası boşluk (mm)</label><input type="number" id="gap" value="5" min="0" step="0.5"></div>
+      <div><label for="margin">Duvar payı (mm)</label><input type="number" id="margin" value="10" min="0" step="0.5"></div>
+      <div><label for="step">Z tarama adımı (°)</label><input type="number" id="step" value="1" min="0.1" max="45" step="0.5"></div>
+      <div class="full check"><input type="checkbox" id="mixed" checked><label for="mixed" style="margin:0;color:var(--ink);font-size:14px">Aynı katmanda 90° çevrilmiş parçalarla şerit doldur</label></div>
+    </div>
+    <p class="hint">Ayarları değiştirince sonuç anında yeniden hesaplanır. Yatırma açılarını 0 yaparsanız parça olduğu gibi yerleştirilir.</p>
+  </section>
+
+  <section class="panel">
+    <h2>Sonuç</h2>
+    <div class="big" id="total">—<small>adet</small></div>
+    <dl class="kv" id="kv"></dl>
+    <div class="row">
+      <button class="btn primary" id="copy" disabled>Özeti kopyala</button>
+    </div>
+    <div class="status" id="copyStatus"></div>
+
+    <h2 style="margin-top:18px">Üstten görünüm (bir katman)</h2>
+    <canvas id="plate" width="900" height="700"></canvas>
+    <div class="legend">
+      <span><i style="background:var(--part)"></i>En iyi Z açısı</span>
+      <span><i style="background:var(--part-rot)"></i>+90° çevrilmiş</span>
+    </div>
+  </section>
+</main>
+
+<script src="nesting.js"></script>
+<script>
+(function () {
+  'use strict';
+  const $ = (id) => document.getElementById(id);
+  const N = window.MjfNesting;
+
+  let rawTriangles = null;   // dosyadan okunan üçgenler (dosya biriminde)
+  let isStl = false;
+  let fileName = '';
+  let lastResult = null;
+  let loadedMsg = '';
+
+  // ---------------- occt-import-js (STEP/IGES/BREP) tembel yükleme ----------------
+  let occtPromise = null;
+  function loadOcct() {
+    if (occtPromise) return occtPromise;
+    occtPromise = new Promise((resolve, reject) => {
+      const sources = [
+        'vendor/occt-import-js.js',
+        'https://cdn.jsdelivr.net/npm/occt-import-js@0.0.23/dist/occt-import-js.js',
+      ];
+      const tryNext = (i) => {
+        if (i >= sources.length) { reject(new Error('STEP okuyucu (occt-import-js) yüklenemedi. Sayfayı bir web sunucusundan (GitHub Pages / localhost) açın.')); return; }
+        const src = sources[i];
+        const s = document.createElement('script');
+        s.src = src;
+        s.onload = () => {
+          const base = src.substring(0, src.lastIndexOf('/') + 1);
+          window.occtimportjs({ locateFile: (p) => base + p })
+            .then(resolve)
+            .catch(() => tryNext(i + 1));
+        };
+        s.onerror = () => tryNext(i + 1);
+        document.head.appendChild(s);
+      };
+      tryNext(0);
+    });
+    return occtPromise;
+  }
+
+  // ---------------- Dosya okuma ----------------
+  const drop = $('drop');
+  const fileInput = $('file');
+  ['dragenter', 'dragover'].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove('over'); }));
+  drop.addEventListener('drop', (e) => { const f = e.dataTransfer.files && e.dataTransfer.files[0]; if (f) handleFile(f); });
+  fileInput.addEventListener('change', () => { if (fileInput.files[0]) handleFile(fileInput.files[0]); fileInput.value = ''; });
+  window.addEventListener('dragover', (e) => e.preventDefault());
+  window.addEventListener('drop', (e) => e.preventDefault());
+
+  function setStatus(msg, cls) {
+    const el = $('status');
+    el.textContent = msg;
+    el.className = 'status' + (cls ? ' ' + cls : '');
+  }
+
+  async function handleFile(file) {
+    fileName = file.name;
+    const ext = (file.name.split('.').pop() || '').toLowerCase();
+    const t0 = performance.now();
+    try {
+      setStatus('Okunuyor: ' + file.name + ' …');
+      const buffer = await file.arrayBuffer();
+      if (ext === 'stl') {
+        isStl = true;
+        rawTriangles = N.parseSTL(buffer);
+      } else if (['stp', 'step', 'igs', 'iges', 'brep'].includes(ext)) {
+        isStl = false;
+        setStatus('STEP okuyucu yükleniyor …');
+        const occt = await loadOcct();
+        setStatus('Üçgenlere çevriliyor: ' + file.name + ' …');
+        await new Promise((r) => setTimeout(r, 0));
+        const bytes = new Uint8Array(buffer);
+        const params = { linearUnit: 'millimeter', linearDeflectionType: 'bounding_box_ratio', linearDeflection: 0.001, angularDeflection: 0.5 };
+        const res = ext === 'brep' ? occt.ReadBrepFile(bytes, params)
+          : (ext === 'igs' || ext === 'iges') ? occt.ReadIgesFile(bytes, params)
+          : occt.ReadStepFile(bytes, params);
+        if (!res || !res.success || !res.meshes || res.meshes.length === 0) throw new Error('Dosya çözümlenemedi veya geometri içermiyor.');
+        rawTriangles = N.meshesToTriangles(res.meshes);
+      } else {
+        throw new Error('Desteklenmeyen uzantı: .' + ext);
+      }
+      if (!rawTriangles || rawTriangles.length < 9) throw new Error('Dosyada üçgen bulunamadı.');
+      $('unit').disabled = !isStl;
+      const ms = Math.round(performance.now() - t0);
+      loadedMsg = file.name + ' okundu · ' + (rawTriangles.length / 9).toLocaleString('tr-TR') + ' üçgen · ' + ms + ' ms';
+      setStatus(loadedMsg, 'ok');
+      recompute();
+    } catch (err) {
+      rawTriangles = null;
+      lastResult = null;
+      setStatus('Hata: ' + (err && err.message ? err.message : err), 'err');
+      $('total').innerHTML = '—<small>adet</small>';
+      $('kv').innerHTML = '';
+      $('copy').disabled = true;
+      drawPlate(null);
+    }
+  }
+
+  // ---------------- Hesap ----------------
+  const num = (id, fallback) => { const v = parseFloat($(id).value); return Number.isFinite(v) ? v : fallback; };
+
+  function readOptions() {
+    return {
+      build: { x: num('bx', 380), y: num('by', 284), z: num('bz', 380) },
+      tiltX: num('tx', 25),
+      tiltY: num('ty', 25),
+      gap: Math.max(0, num('gap', 5)),
+      margin: Math.max(0, num('margin', 10)),
+      angleStep: Math.min(45, Math.max(0.1, num('step', 1))),
+      allowMixed: $('mixed').checked,
+    };
+  }
+
+  let recomputeTimer = null;
+  function scheduleRecompute() {
+    clearTimeout(recomputeTimer);
+    recomputeTimer = setTimeout(recompute, 120);
+  }
+  ['bx', 'by', 'bz', 'unit', 'tx', 'ty', 'gap', 'margin', 'step', 'mixed'].forEach((id) => {
+    $(id).addEventListener('input', scheduleRecompute);
+    $(id).addEventListener('change', scheduleRecompute);
+  });
+
+  function recompute() {
+    if (!rawTriangles) return;
+    const opts = readOptions();
+    const scale = isStl ? parseFloat($('unit').value) || 1 : 1;
+    const tris = N.scaleTriangles(rawTriangles, scale);
+    const r = N.computeNesting(tris, opts);
+    lastResult = r;
+    render(r);
+  }
+
+  const fmt = (v, d) => Number(v).toLocaleString('tr-TR', { minimumFractionDigits: d, maximumFractionDigits: d });
+  const dims = (a) => a.map((v) => fmt(v, 1)).join(' × ') + ' mm';
+
+  function render(r) {
+    $('total').innerHTML = fmt(r.total, 0) + '<small>adet</small>';
+    const rows = [
+      ['Katman başına', fmt(r.perLayer, 0) + ' adet × ' + fmt(r.layers, 0) + ' katman'],
+      ['En iyi Z açısı', fmt(r.bestAngle, 1) + '°'],
+      ['Orijinal boyut', dims(r.originalSize)],
+      ['Yatırılmış boyut (' + fmt(r.options.tiltX, 0) + '° X, ' + fmt(r.options.tiltY, 0) + '° Y)', dims(r.tiltedBoxSize)],
+      ['Yerleşim kutusu (Z açısıyla)', dims(r.tiltedSize)],
+      ['Kullanılabilir alan', dims([r.usable.x, r.usable.y, r.usable.z])],
+      ['Parça hacmi', fmt(r.mesh.volume / 1000, 2) + ' cm³'],
+      ['Yüzey alanı', fmt(r.mesh.area / 100, 1) + ' cm²'],
+      ['Doluluk (parça hacmi)', fmt(r.densityByPart * 100, 1) + ' %'],
+      ['Doluluk (kutu hacmi)', fmt(r.densityByBox * 100, 1) + ' %'],
+      ['Hesap süresi', fmt(r.elapsedMs, 0) + ' ms'],
+    ];
+    $('kv').innerHTML = rows.map(([k, v]) => '<dt>' + k + '</dt><dd>' + v + '</dd>').join('');
+    if (r.total === 0) setStatus('Parça bu ayarlarla baskı alanına sığmıyor. Birimi veya ayarları kontrol edin.', 'err');
+    else setStatus(loadedMsg, 'ok');
+    $('copy').disabled = false;
+    drawPlate(r);
+  }
+
+  // ---------------- Çizim ----------------
+  const canvas = $('plate');
+  const ctx = canvas.getContext('2d');
+  const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+  function drawPlate(r) {
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = css('--plate');
+    ctx.fillRect(0, 0, W, H);
+    if (!r) return;
+
+    const pad = 40;
+    const bx = r.build.x, by = r.build.y;
+    const s = Math.min((W - 2 * pad) / bx, (H - 2 * pad) / by);
+    const ox = (W - bx * s) / 2, oy = (H - by * s) / 2;
+    const X = (x) => ox + x * s;
+    const Y = (y) => oy + (by - y) * s; // y yukarı
+
+    // baskı alanı
+    ctx.strokeStyle = css('--ink');
+    ctx.lineWidth = 2;
+    ctx.strokeRect(X(0), Y(by), bx * s, by * s);
+    // kullanılabilir alan
+    const m = r.options.margin;
+    ctx.setLineDash([6, 4]);
+    ctx.strokeStyle = css('--muted');
+    ctx.lineWidth = 1;
+    ctx.strokeRect(X(m), Y(by - m), r.usable.x * s, r.usable.y * s);
+    ctx.setLineDash([]);
+
+    // parçalar
+    for (const rc of r.rects) {
+      ctx.fillStyle = rc.rot ? css('--part-rot') : css('--part');
+      ctx.strokeStyle = css('--ink');
+      ctx.lineWidth = 1;
+      const x = X(m + rc.x), y = Y(m + rc.y + rc.l);
+      ctx.fillRect(x, y, rc.w * s, rc.l * s);
+      ctx.strokeRect(x, y, rc.w * s, rc.l * s);
+    }
+
+    ctx.fillStyle = css('--muted');
+    ctx.font = '13px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('X = ' + fmt(bx, 0) + ' mm', W / 2, Y(0) + 22);
+    ctx.save();
+    ctx.translate(X(0) - 14, H / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('Y = ' + fmt(by, 0) + ' mm', 0, 0);
+    ctx.restore();
+    ctx.textAlign = 'left';
+    ctx.fillText(fmt(r.perLayer, 0) + ' adet / katman · ' + fmt(r.layers, 0) + ' katman · Z açısı ' + fmt(r.bestAngle, 1) + '°', X(0), Y(by) - 10);
+  }
+
+  // ---------------- Kopyala ----------------
+  $('copy').addEventListener('click', async () => {
+    if (!lastResult) return;
+    const r = lastResult;
+    const text = [
+      'Dosya: ' + fileName,
+      'MJF baskı alanı: ' + dims([r.build.x, r.build.y, r.build.z]),
+      'Yatırma: X ' + r.options.tiltX + '°, Y ' + r.options.tiltY + '° · Z açısı ' + fmt(r.bestAngle, 1) + '°',
+      'Boşluk ' + r.options.gap + ' mm · Duvar payı ' + r.options.margin + ' mm',
+      'Orijinal boyut: ' + dims(r.originalSize),
+      'Yerleşim kutusu: ' + dims(r.tiltedSize),
+      'Parça hacmi: ' + fmt(r.mesh.volume / 1000, 2) + ' cm³',
+      'Sığan adet: ' + r.total + ' (' + r.perLayer + ' × ' + r.layers + ' katman)',
+      'Doluluk: ' + fmt(r.densityByPart * 100, 1) + ' %',
+    ].join('\n');
+    try {
+      await navigator.clipboard.writeText(text);
+      $('copyStatus').textContent = 'Özet panoya kopyalandı.';
+    } catch (e) {
+      $('copyStatus').textContent = text;
+      $('copyStatus').style.whiteSpace = 'pre-wrap';
+    }
+  });
+
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => drawPlate(lastResult));
+  drawPlate(null);
+})();
+</script>
+</body>
+</html>
