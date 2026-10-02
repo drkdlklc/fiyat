@@ -89,10 +89,16 @@
       <div><label for="ty">Yatırma Y (°)</label><input type="number" id="ty" value="25" step="1"></div>
       <div><label for="gap">Parça arası boşluk (mm)</label><input type="number" id="gap" value="5" min="0" step="0.5"></div>
       <div><label for="margin">Duvar payı (mm)</label><input type="number" id="margin" value="10" min="0" step="0.5"></div>
-      <div><label for="step">Z tarama adımı (°)</label><input type="number" id="step" value="1" min="0.1" max="45" step="0.5"></div>
-      <div class="full check"><input type="checkbox" id="mixed" checked><label for="mixed" style="margin:0;color:var(--ink);font-size:14px">Aynı katmanda 90° çevrilmiş parçalarla şerit doldur</label></div>
+      <div><label for="step">Z tarama adımı (°)</label><input type="number" id="step" value="2" min="0.5" max="45" step="0.5"></div>
+      <div class="full"><label for="mode">Yerleşim yöntemi</label>
+        <select id="mode">
+          <option value="lattice">Gerçek şekil (parçalar iç içe geçer)</option>
+          <option value="box">Sınırlayıcı kutu (muhafazakâr, katmanlı)</option>
+        </select></div>
+      <div><label for="cap">Maks. doluluk (%)</label><input type="number" id="cap" value="0" min="0" max="100" step="1"></div>
+      <div class="check" id="mixedWrap"><input type="checkbox" id="mixed" checked><label for="mixed" style="margin:0;color:var(--ink);font-size:14px">90° şerit doldurma</label></div>
     </div>
-    <p class="hint">Ayarları değiştirince sonuç anında yeniden hesaplanır. Yatırma açılarını 0 yaparsanız parça olduğu gibi yerleştirilir.</p>
+    <p class="hint">Ayarları değiştirince sonuç yeniden hesaplanır. Yatırma açılarını 0 yaparsanız parça olduğu gibi yerleştirilir. Maks. doluluk 0 ise sınır uygulanmaz; MJF için pratikte %10–15 kullanılır.</p>
   </section>
 
   <section class="panel">
@@ -104,9 +110,9 @@
     </div>
     <div class="status" id="copyStatus"></div>
 
-    <h2 style="margin-top:18px">Üstten görünüm (bir katman)</h2>
+    <h2 style="margin-top:18px" id="plateTitle">Üstten görünüm (bir katman)</h2>
     <canvas id="plate" width="900" height="700"></canvas>
-    <div class="legend">
+    <div class="legend" id="legend">
       <span><i style="background:var(--part)"></i>En iyi Z açısı</span>
       <span><i style="background:var(--part-rot)"></i>+90° çevrilmiş</span>
     </div>
@@ -223,38 +229,86 @@
       tiltY: num('ty', 25),
       gap: Math.max(0, num('gap', 5)),
       margin: Math.max(0, num('margin', 10)),
-      angleStep: Math.min(45, Math.max(0.1, num('step', 1))),
+      angleStep: Math.min(45, Math.max(0.5, num('step', 2))),
       allowMixed: $('mixed').checked,
+      mode: $('mode').value,
     };
   }
 
   let recomputeTimer = null;
   function scheduleRecompute() {
     clearTimeout(recomputeTimer);
-    recomputeTimer = setTimeout(recompute, 120);
+    recomputeTimer = setTimeout(recompute, 150);
   }
-  ['bx', 'by', 'bz', 'unit', 'tx', 'ty', 'gap', 'margin', 'step', 'mixed'].forEach((id) => {
+  ['bx', 'by', 'bz', 'unit', 'tx', 'ty', 'gap', 'margin', 'step', 'mixed', 'mode', 'cap'].forEach((id) => {
     $(id).addEventListener('input', scheduleRecompute);
     $(id).addEventListener('change', scheduleRecompute);
   });
+  $('mode').addEventListener('change', () => { $('mixedWrap').style.visibility = $('mode').value === 'box' ? 'visible' : 'hidden'; });
+  $('mixedWrap').style.visibility = 'hidden';
+
+  // Hesap: Web Worker varsa orada, yoksa ana iş parçacığında
+  let worker = null;
+  try { worker = new Worker('nesting-worker.js'); } catch (e) { worker = null; }
+  let jobId = 0;
+  let pending = null;
+  if (worker) {
+    worker.onmessage = (ev) => {
+      const { id, result, error } = ev.data;
+      if (id !== jobId) return; // eski iş
+      pending = null;
+      if (error) { setStatus('Hesap hatası: ' + error, 'err'); return; }
+      lastResult = result;
+      render(result);
+    };
+    worker.onerror = () => { worker = null; recompute(); };
+  }
 
   function recompute() {
     if (!rawTriangles) return;
     const opts = readOptions();
     const scale = isStl ? parseFloat($('unit').value) || 1 : 1;
     const tris = N.scaleTriangles(rawTriangles, scale);
-    const r = N.computeNesting(tris, opts);
-    lastResult = r;
-    render(r);
+    const id = ++jobId;
+    if (worker) {
+      pending = id;
+      setStatus(loadedMsg + ' · hesaplanıyor…');
+      worker.postMessage({ id, tris, opts });
+    } else {
+      const r = N.computeNesting(tris, opts);
+      lastResult = r;
+      render(r);
+    }
   }
 
   const fmt = (v, d) => Number(v).toLocaleString('tr-TR', { minimumFractionDigits: d, maximumFractionDigits: d });
   const dims = (a) => a.map((v) => fmt(v, 1)).join(' × ') + ' mm';
 
+  function cappedTotal(r) {
+    const cap = Math.max(0, num('cap', 0));
+    if (!(cap > 0) || !(r.mesh.volume > 0)) return { total: r.total, cap: 0, capped: false };
+    const buildVolume = r.build.x * r.build.y * r.build.z;
+    const limit = Math.floor(cap / 100 * buildVolume / r.mesh.volume);
+    return { total: Math.min(r.total, limit), cap, capped: limit < r.total };
+  }
+
   function render(r) {
-    $('total').innerHTML = fmt(r.total, 0) + '<small>adet</small>';
-    const rows = [
-      ['Katman başına', fmt(r.perLayer, 0) + ' adet × ' + fmt(r.layers, 0) + ' katman'],
+    const ct = cappedTotal(r);
+    r.finalTotal = ct.total;
+    $('total').innerHTML = fmt(ct.total, 0) + '<small>adet' + (ct.capped ? ' (doluluk sınırı)' : '') + '</small>';
+    const isLattice = r.mode === 'lattice';
+    const rows = [];
+    if (ct.capped) rows.push(['Geometrik sığan', fmt(r.total, 0) + ' adet (sınır %' + fmt(ct.cap, 0) + ' doluluk)']);
+    if (isLattice) {
+      const L = r.lattice;
+      const len = (v) => fmt(Math.hypot(v[0], v[1], v[2]), 1);
+      rows.push(['Alt katman', fmt(r.perLayer, 0) + ' adet (tabandan ' + fmt(r.bandHeight, 0) + ' mm içinde başlayan)']);
+      rows.push(['Kafes adımları', len(L.a) + ' / ' + len(L.b) + ' / ' + len(L.c) + ' mm']);
+      rows.push(['Kafes doluluğu', fmt(r.latticeDensity * 100, 1) + ' % (parça / hücre)']);
+    } else {
+      rows.push(['Katman başına', fmt(r.perLayer, 0) + ' adet × ' + fmt(r.layers, 0) + ' katman']);
+    }
+    rows.push(
       ['En iyi Z açısı', fmt(r.bestAngle, 1) + '°'],
       ['Orijinal boyut', dims(r.originalSize)],
       ['Yatırılmış boyut (' + fmt(r.options.tiltX, 0) + '° X, ' + fmt(r.options.tiltY, 0) + '° Y)', dims(r.tiltedBoxSize)],
@@ -262,14 +316,18 @@
       ['Kullanılabilir alan', dims([r.usable.x, r.usable.y, r.usable.z])],
       ['Parça hacmi', fmt(r.mesh.volume / 1000, 2) + ' cm³'],
       ['Yüzey alanı', fmt(r.mesh.area / 100, 1) + ' cm²'],
-      ['Doluluk (parça hacmi)', fmt(r.densityByPart * 100, 1) + ' %'],
-      ['Doluluk (kutu hacmi)', fmt(r.densityByBox * 100, 1) + ' %'],
+      ['Doluluk (parça hacmi)', fmt(ct.total * r.mesh.volume / (r.build.x * r.build.y * r.build.z) * 100, 1) + ' %'],
       ['Hesap süresi', fmt(r.elapsedMs, 0) + ' ms'],
-    ];
+    );
+    if (r.note) rows.push(['Not', r.note]);
     $('kv').innerHTML = rows.map(([k, v]) => '<dt>' + k + '</dt><dd>' + v + '</dd>').join('');
     if (r.total === 0) setStatus('Parça bu ayarlarla baskı alanına sığmıyor. Birimi veya ayarları kontrol edin.', 'err');
     else setStatus(loadedMsg, 'ok');
     $('copy').disabled = false;
+    $('plateTitle').textContent = isLattice ? 'Üstten görünüm (alt katman, renk = yükseklik)' : 'Üstten görünüm (bir katman)';
+    $('legend').innerHTML = isLattice
+      ? '<span><i style="background:var(--part)"></i>Tabandaki parçalar</span><span><i style="background:var(--part-rot)"></i>Daha yukarıda başlayanlar (iç içe)</span>'
+      : '<span><i style="background:var(--part)"></i>En iyi Z açısı</span><span><i style="background:var(--part-rot)"></i>+90° çevrilmiş</span>';
     drawPlate(r);
   }
 
@@ -305,13 +363,35 @@
     ctx.setLineDash([]);
 
     // parçalar
-    for (const rc of r.rects) {
-      ctx.fillStyle = rc.rot ? css('--part-rot') : css('--part');
+    if (r.mode === 'lattice' && r.points) {
+      // Alt banttaki parçalar, alçaktan yükseğe sıralı; renk yüksekliğe göre
+      const z0 = r.zRange[0], band = r.bandHeight;
+      const pts = r.points.filter((p) => p[2] < z0 + band).sort((p, q) => p[2] - q[2]);
+      const poly = r.polyRel || [];
       ctx.strokeStyle = css('--ink');
       ctx.lineWidth = 1;
-      const x = X(m + rc.x), y = Y(m + rc.y + rc.l);
-      ctx.fillRect(x, y, rc.w * s, rc.l * s);
-      ctx.strokeRect(x, y, rc.w * s, rc.l * s);
+      ctx.globalAlpha = 0.85;
+      for (const p of pts) {
+        if (poly.length < 3) continue;
+        const f = Math.min(1, Math.max(0, (p[2] - z0) / band));
+        ctx.fillStyle = `color-mix(in srgb, ${css('--part-rot')} ${Math.round(f * 100)}%, ${css('--part')})`;
+        ctx.beginPath();
+        ctx.moveTo(X(poly[0][0] + p[0]), Y(poly[0][1] + p[1]));
+        for (let i = 1; i < poly.length; i++) ctx.lineTo(X(poly[i][0] + p[0]), Y(poly[i][1] + p[1]));
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    } else if (r.rects) {
+      for (const rc of r.rects) {
+        ctx.fillStyle = rc.rot ? css('--part-rot') : css('--part');
+        ctx.strokeStyle = css('--ink');
+        ctx.lineWidth = 1;
+        const x = X(m + rc.x), y = Y(m + rc.y + rc.l);
+        ctx.fillRect(x, y, rc.w * s, rc.l * s);
+        ctx.strokeRect(x, y, rc.w * s, rc.l * s);
+      }
     }
 
     ctx.fillStyle = css('--muted');
@@ -324,7 +404,7 @@
     ctx.fillText('Y = ' + fmt(by, 0) + ' mm', 0, 0);
     ctx.restore();
     ctx.textAlign = 'left';
-    ctx.fillText(fmt(r.perLayer, 0) + ' adet / katman · ' + fmt(r.layers, 0) + ' katman · Z açısı ' + fmt(r.bestAngle, 1) + '°', X(0), Y(by) - 10);
+    ctx.fillText((r.mode === 'lattice' ? fmt(r.perLayer, 0) + ' adet alt katmanda' : fmt(r.perLayer, 0) + ' adet / katman · ' + fmt(r.layers, 0) + ' katman') + ' · Z açısı ' + fmt(r.bestAngle, 1) + '° · toplam ' + fmt(r.finalTotal != null ? r.finalTotal : r.total, 0), X(0), Y(by) - 10);
   }
 
   // ---------------- Kopyala ----------------
@@ -339,8 +419,9 @@
       'Orijinal boyut: ' + dims(r.originalSize),
       'Yerleşim kutusu: ' + dims(r.tiltedSize),
       'Parça hacmi: ' + fmt(r.mesh.volume / 1000, 2) + ' cm³',
-      'Sığan adet: ' + r.total + ' (' + r.perLayer + ' × ' + r.layers + ' katman)',
-      'Doluluk: ' + fmt(r.densityByPart * 100, 1) + ' %',
+      'Yöntem: ' + (r.mode === 'lattice' ? 'gerçek şekil (kafes)' : 'sınırlayıcı kutu'),
+      'Sığan adet: ' + (r.finalTotal != null ? r.finalTotal : r.total) + (r.finalTotal != null && r.finalTotal !== r.total ? ' (geometrik ' + r.total + ', doluluk sınırı uygulandı)' : ''),
+      'Doluluk: ' + fmt((r.finalTotal != null ? r.finalTotal : r.total) * r.mesh.volume / (r.build.x * r.build.y * r.build.z) * 100, 1) + ' %',
     ].join('\n');
     try {
       await navigator.clipboard.writeText(text);

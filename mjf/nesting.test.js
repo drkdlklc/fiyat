@@ -63,15 +63,15 @@ test('pack2D: düz ızgara ve karışık şerit', () => {
   }
 });
 
-test('yatırma olmadan 50x30x20 kutu MJF 5600: 46 × 14 = 644', () => {
-  const r = N.computeNesting(boxTris(50, 30, 20), { tiltX: 0, tiltY: 0 });
+test('kutu yöntemi: yatırma olmadan 50x30x20 kutu MJF 5600: 46 × 14 = 644', () => {
+  const r = N.computeNestingBox(boxTris(50, 30, 20), { tiltX: 0, tiltY: 0 });
   assert.equal(r.perLayer, 46);
   assert.equal(r.layers, 14);
   assert.equal(r.total, 644);
 });
 
-test('25°/25° yatırma kutuyu büyütür, adet düşer', () => {
-  const r = N.computeNesting(boxTris(50, 30, 20), {});
+test('kutu yöntemi: 25°/25° yatırma kutuyu büyütür, adet düşer', () => {
+  const r = N.computeNestingBox(boxTris(50, 30, 20), {});
   assert.ok(r.height > 20 && r.height < 50);
   assert.ok(r.total > 0 && r.total < 644);
   assert.equal(r.rects.length, r.perLayer);
@@ -79,8 +79,8 @@ test('25°/25° yatırma kutuyu büyütür, adet düşer', () => {
 
 test('çapraz sığan uzun parça ve hiç sığmayan parça', () => {
   // 400 mm çubuk 360×264 alana çapraz (köşegen ≈ 446 mm) sığar
-  assert.ok(N.computeNesting(boxTris(400, 30, 20), { tiltX: 0, tiltY: 0 }).total > 0);
-  const r = N.computeNesting(boxTris(500, 30, 20), { tiltX: 0, tiltY: 0 });
+  assert.ok(N.computeNestingBox(boxTris(400, 30, 20), { tiltX: 0, tiltY: 0 }).total > 0);
+  const r = N.computeNestingBox(boxTris(500, 30, 20), { tiltX: 0, tiltY: 0 });
   assert.equal(r.total, 0);
 });
 
@@ -106,4 +106,64 @@ test('büyük mesh: ızgara zarf kaba kuvvetle uyuşur ve hızlıdır', () => {
     assert.ok(maxX - minX - e.w <= tolerance + 1e-6);
     assert.ok(maxY - minY - e.l <= tolerance + 1e-6);
   }
+});
+
+test('overlapSet kaba kuvvetle uyuşur', () => {
+  const dims = [6, 5, 4];
+  const g = new Uint8Array(dims[0] * dims[1] * dims[2]);
+  for (let i = 0; i < g.length; i++) g[i] = (i * 7919) % 11 < 4 ? 1 : 0;
+  const os = N.overlapSet(g, dims);
+  const M = os.M;
+  for (let tz = -(dims[2] - 1); tz < dims[2]; tz++) for (let ty = -(dims[1] - 1); ty < dims[1]; ty++) for (let tx = -(dims[0] - 1); tx < dims[0]; tx++) {
+    let ov = 0;
+    for (let z = 0; z < dims[2] && !ov; z++) for (let y = 0; y < dims[1] && !ov; y++) for (let x = 0; x < dims[0]; x++) {
+      if (!g[x + dims[0] * (y + dims[1] * z)]) continue;
+      const X = x + tx, Y = y + ty, Z = z + tz;
+      if (X < 0 || Y < 0 || Z < 0 || X >= dims[0] || Y >= dims[1] || Z >= dims[2]) continue;
+      if (g[X + dims[0] * (Y + dims[1] * Z)]) { ov = 1; break; }
+    }
+    const c = os.C[(tx < 0 ? tx + M[0] : tx) + M[0] * ((ty < 0 ? ty + M[1] : ty) + M[1] * (tz < 0 ? tz + M[2] : tz))];
+    assert.equal(c, ov, `t=${tx},${ty},${tz}`);
+  }
+});
+
+test('countLatticeInBox kaba kuvvetle uyuşur', () => {
+  const basis = [[9.7, -10.7, 20.9], [30, 20, -5], [-20, 40, 10]];
+  const allowed = { min: [0, 0, 0], max: [310, 234, 340] };
+  const r = N.countLatticeInBox(basis, [3, 4, 5], allowed, true);
+  let brute = 0;
+  for (let i = -60; i <= 60; i++) for (let j = -60; j <= 60; j++) for (let k = -60; k <= 60; k++) {
+    const x = 3 + i * basis[0][0] + j * basis[1][0] + k * basis[2][0];
+    const y = 4 + i * basis[0][1] + j * basis[1][1] + k * basis[2][1];
+    const z = 5 + i * basis[0][2] + j * basis[1][2] + k * basis[2][2];
+    if (x >= 0 && x <= 310 && y >= 0 && y <= 234 && z >= 0 && z <= 340) brute++;
+  }
+  assert.equal(r.count, brute);
+  assert.equal(r.points.length, brute);
+});
+
+test('kafes yöntemi: eğimsiz kutu, kafes kutunun kendi kenarlarını bulur', () => {
+  const r = N.computeNesting(boxTris(50, 30, 20), { tiltX: 0, tiltY: 0, angleStep: 5 });
+  assert.equal(r.mode, 'lattice');
+  // Hücre ≈ (20+5)(30+5)(50+5) = 48125; voksel toleransı ±%8
+  assert.ok(Math.abs(r.lattice.cellVolume - 48125) / 48125 < 0.08, 'hücre ' + r.lattice.cellVolume);
+  assert.ok(r.total >= 550 && r.total <= 650, 'toplam ' + r.total);
+});
+
+test('kafes yöntemi: 25°/25° yatırılmış kutu kutu yönteminden çok daha fazla sığar', () => {
+  const tris = boxTris(50, 30, 20);
+  const lat = N.computeNesting(tris, { angleStep: 5 });
+  const box = N.computeNestingBox(tris, {});
+  assert.ok(lat.total > 1.8 * box.total, `kafes ${lat.total} vs kutu ${box.total}`);
+  // Eğik kutu kendi kenar kafesiyle ~%62 doluluk verir; voksel payıyla %55 üstü beklenir
+  assert.ok(lat.latticeDensity > 0.55, 'kafes doluluğu ' + lat.latticeDensity);
+  assert.equal(lat.points.length, lat.total);
+});
+
+test('kafes yöntemi: kafes noktaları gerçekten çakışmıyor (voksel kontrolü)', () => {
+  // L braket: iç içe geçme beklenir; voksel ızgarasında kopyaları üst üste koyup çakışma ara
+  const tris = Float32Array.from([...Array.from(boxTris(60, 15, 10)), ...Array.from(boxTris(15, 45, 10)).map((v, i) => i % 3 === 1 ? v + 15 : v)]);
+  const r = N.computeNesting(tris, { tiltX: 0, tiltY: 0, gap: 0, angleStep: 10 });
+  assert.ok(r.total > 0);
+  assert.ok(r.latticeDensity > 0.6, 'L braket kafes doluluğu ' + r.latticeDensity); // L'ler iç içe geçince kutu doluluğunu (%44) aşar
 });

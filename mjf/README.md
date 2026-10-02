@@ -7,15 +7,23 @@ adet tahmini için tasarlanmıştır.
 - **Girdi:** STL (binary/ASCII), STEP, IGES, BREP. STEP ailesi dosyalar
   `vendor/occt-import-js` (OpenCascade WebAssembly) ile üçgenlere çevrilir.
 - **Yönelim:** Parça önce X, sonra Y ekseninde 25° yatırılır (ayarlanabilir).
-- **Yerleşim:** Yalnızca Z ekseninde döndürme serbesttir. 0–180° taranır,
-  her açı için parçanın XY sınırlayıcı kutusu hesaplanır ve en çok adet
-  veren açı seçilir. İstenirse aynı katmanda 90° çevrilmiş parçalarla artan
-  şerit doldurulur. Katman sayısı Z yüksekliğinden gelir.
-- **Çıktı:** Toplam adet, katman başına adet × katman, en iyi Z açısı,
-  boyutlar, parça hacmi/yüzey alanı, doluluk oranı ve üstten yerleşim çizimi.
+- **Yerleşim (varsayılan, "gerçek şekil"):** Parça vokselleştirilir ve
+  parçalar arası boşluğun yarısı kadar şişirilir. İki kopyanın çakıştığı
+  öteleme kümesi FFT otokorelasyonla bulunur; kopyaların hiç çakışmadığı en
+  sık kafes (üç öteleme vektörü) açgözlü aramayla seçilir. Parçalar böylece
+  hem XY'de hem Z'de birbirinin içine girer. Yalnızca Z ekseninde döndürme
+  serbesttir: 0–180° taranır, kafes ve parça birlikte döndürülür, baskı
+  alanına en çok parça sığdıran açı ve kafes kaydırması seçilir.
+- **Yerleşim ("sınırlayıcı kutu"):** Her parça eksenlere hizalı kutusu
+  kadar yer kaplar; katman katman dizilir. Muhafazakâr karşılaştırma için.
+- **Çıktı:** Toplam adet, alt katmandaki adet, kafes adımları ve doluluğu,
+  en iyi Z açısı, boyutlar, parça hacmi/yüzey alanı, baskı doluluğu ve
+  üstten yerleşim çizimi. İsteğe bağlı "maks. doluluk" sınırı (MJF'de
+  pratikte %10–15) adedi hacimsel olarak sınırlar.
 
-Hesap sınırlayıcı kutu tabanlıdır (fiziksel/çarpışma simülasyonu yoktur),
-bu yüzden hızlıdır ve gerçek yerleştirmeye göre muhafazakâr bir sayı verir.
+Fiziksel/çarpışma simülasyonu yoktur; voksel çözünürlüğü (~1/58 parça
+boyu) nedeniyle sonuç ±%5 civarında sapabilir. Hesap bir Web Worker'da
+çalışır, tipik parçada ~1–3 s sürer.
 
 ## Kullanım
 
