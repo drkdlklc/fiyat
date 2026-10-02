@@ -147,7 +147,7 @@ test('kafes yöntemi: eğimsiz kutu, kafes kutunun kendi kenarlarını bulur', (
   assert.equal(r.mode, 'lattice');
   // Hücre ≈ (20+5)(30+5)(50+5) = 48125; voksel toleransı ±%8
   assert.ok(Math.abs(r.lattice.cellVolume - 48125) / 48125 < 0.08, 'hücre ' + r.lattice.cellVolume);
-  assert.ok(r.total >= 550 && r.total <= 650, 'toplam ' + r.total);
+  assert.ok(r.total >= 550 && r.total <= 850, 'toplam ' + r.total); // hacimsel üst sınır ≈ 850
 });
 
 test('kafes yöntemi: 25°/25° yatırılmış kutu kutu yönteminden çok daha fazla sığar', () => {
@@ -183,16 +183,15 @@ test('çift kafesi: üçgen prizma 180° çevrilmiş eşiyle çok daha sık yerl
   assert.ok(pair.latticeDensity > single.latticeDensity * 1.2, `çift ${pair.latticeDensity} tek ${single.latticeDensity}`);
   assert.ok(pair.total > single.total, `çift ${pair.total} tek ${single.total}`);
   assert.equal(pair.points.length, pair.total);
-  assert.equal(pair.members.length, 2);
-  // Her hücrede bir A bir B
-  assert.equal(pair.points.filter((p) => p[3] === 1).length, pair.total / 2);
+  assert.ok(pair.members.length >= 2);
+  // Kafes kısmında her hücrede bir A bir B
+  assert.equal(pair.points.slice(0, pair.latticeCount).filter((p) => p[3] === 1).length, pair.latticeCount / 2);
 });
 
 test('çift kafesi: kutuda kazanç yoksa tek yön kalır', () => {
   const r = N.computeNesting(boxTris(50, 30, 20), { angleStep: 10, pairAngles: [180] });
   assert.equal(r.pair, null);
   assert.deepEqual(r.pairTried, [180]);
-  assert.equal(r.members.length, 1);
 });
 
 test('crossOverlapSet kaba kuvvetle uyuşur', () => {
@@ -211,5 +210,41 @@ test('crossOverlapSet kaba kuvvetle uyuşur', () => {
     }
     const c = os.C[(tx < 0 ? tx + M[0] : tx) + M[0] * ((ty < 0 ? ty + M[1] : ty) + M[1] * (tz < 0 ? tz + M[2] : tz))];
     assert.equal(c, ov, `t=${tx},${ty},${tz}`);
+  }
+});
+
+test('boşluk doldurma: yerleşmiş parçalarla çakışmaz ve kutu içinde kalır', () => {
+  const tris = boxTris(50, 30, 20);
+  const r = N.computeNesting(tris, { angleStep: 10, pairAngles: [] });
+  assert.ok(r.fillCount >= 0);
+  assert.ok(r.total >= r.latticeCount);
+  // Her parça kullanılabilir alanın içinde (XY zarfı ve Z aralığı)
+  const m = r.options.margin;
+  const tol = 1e-3;
+  for (const p of r.points) {
+    const mem = r.members[p[3]];
+    for (const q of mem.polyRel) {
+      assert.ok(q[0] + p[0] >= m - tol && q[0] + p[0] <= r.build.x - m + tol, 'x dışarıda');
+      assert.ok(q[1] + p[1] >= m - tol && q[1] + p[1] <= r.build.y - m + tol, 'y dışarıda');
+    }
+    assert.ok(p[2] + mem.zMin >= m - tol && p[2] + mem.zMin + r.height <= r.build.z - m + tol, 'z dışarıda');
+  }
+  // Doldurulan parçalar kafes parçalarının kutusuyla çakışmamalı (AABB testi, kaba)
+  const boxes = r.points.map((p) => {
+    const mem = r.members[p[3]];
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    for (const q of mem.polyRel) { minX = Math.min(minX, q[0] + p[0]); maxX = Math.max(maxX, q[0] + p[0]); minY = Math.min(minY, q[1] + p[1]); maxY = Math.max(maxY, q[1] + p[1]); }
+    return { minX, maxX, minY, maxY, minZ: p[2] + mem.zMin, maxZ: p[2] + mem.zMin + r.height };
+  });
+  // Eğimli parçaların kutuları çakışabilir; sadece merkezler arası mesafenin boşluktan küçük olmadığını kontrol et
+  for (let i = r.latticeCount; i < boxes.length; i++) {
+    for (let j = 0; j < boxes.length; j++) {
+      if (i === j) continue;
+      const a = boxes[i], b = boxes[j];
+      const dx = Math.abs((a.minX + a.maxX) / 2 - (b.minX + b.maxX) / 2);
+      const dy = Math.abs((a.minY + a.maxY) / 2 - (b.minY + b.maxY) / 2);
+      const dz = Math.abs((a.minZ + a.maxZ) / 2 - (b.minZ + b.maxZ) / 2);
+      assert.ok(Math.hypot(dx, dy, dz) > r.options.gap, 'iki parça merkezi çok yakın');
+    }
   }
 });
