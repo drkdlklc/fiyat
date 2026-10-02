@@ -95,10 +95,10 @@
           <option value="lattice">Gerçek şekil (parçalar iç içe geçer)</option>
           <option value="box">Sınırlayıcı kutu (muhafazakâr, katmanlı)</option>
         </select></div>
-      <div><label for="cap">Maks. doluluk (%)</label><input type="number" id="cap" value="0" min="0" max="100" step="1"></div>
+      <div><label for="cap">Maks. doluluk (%)</label><input type="number" id="cap" value="9.5" min="0" max="100" step="0.5"></div>
       <div class="check" id="mixedWrap"><input type="checkbox" id="mixed" checked><label for="mixed" style="margin:0;color:var(--ink);font-size:14px">90° şerit doldurma</label></div>
     </div>
-    <p class="hint">Ayarları değiştirince sonuç yeniden hesaplanır. Yatırma açılarını 0 yaparsanız parça olduğu gibi yerleştirilir. Maks. doluluk 0 ise sınır uygulanmaz; MJF için pratikte %10–15 kullanılır.</p>
+    <p class="hint">Ayarları değiştirince sonuç yeniden hesaplanır. Yatırma açılarını 0 yaparsanız parça olduğu gibi yerleştirilir. Geometrik adet maks. doluluğu aşarsa sonuç o doluluğu dolduran adede sınırlanır; 0 girilirse sınır uygulanmaz.</p>
   </section>
 
   <section class="panel">
@@ -295,10 +295,10 @@
   function render(r) {
     const ct = cappedTotal(r);
     r.finalTotal = ct.total;
-    $('total').innerHTML = fmt(ct.total, 0) + '<small>adet' + (ct.capped ? ' (doluluk sınırı)' : '') + '</small>';
+    $('total').innerHTML = fmt(ct.total, 0) + '<small>adet' + (ct.capped ? ' · %' + fmt(ct.cap, 1) + ' doluluk sınırı' : '') + '</small>';
     const isLattice = r.mode === 'lattice';
     const rows = [];
-    if (ct.capped) rows.push(['Geometrik sığan', fmt(r.total, 0) + ' adet (sınır %' + fmt(ct.cap, 0) + ' doluluk)']);
+    if (ct.capped) rows.push(['Geometrik sığan', fmt(r.total, 0) + ' adet (%' + fmt(r.densityByPart * 100, 1) + ' doluluk olurdu; %' + fmt(ct.cap, 1) + ' sınırı uygulandı)']);
     if (isLattice) {
       const L = r.lattice;
       const len = (v) => fmt(Math.hypot(v[0], v[1], v[2]), 1);
@@ -420,7 +420,7 @@
       'Yerleşim kutusu: ' + dims(r.tiltedSize),
       'Parça hacmi: ' + fmt(r.mesh.volume / 1000, 2) + ' cm³',
       'Yöntem: ' + (r.mode === 'lattice' ? 'gerçek şekil (kafes)' : 'sınırlayıcı kutu'),
-      'Sığan adet: ' + (r.finalTotal != null ? r.finalTotal : r.total) + (r.finalTotal != null && r.finalTotal !== r.total ? ' (geometrik ' + r.total + ', doluluk sınırı uygulandı)' : ''),
+      'Sığan adet: ' + (r.finalTotal != null ? r.finalTotal : r.total) + (r.finalTotal != null && r.finalTotal !== r.total ? ' (geometrik ' + r.total + ', %' + fmt(Math.max(0, num('cap', 0)), 1) + ' doluluk sınırı uygulandı)' : ''),
       'Doluluk: ' + fmt((r.finalTotal != null ? r.finalTotal : r.total) * r.mesh.volume / (r.build.x * r.build.y * r.build.z) * 100, 1) + ' %',
     ].join('\n');
     try {
