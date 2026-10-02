@@ -66,7 +66,7 @@
 <body>
 <header>
   <h1>MJF Yerleşim Hesabı</h1>
-  <p>STL veya STEP dosyasını bırak: parça X ve Y'de 25° yatırılır, yerleşimde yalnızca Z ekseninde döndürülür ve HP MJF 5600 hacmine kaç adet sığdığı hesaplanır.</p>
+  <p>STL veya STEP dosyasını bırak: parça X ve Y'de 25° yatırılır, yerleşimde yalnızca Z ekseninde döndürülür (gerekirse eş parça 180° çevrilerek çiftler iç içe geçer) ve HP MJF 5600 hacmine kaç adet sığdığı hesaplanır.</p>
 </header>
 <main>
   <section class="panel">
@@ -94,6 +94,12 @@
         <select id="mode">
           <option value="lattice">Gerçek şekil (parçalar iç içe geçer)</option>
           <option value="box">Sınırlayıcı kutu (muhafazakâr, katmanlı)</option>
+        </select></div>
+      <div><label for="pair">Eş parçayı Z'de çevir</label>
+        <select id="pair">
+          <option value="">Kapalı (hepsi aynı yönde)</option>
+          <option value="180" selected>180° (çiftler iç içe)</option>
+          <option value="90,180,270">90°, 180°, 270° (daha yavaş)</option>
         </select></div>
       <div><label for="cap">Maks. doluluk (%)</label><input type="number" id="cap" value="9.5" min="0" max="100" step="0.5"></div>
       <div class="check" id="mixedWrap"><input type="checkbox" id="mixed" checked><label for="mixed" style="margin:0;color:var(--ink);font-size:14px">90° şerit doldurma</label></div>
@@ -232,6 +238,7 @@
       angleStep: Math.min(45, Math.max(0.5, num('step', 2))),
       allowMixed: $('mixed').checked,
       mode: $('mode').value,
+      pairAngles: $('pair').value ? $('pair').value.split(',').map(Number) : [],
     };
   }
 
@@ -240,7 +247,7 @@
     clearTimeout(recomputeTimer);
     recomputeTimer = setTimeout(recompute, 150);
   }
-  ['bx', 'by', 'bz', 'unit', 'tx', 'ty', 'gap', 'margin', 'step', 'mixed', 'mode', 'cap'].forEach((id) => {
+  ['bx', 'by', 'bz', 'unit', 'tx', 'ty', 'gap', 'margin', 'step', 'mixed', 'mode', 'cap', 'pair'].forEach((id) => {
     $(id).addEventListener('input', scheduleRecompute);
     $(id).addEventListener('change', scheduleRecompute);
   });
@@ -303,8 +310,10 @@
       const L = r.lattice;
       const len = (v) => fmt(Math.hypot(v[0], v[1], v[2]), 1);
       rows.push(['Alt katman', fmt(r.perLayer, 0) + ' adet (tabandan ' + fmt(r.bandHeight, 0) + ' mm içinde başlayan)']);
-      rows.push(['Kafes adımları', len(L.a) + ' / ' + len(L.b) + ' / ' + len(L.c) + ' mm']);
+      rows.push(['Kafes adımları', len(L.a) + ' / ' + len(L.b) + ' / ' + len(L.c) + ' mm' + (L.perCell > 1 ? ' (hücrede ' + L.perCell + ' parça)' : '')]);
       rows.push(['Kafes doluluğu', fmt(r.latticeDensity * 100, 1) + ' % (parça / hücre)']);
+      if (r.pair) rows.push(['Eş çevirme', 'eş parça Z\'de ' + fmt(r.pair.phi, 0) + '° çevrilmiş, çift olarak iç içe (tek yön: %' + fmt(r.singleDensity * 100, 1) + ')']);
+      else if (r.pairTried) rows.push(['Eş çevirme', fmt(r.pairTried.join('°/'), 0).replace(/\./g, '') + '° denendi, kazanç yok; hepsi aynı yönde']);
     } else {
       rows.push(['Katman başına', fmt(r.perLayer, 0) + ' adet × ' + fmt(r.layers, 0) + ' katman']);
     }
@@ -326,7 +335,7 @@
     $('copy').disabled = false;
     $('plateTitle').textContent = isLattice ? 'Üstten görünüm (alt katman, renk = yükseklik)' : 'Üstten görünüm (bir katman)';
     $('legend').innerHTML = isLattice
-      ? '<span><i style="background:var(--part)"></i>Tabandaki parçalar</span><span><i style="background:var(--part-rot)"></i>Daha yukarıda başlayanlar (iç içe)</span>'
+      ? '<span><i style="background:var(--part)"></i>Tabandaki parçalar</span><span><i style="background:var(--part-rot)"></i>Daha yukarıda başlayanlar (iç içe)</span>' + (r.pair ? '<span><i style="border:2px dashed var(--ink);background:transparent"></i>Z\'de ' + fmt(r.pair.phi, 0) + '° çevrilmiş eş</span>' : '')
       : '<span><i style="background:var(--part)"></i>En iyi Z açısı</span><span><i style="background:var(--part-rot)"></i>+90° çevrilmiş</span>';
     drawPlate(r);
   }
@@ -366,15 +375,18 @@
     if (r.mode === 'lattice' && r.points) {
       // Alt banttaki parçalar, alçaktan yükseğe sıralı; renk yüksekliğe göre
       const z0 = r.zRange[0], band = r.bandHeight;
-      const pts = r.points.filter((p) => p[2] < z0 + band).sort((p, q) => p[2] - q[2]);
-      const poly = r.polyRel || [];
-      ctx.strokeStyle = css('--ink');
+      const zStart = (p) => p[2] + r.members[p[3]].zMin;
+      const pts = r.points.filter((p) => zStart(p) < z0 + band).sort((p, q) => zStart(p) - zStart(q));
       ctx.lineWidth = 1;
       ctx.globalAlpha = 0.85;
       for (const p of pts) {
+        const m = r.members[p[3]];
+        const poly = m.polyRel || [];
         if (poly.length < 3) continue;
-        const f = Math.min(1, Math.max(0, (p[2] - z0) / band));
+        const f = Math.min(1, Math.max(0, (zStart(p) - z0) / band));
         ctx.fillStyle = `color-mix(in srgb, ${css('--part-rot')} ${Math.round(f * 100)}%, ${css('--part')})`;
+        ctx.strokeStyle = css('--ink');
+        ctx.setLineDash(m.phi ? [4, 3] : []);
         ctx.beginPath();
         ctx.moveTo(X(poly[0][0] + p[0]), Y(poly[0][1] + p[1]));
         for (let i = 1; i < poly.length; i++) ctx.lineTo(X(poly[i][0] + p[0]), Y(poly[i][1] + p[1]));
@@ -382,6 +394,7 @@
         ctx.fill();
         ctx.stroke();
       }
+      ctx.setLineDash([]);
       ctx.globalAlpha = 1;
     } else if (r.rects) {
       for (const rc of r.rects) {
@@ -419,7 +432,7 @@
       'Orijinal boyut: ' + dims(r.originalSize),
       'Yerleşim kutusu: ' + dims(r.tiltedSize),
       'Parça hacmi: ' + fmt(r.mesh.volume / 1000, 2) + ' cm³',
-      'Yöntem: ' + (r.mode === 'lattice' ? 'gerçek şekil (kafes)' : 'sınırlayıcı kutu'),
+      'Yöntem: ' + (r.mode === 'lattice' ? 'gerçek şekil (kafes)' + (r.pair ? ', eş Z\'de ' + r.pair.phi + '° çevrilmiş çiftler' : '') : 'sınırlayıcı kutu'),
       'Sığan adet: ' + (r.finalTotal != null ? r.finalTotal : r.total) + (r.finalTotal != null && r.finalTotal !== r.total ? ' (geometrik ' + r.total + ', %' + fmt(Math.max(0, num('cap', 0)), 1) + ' doluluk sınırı uygulandı)' : ''),
       'Doluluk: ' + fmt((r.finalTotal != null ? r.finalTotal : r.total) * r.mesh.volume / (r.build.x * r.build.y * r.build.z) * 100, 1) + ' %',
     ].join('\n');

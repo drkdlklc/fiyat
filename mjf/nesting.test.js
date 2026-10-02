@@ -143,7 +143,7 @@ test('countLatticeInBox kaba kuvvetle uyuşur', () => {
 });
 
 test('kafes yöntemi: eğimsiz kutu, kafes kutunun kendi kenarlarını bulur', () => {
-  const r = N.computeNesting(boxTris(50, 30, 20), { tiltX: 0, tiltY: 0, angleStep: 5 });
+  const r = N.computeNesting(boxTris(50, 30, 20), { tiltX: 0, tiltY: 0, angleStep: 5, pairAngles: [] });
   assert.equal(r.mode, 'lattice');
   // Hücre ≈ (20+5)(30+5)(50+5) = 48125; voksel toleransı ±%8
   assert.ok(Math.abs(r.lattice.cellVolume - 48125) / 48125 < 0.08, 'hücre ' + r.lattice.cellVolume);
@@ -152,7 +152,7 @@ test('kafes yöntemi: eğimsiz kutu, kafes kutunun kendi kenarlarını bulur', (
 
 test('kafes yöntemi: 25°/25° yatırılmış kutu kutu yönteminden çok daha fazla sığar', () => {
   const tris = boxTris(50, 30, 20);
-  const lat = N.computeNesting(tris, { angleStep: 5 });
+  const lat = N.computeNesting(tris, { angleStep: 5, pairAngles: [] });
   const box = N.computeNestingBox(tris, {});
   assert.ok(lat.total > 1.8 * box.total, `kafes ${lat.total} vs kutu ${box.total}`);
   // Eğik kutu kendi kenar kafesiyle ~%62 doluluk verir; voksel payıyla %55 üstü beklenir
@@ -163,7 +163,53 @@ test('kafes yöntemi: 25°/25° yatırılmış kutu kutu yönteminden çok daha 
 test('kafes yöntemi: kafes noktaları gerçekten çakışmıyor (voksel kontrolü)', () => {
   // L braket: iç içe geçme beklenir; voksel ızgarasında kopyaları üst üste koyup çakışma ara
   const tris = Float32Array.from([...Array.from(boxTris(60, 15, 10)), ...Array.from(boxTris(15, 45, 10)).map((v, i) => i % 3 === 1 ? v + 15 : v)]);
-  const r = N.computeNesting(tris, { tiltX: 0, tiltY: 0, gap: 0, angleStep: 10 });
+  const r = N.computeNesting(tris, { tiltX: 0, tiltY: 0, gap: 0, angleStep: 10, pairAngles: [] });
   assert.ok(r.total > 0);
   assert.ok(r.latticeDensity > 0.6, 'L braket kafes doluluğu ' + r.latticeDensity); // L'ler iç içe geçince kutu doluluğunu (%44) aşar
+});
+
+function triPrism(a, b, h) {
+  const v = [[0, 0, 0], [a, 0, 0], [0, b, 0], [0, 0, h], [a, 0, h], [0, b, h]];
+  const f = [[0, 2, 1], [3, 4, 5], [0, 1, 4], [0, 4, 3], [1, 2, 5], [1, 5, 4], [2, 0, 3], [2, 3, 5]];
+  const out = []; for (const t of f) for (const i of t) out.push(...v[i]);
+  return Float32Array.from(out);
+}
+
+test('çift kafesi: üçgen prizma 180° çevrilmiş eşiyle çok daha sık yerleşir', () => {
+  const tris = triPrism(60, 40, 15);
+  const single = N.computeNesting(tris, { angleStep: 10, pairAngles: [] });
+  const pair = N.computeNesting(tris, { angleStep: 10, pairAngles: [180] });
+  assert.ok(pair.pair && pair.pair.phi === 180, 'çift seçilmedi');
+  assert.ok(pair.latticeDensity > single.latticeDensity * 1.2, `çift ${pair.latticeDensity} tek ${single.latticeDensity}`);
+  assert.ok(pair.total > single.total, `çift ${pair.total} tek ${single.total}`);
+  assert.equal(pair.points.length, pair.total);
+  assert.equal(pair.members.length, 2);
+  // Her hücrede bir A bir B
+  assert.equal(pair.points.filter((p) => p[3] === 1).length, pair.total / 2);
+});
+
+test('çift kafesi: kutuda kazanç yoksa tek yön kalır', () => {
+  const r = N.computeNesting(boxTris(50, 30, 20), { angleStep: 10, pairAngles: [180] });
+  assert.equal(r.pair, null);
+  assert.deepEqual(r.pairTried, [180]);
+  assert.equal(r.members.length, 1);
+});
+
+test('crossOverlapSet kaba kuvvetle uyuşur', () => {
+  const dims = [5, 4, 3];
+  const A = new Uint8Array(60), B = new Uint8Array(60);
+  for (let i = 0; i < 60; i++) { A[i] = (i * 31) % 7 < 3 ? 1 : 0; B[i] = (i * 17) % 5 < 2 ? 1 : 0; }
+  const os = N.crossOverlapSet(A, B, dims);
+  const M = os.M;
+  for (let tz = -(dims[2] - 1); tz < dims[2]; tz++) for (let ty = -(dims[1] - 1); ty < dims[1]; ty++) for (let tx = -(dims[0] - 1); tx < dims[0]; tx++) {
+    let ov = 0;
+    for (let z = 0; z < dims[2] && !ov; z++) for (let y = 0; y < dims[1] && !ov; y++) for (let x = 0; x < dims[0]; x++) {
+      if (!A[x + dims[0] * (y + dims[1] * z)]) continue;
+      const X = x - tx, Y = y - ty, Z = z - tz; // A(v) ∧ B(v − t)
+      if (X < 0 || Y < 0 || Z < 0 || X >= dims[0] || Y >= dims[1] || Z >= dims[2]) continue;
+      if (B[X + dims[0] * (Y + dims[1] * Z)]) { ov = 1; break; }
+    }
+    const c = os.C[(tx < 0 ? tx + M[0] : tx) + M[0] * ((ty < 0 ? ty + M[1] : ty) + M[1] * (tz < 0 ? tz + M[2] : tz))];
+    assert.equal(c, ov, `t=${tx},${ty},${tz}`);
+  }
 });

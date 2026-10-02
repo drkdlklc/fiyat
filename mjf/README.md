@@ -14,6 +14,11 @@ adet tahmini için tasarlanmıştır.
   hem XY'de hem Z'de birbirinin içine girer. Yalnızca Z ekseninde döndürme
   serbesttir: 0–180° taranır, kafes ve parça birlikte döndürülür, baskı
   alanına en çok parça sığdıran açı ve kafes kaydırması seçilir.
+- **Eş çevirme (çift kafesi):** Parçanın Z'de 180° (isteğe bağlı 90°/270°)
+  çevrilmiş eşi, çiftin kutusunu en küçük yapan çakışmasız konumlara
+  yerleştirilip çift tek bir motif olarak kafese sokulur. Üçgen, kama,
+  kanca gibi asimetrik parçalar bu sayede birbirine geçer; kazanç yoksa
+  tek yön kullanılır.
 - **Yerleşim ("sınırlayıcı kutu"):** Her parça eksenlere hizalı kutusu
   kadar yer kaplar; katman katman dizilir. Muhafazakâr karşılaştırma için.
 - **Çıktı:** Toplam adet, alt katmandaki adet, kafes adımları ve doluluğu,
