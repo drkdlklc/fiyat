@@ -21,9 +21,11 @@ adet tahmini için tasarlanmıştır.
   tek yön kullanılır.
 - **Boşluk doldurma:** Kafes, baskı alanının kenarlarında tam sığmayan
   sıraları boş bırakır. Bu yüzden yerleşimden sonra baskı hacmi
-  vokselleştirilir ve kalan boşluklara parça Z'de 0/90/180/270° açılarla
-  tek tek denenerek sığdırılır. Ayrıca kafessiz, sıfırdan açgözlü voksel
-  yerleşimi birkaç Z açısı için denenir; en çok parça veren kullanılır.
+  vokselleştirilir (voksel ≈ boşluk/3, en az 1,8 mm; böylece 1 voksel
+  şişirme + yüzey payı ≈ boşluk) ve kalan boşluklara parça Z'de
+  0/90/180/270° açılarla tek tek denenerek sığdırılır. Ayrıca kafessiz,
+  sıfırdan açgözlü voksel yerleşimi birkaç Z açısı için denenir; en çok
+  parça veren kullanılır.
 - **Yerleşim ("sınırlayıcı kutu"):** Her parça eksenlere hizalı kutusu
   kadar yer kaplar; katman katman dizilir. Muhafazakâr karşılaştırma için.
 - **Çıktı:** Toplam adet, alt katmandaki adet, kafes adımları ve doluluğu,
@@ -34,7 +36,7 @@ adet tahmini için tasarlanmıştır.
 
 Fiziksel/çarpışma simülasyonu yoktur; voksel çözünürlüğü (~1/58 parça
 boyu) nedeniyle sonuç ±%5 civarında sapabilir. Hesap bir Web Worker'da
-çalışır, tipik parçada ~1–3 s sürer.
+çalışır, tipik parçada ~4–6 s sürer.
 
 ## Kullanım
 
