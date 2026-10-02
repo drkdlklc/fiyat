@@ -1018,22 +1018,36 @@
   }
 
   /**
-   * Kafes yerleşiminden sonra kalan boşluklara tek tek parça sığdırır.
+   * Dolgu ızgarası voksel boyutu. Boşluk, voksel cinsinden tam sayı
+   * şişirmeyle temsil edildiğinden voksel ≈ boşluk/3 seçilir (yüzey
+   * vokseli + 1 voksel şişirme ≈ boşluk); ızgara ≤ ~200 voksel/eksen.
+   */
+  function fillVoxelSize(gap, build, margin) {
+    const maxUsable = Math.max(build.x, build.y, build.z) - 2 * margin;
+    return Math.min(3, Math.max(gap / 3, maxUsable / 200, 1.2));
+  }
+
+  /**
+   * Kafes yerleşiminden sonra kalan boşluklara tek tek parça sığdırır
+   * (ya da points boşsa sıfırdan açgözlü yerleşim yapar).
    * Baskı hacmi vokselleştirilir, yerleşmiş parçalar (boşluğun yarısı kadar
    * şişirilmiş) işaretlenir; alttan yukarı taranarak her boş konumda parça
-   * θ+{0, 90, 180, 270}° Z açılarıyla denenir, ilk sığan yerleştirilir.
+   * verilen Z açılarıyla denenir, ilk sığan yerleştirilir. Şablon vokselleri
+   * dıştan içe sıralıdır: ince çakışmalar ilk birkaç bakışta elenir.
    *
    * @param {Float32Array} tilted yatırılmış üçgenler (θ'sız)
    * @param {number} theta kafesin Z açısı
    * @param {Array} points [x, y, z, memberIndex] (mesh ötelemesi)
-   * @param {Array} members {phi, zMin} — phi: θ'ya eklenen Z açısı
+   * @param {Array} members {phi, zMin, polyRel} — phi: θ'ya eklenen Z açısı
+   * @param {number[]} fillAngles denenecek phi listesi (öncelik sırasıyla)
+   * @param {object} [opts] {vb: voksel mm, order: 'zyx'|'zxy'|'yzx'|'xzy'}
    * @returns {{points:Array, members:Array, voxel:number, ms:number}}
    */
-  function fillRemaining(tilted, theta, gap, margin, build, points, members, fillAngles) {
+  function fillRemaining(tilted, theta, gap, margin, build, points, members, fillAngles, opts) {
     const t0 = now();
-    const ext = bbox3(tilted).size;
-    const maxExt = Math.max(ext[0], ext[1], ext[2]);
-    const vb = Math.min(4, Math.max(1.5, maxExt / 24));
+    const o = opts || {};
+    const vb = o.vb || fillVoxelSize(gap, build, margin);
+    const order = o.order || 'zyx';
     const voxV = [vb, vb, vb];
 
     // Üye listesi: mevcut üyeler + doldurma açıları
@@ -1045,42 +1059,74 @@
       return idx;
     };
     const variantIdx = fillAngles.map(memberFor);
-
-    // Şablonlar (üye başına): döndürülmüş parça, vb vokselde, şişirilmiş
     const usable = [build.x - 2 * margin, build.y - 2 * margin, build.z - 2 * margin];
+
+    // Şablonlar (üye başına): döndürülmüş parça, vb vokselde, şişirilmiş.
+    // Şişirme: tam voksel sayısı, yüzey vokselinin ~yarım voksel payı düşülerek.
+    const rVox = Math.max(0, Math.round((gap / 2 - 0.5 * vb) / vb));
     const templates = mem.map((m) => {
       const tris = rotateTrisZ(tilted, theta + m.phi);
-      const prep = prepareShape(tris, gap, 0, voxV);
-      if (m.zMin == null) m.zMin = prep.box.min[2];
+      const box = bbox3(tris);
+      const partDims = [0, 1, 2].map((i) => Math.ceil(box.size[i] / vb) + 1);
+      const dims = partDims.map((d) => d + 2 * rVox);
+      const origin = [0, 1, 2].map((i) => box.min[i] - rVox * vb);
+      let grid = voxelize(tris, origin, voxV, dims);
+      if (rVox > 0) grid = dilate(grid, dims, voxV, rVox * vb + 1e-6);
+      if (m.zMin == null) m.zMin = box.min[2];
       if (!m.polyRel) m.polyRel = convexHullXY(tris).hull;
-      return { prep, r: prep.r[0] };
+      return { grid, dims, origin, box };
     });
-    const R = Math.max(...templates.map((t) => t.r));
+    const R = rVox;
     const O = [margin - R * vb, margin - R * vb, margin - R * vb];
     const dims = [0, 1, 2].map((i) => Math.ceil((usable[i] + 2 * R * vb) / vb) + 1);
     const occ = new Uint8Array(dims[0] * dims[1] * dims[2]);
     const lin = (x, y, z) => x + dims[0] * (y + dims[1] * z);
 
     for (const t of templates) {
-      const g = t.prep.grid, d = t.prep.dims;
+      const g = t.grid, d = t.dims;
+      // Yüzeye derinlik (6-komşuluk BFS): yüzey vokselleri 0, içeri doğru artar
+      const depth = new Int16Array(g.length).fill(-1);
+      const gi = (x, y, z) => x + d[0] * (y + d[1] * z);
+      let queue = [];
+      for (let z = 0; z < d[2]; z++) for (let y = 0; y < d[1]; y++) for (let x = 0; x < d[0]; x++) {
+        const i = gi(x, y, z);
+        if (!g[i]) continue;
+        const surf = x === 0 || y === 0 || z === 0 || x === d[0] - 1 || y === d[1] - 1 || z === d[2] - 1 ||
+          !g[i - 1] || !g[i + 1] || !g[i - d[0]] || !g[i + d[0]] || !g[i - d[0] * d[1]] || !g[i + d[0] * d[1]];
+        if (surf) { depth[i] = 0; queue.push(x, y, z); }
+      }
+      for (let level = 0; queue.length; level++) {
+        const next = [];
+        for (let q = 0; q < queue.length; q += 3) {
+          const x = queue[q], y = queue[q + 1], z = queue[q + 2];
+          const nb = [[x - 1, y, z], [x + 1, y, z], [x, y - 1, z], [x, y + 1, z], [x, y, z - 1], [x, y, z + 1]];
+          for (const [X, Y, Z] of nb) {
+            if (X < 0 || Y < 0 || Z < 0 || X >= d[0] || Y >= d[1] || Z >= d[2]) continue;
+            const j = gi(X, Y, Z);
+            if (g[j] && depth[j] < 0) { depth[j] = level + 1; next.push(X, Y, Z); }
+          }
+        }
+        queue = next;
+      }
       const deltas = [];
       let minI = [Infinity, Infinity, Infinity], maxI = [-Infinity, -Infinity, -Infinity];
       for (let z = 0; z < d[2]; z++) for (let y = 0; y < d[1]; y++) for (let x = 0; x < d[0]; x++) {
-        if (!g[x + d[0] * (y + d[1] * z)]) continue;
-        deltas.push([x, y, z]);
+        const i = gi(x, y, z);
+        if (!g[i]) continue;
+        deltas.push([x, y, z, depth[i], (x * 73856093 ^ y * 19349663 ^ z * 83492791) & 0xffff]);
         if (x < minI[0]) minI[0] = x; if (y < minI[1]) minI[1] = y; if (z < minI[2]) minI[2] = z;
         if (x > maxI[0]) maxI[0] = x; if (y > maxI[1]) maxI[1] = y; if (z > maxI[2]) maxI[2] = z;
       }
-      // Erken çıkış için deterministik karıştırma
-      for (let i = deltas.length - 1; i > 0; i--) { const j = (i * 7919 + 13) % (i + 1); const tmp = deltas[i]; deltas[i] = deltas[j]; deltas[j] = tmp; }
+      // Yüzeyden içe: sığ vokseller önce, aynı derinlikte karışık (ince çakışmalar hızlı elenir)
+      deltas.sort((p, q) => (p[3] - q[3]) || (p[4] - q[4]));
       t.lin = Int32Array.from(deltas.map((v) => lin(v[0], v[1], v[2])));
       t.minI = minI; t.maxI = maxI;
-      t.base = [0, 1, 2].map((i) => t.prep.origin[i] - O[i]); // p + base → voksel konumu
+      t.base = [0, 1, 2].map((i) => t.origin[i] - O[i]); // p + base → voksel konumu
       // Parçanın (şişirilmemiş) gövdesi kullanılabilir alan içinde kalsın: s aralığı (mm'den türetilir)
-      // parça min = O + (s + r)·vb ≥ margin ; parça max = O + (s + r)·vb + ext ≤ margin + usable
-      const ext = t.prep.box.size;
-      t.sMin = [0, 1, 2].map(() => Math.ceil(R - t.r - 1e-9));
-      t.sMax = [0, 1, 2].map((i) => Math.floor((usable[i] + R * vb - ext[i]) / vb - t.r + 1e-9));
+      // parça min = O + (s + R)·vb ≥ margin ; parça max = O + (s + R)·vb + ext ≤ margin + usable
+      const e = t.box.size;
+      t.sMin = [0, 0, 0];
+      t.sMax = [0, 1, 2].map((i) => Math.floor((usable[i] - e[i]) / vb + 1e-9));
     }
 
     const toS = (t, p) => [0, 1, 2].map((i) => Math.round((p[i] + t.base[i]) / vb));
@@ -1089,8 +1135,7 @@
       const inside = sidx[0] + t.minI[0] >= 0 && sidx[1] + t.minI[1] >= 0 && sidx[2] + t.minI[2] >= 0 &&
         sidx[0] + t.maxI[0] < dims[0] && sidx[1] + t.maxI[1] < dims[1] && sidx[2] + t.maxI[2] < dims[2];
       if (inside) { for (let i = 0; i < t.lin.length; i++) occ[s0 + t.lin[i]] = 1; return; }
-      // Kenar taşması: tek tek sınırla
-      const g = t.prep.grid, d = t.prep.dims;
+      const g = t.grid, d = t.dims;
       for (let z = 0; z < d[2]; z++) for (let y = 0; y < d[1]; y++) for (let x = 0; x < d[0]; x++) {
         if (!g[x + d[0] * (y + d[1] * z)]) continue;
         const X = sidx[0] + x, Y = sidx[1] + y, Z = sidx[2] + z;
@@ -1105,7 +1150,7 @@
     // Tarama: alttan yukarı, ilk sığan açı
     const added = [];
     const vt = variantIdx.map((k) => templates[k]);
-    for (let sz = 0; sz < dims[2]; sz++) for (let sy = 0; sy < dims[1]; sy++) for (let sx = 0; sx < dims[0]; sx++) {
+    const tryAt = (sx, sy, sz) => {
       for (let v = 0; v < vt.length; v++) {
         const t = vt[v];
         if (sx < t.sMin[0] || sy < t.sMin[1] || sz < t.sMin[2] || sx > t.sMax[0] || sy > t.sMax[1] || sz > t.sMax[2]) continue;
@@ -1119,11 +1164,19 @@
         for (let i = 0; i < L.length; i++) occ[s0 + L[i]] = 1;
         const k = variantIdx[v];
         added.push([sx * vb - t.base[0], sy * vb - t.base[1], sz * vb - t.base[2], k]);
-        break;
+        return;
       }
+    };
+    if (order === 'zxy') {
+      for (let sz = 0; sz < dims[2]; sz++) for (let sx = 0; sx < dims[0]; sx++) for (let sy = 0; sy < dims[1]; sy++) tryAt(sx, sy, sz);
+    } else if (order === 'yzx') {
+      for (let sy = 0; sy < dims[1]; sy++) for (let sz = 0; sz < dims[2]; sz++) for (let sx = 0; sx < dims[0]; sx++) tryAt(sx, sy, sz);
+    } else if (order === 'xzy') {
+      for (let sx = 0; sx < dims[0]; sx++) for (let sz = 0; sz < dims[2]; sz++) for (let sy = 0; sy < dims[1]; sy++) tryAt(sx, sy, sz);
+    } else {
+      for (let sz = 0; sz < dims[2]; sz++) for (let sy = 0; sy < dims[1]; sy++) for (let sx = 0; sx < dims[0]; sx++) tryAt(sx, sy, sz);
     }
     return { points: added, members: mem, voxel: vb, ms: now() - t0 };
-
   }
 
   /** 2B zarfların birleşiminin dışbükey zarfı (nokta listesi girer). */
@@ -1264,14 +1317,14 @@
     if (o.fill !== false) {
       const tFill0 = now();
       const angles = o.fillAngles || [0, 180, 90, 270];
-      const fillRes = fillRemaining(tilted, best.theta, o.gap, o.margin, build, points, members, angles);
+      const fillRes = fillRemaining(tilted, best.theta, o.gap, o.margin, build, points, members, angles, { order: 'zxy' });
       points = points.concat(fillRes.points);
       finalMembers = fillRes.members;
       fillCount = fillRes.points.length;
       if (fillCount > 0) strategy = 'lattice+fill';
       const thetas = [best.theta, 0, 90].filter((v, i, arr) => arr.indexOf(v) === i);
       for (const th of thetas) {
-        const blf = fillRemaining(tilted, th, o.gap, o.margin, build, [], [{ phi: 0, zMin: tiltedBox.min[2], polyRel: null }], angles);
+        const blf = fillRemaining(tilted, th, o.gap, o.margin, build, [], [{ phi: 0, zMin: tiltedBox.min[2], polyRel: null }], angles, { order: 'zxy' });
         if (blf.points.length > points.length) {
           points = blf.points;
           finalMembers = blf.members;
@@ -1311,7 +1364,7 @@
       strategy,
       latticeCount: latticeCountFinal,
       fillCount,
-      fillVoxel: Math.min(4, Math.max(1.5, Math.max(tiltedBox.size[0], tiltedBox.size[1], tiltedBox.size[2]) / 24)),
+      fillVoxel: fillVoxelSize(o.gap, build, o.margin),
       perLayer: bottomCount,
       layers: zLevels,
       bandHeight: bandH,
