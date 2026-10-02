@@ -18,8 +18,9 @@ adet tahmini için tasarlanmıştır.
   kadar yer kaplar; katman katman dizilir. Muhafazakâr karşılaştırma için.
 - **Çıktı:** Toplam adet, alt katmandaki adet, kafes adımları ve doluluğu,
   en iyi Z açısı, boyutlar, parça hacmi/yüzey alanı, baskı doluluğu ve
-  üstten yerleşim çizimi. İsteğe bağlı "maks. doluluk" sınırı (MJF'de
-  pratikte %10–15) adedi hacimsel olarak sınırlar.
+  üstten yerleşim çizimi. "Maks. doluluk" sınırı (varsayılan %9,5) adedi
+  hacimsel olarak sınırlar: geometrik adet sınırı aşarsa sonuç o doluluğu
+  dolduran adettir, geometrik adet ayrıca gösterilir. 0 girilirse sınır yok.
 
 Fiziksel/çarpışma simülasyonu yoktur; voksel çözünürlüğü (~1/58 parça
 boyu) nedeniyle sonuç ±%5 civarında sapabilir. Hesap bir Web Worker'da
