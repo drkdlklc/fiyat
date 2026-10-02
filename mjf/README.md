@@ -19,6 +19,11 @@ adet tahmini için tasarlanmıştır.
   yerleştirilip çift tek bir motif olarak kafese sokulur. Üçgen, kama,
   kanca gibi asimetrik parçalar bu sayede birbirine geçer; kazanç yoksa
   tek yön kullanılır.
+- **Boşluk doldurma:** Kafes, baskı alanının kenarlarında tam sığmayan
+  sıraları boş bırakır. Bu yüzden yerleşimden sonra baskı hacmi
+  vokselleştirilir ve kalan boşluklara parça Z'de 0/90/180/270° açılarla
+  tek tek denenerek sığdırılır. Ayrıca kafessiz, sıfırdan açgözlü voksel
+  yerleşimi birkaç Z açısı için denenir; en çok parça veren kullanılır.
 - **Yerleşim ("sınırlayıcı kutu"):** Her parça eksenlere hizalı kutusu
   kadar yer kaplar; katman katman dizilir. Muhafazakâr karşılaştırma için.
 - **Çıktı:** Toplam adet, alt katmandaki adet, kafes adımları ve doluluğu,

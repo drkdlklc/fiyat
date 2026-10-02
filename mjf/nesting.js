@@ -928,6 +928,7 @@
     const box = [n[0] - 1, n[1] - 1, n[2] - 1];
     const minVol = (minCellVoxels || 0) * vox[0] * vox[1] * vox[2] * 0.95;
     let best = null;
+    const alternatives = [];
     for (const a of aList) {
       const amm = mm(a);
       // b: |a×b| en küçük, 2B kafesi C'den kaçınan vektörler
@@ -956,12 +957,15 @@
         if (!c) continue;
         const cmm = mm(c);
         const vol = Math.abs(dot3(nrm, cmm));
-        if (!best || vol < best.cellVolume) best = { a: amm, b: bmm, c: cmm, cellVolume: vol, aVox: a, bVox: b, cVox: c };
+        const cand = { a: amm, b: bmm, c: cmm, cellVolume: vol, aVox: a, bVox: b, cVox: c };
+        alternatives.push(cand);
+        if (!best || vol < best.cellVolume) best = cand;
       }
     }
     stats.ms = now() - t0;
     if (!best) return null;
     best.stats = stats;
+    best.alternatives = alternatives;
     return best;
   }
 
@@ -1013,6 +1017,115 @@
     return ranges.map((r) => [Math.floor(r[0]), Math.ceil(r[1])]);
   }
 
+  /**
+   * Kafes yerleşiminden sonra kalan boşluklara tek tek parça sığdırır.
+   * Baskı hacmi vokselleştirilir, yerleşmiş parçalar (boşluğun yarısı kadar
+   * şişirilmiş) işaretlenir; alttan yukarı taranarak her boş konumda parça
+   * θ+{0, 90, 180, 270}° Z açılarıyla denenir, ilk sığan yerleştirilir.
+   *
+   * @param {Float32Array} tilted yatırılmış üçgenler (θ'sız)
+   * @param {number} theta kafesin Z açısı
+   * @param {Array} points [x, y, z, memberIndex] (mesh ötelemesi)
+   * @param {Array} members {phi, zMin} — phi: θ'ya eklenen Z açısı
+   * @returns {{points:Array, members:Array, voxel:number, ms:number}}
+   */
+  function fillRemaining(tilted, theta, gap, margin, build, points, members, fillAngles) {
+    const t0 = now();
+    const ext = bbox3(tilted).size;
+    const maxExt = Math.max(ext[0], ext[1], ext[2]);
+    const vb = Math.min(4, Math.max(1.5, maxExt / 24));
+    const voxV = [vb, vb, vb];
+
+    // Üye listesi: mevcut üyeler + doldurma açıları
+    const mem = members.map((m) => Object.assign({}, m));
+    const memberFor = (phi) => {
+      const norm = ((phi % 360) + 360) % 360;
+      let idx = mem.findIndex((m) => (((m.phi % 360) + 360) % 360) === norm);
+      if (idx < 0) { mem.push({ phi: norm, zMin: null, polyRel: null }); idx = mem.length - 1; }
+      return idx;
+    };
+    const variantIdx = fillAngles.map(memberFor);
+
+    // Şablonlar (üye başına): döndürülmüş parça, vb vokselde, şişirilmiş
+    const usable = [build.x - 2 * margin, build.y - 2 * margin, build.z - 2 * margin];
+    const templates = mem.map((m) => {
+      const tris = rotateTrisZ(tilted, theta + m.phi);
+      const prep = prepareShape(tris, gap, 0, voxV);
+      if (m.zMin == null) m.zMin = prep.box.min[2];
+      if (!m.polyRel) m.polyRel = convexHullXY(tris).hull;
+      return { prep, r: prep.r[0] };
+    });
+    const R = Math.max(...templates.map((t) => t.r));
+    const O = [margin - R * vb, margin - R * vb, margin - R * vb];
+    const dims = [0, 1, 2].map((i) => Math.ceil((usable[i] + 2 * R * vb) / vb) + 1);
+    const occ = new Uint8Array(dims[0] * dims[1] * dims[2]);
+    const lin = (x, y, z) => x + dims[0] * (y + dims[1] * z);
+
+    for (const t of templates) {
+      const g = t.prep.grid, d = t.prep.dims;
+      const deltas = [];
+      let minI = [Infinity, Infinity, Infinity], maxI = [-Infinity, -Infinity, -Infinity];
+      for (let z = 0; z < d[2]; z++) for (let y = 0; y < d[1]; y++) for (let x = 0; x < d[0]; x++) {
+        if (!g[x + d[0] * (y + d[1] * z)]) continue;
+        deltas.push([x, y, z]);
+        if (x < minI[0]) minI[0] = x; if (y < minI[1]) minI[1] = y; if (z < minI[2]) minI[2] = z;
+        if (x > maxI[0]) maxI[0] = x; if (y > maxI[1]) maxI[1] = y; if (z > maxI[2]) maxI[2] = z;
+      }
+      // Erken çıkış için deterministik karıştırma
+      for (let i = deltas.length - 1; i > 0; i--) { const j = (i * 7919 + 13) % (i + 1); const tmp = deltas[i]; deltas[i] = deltas[j]; deltas[j] = tmp; }
+      t.lin = Int32Array.from(deltas.map((v) => lin(v[0], v[1], v[2])));
+      t.minI = minI; t.maxI = maxI;
+      t.base = [0, 1, 2].map((i) => t.prep.origin[i] - O[i]); // p + base → voksel konumu
+      // Parçanın (şişirilmemiş) gövdesi kullanılabilir alan içinde kalsın: s aralığı (mm'den türetilir)
+      // parça min = O + (s + r)·vb ≥ margin ; parça max = O + (s + r)·vb + ext ≤ margin + usable
+      const ext = t.prep.box.size;
+      t.sMin = [0, 1, 2].map(() => Math.ceil(R - t.r - 1e-9));
+      t.sMax = [0, 1, 2].map((i) => Math.floor((usable[i] + R * vb - ext[i]) / vb - t.r + 1e-9));
+    }
+
+    const toS = (t, p) => [0, 1, 2].map((i) => Math.round((p[i] + t.base[i]) / vb));
+    const stamp = (t, sidx) => {
+      const s0 = lin(sidx[0], sidx[1], sidx[2]);
+      const inside = sidx[0] + t.minI[0] >= 0 && sidx[1] + t.minI[1] >= 0 && sidx[2] + t.minI[2] >= 0 &&
+        sidx[0] + t.maxI[0] < dims[0] && sidx[1] + t.maxI[1] < dims[1] && sidx[2] + t.maxI[2] < dims[2];
+      if (inside) { for (let i = 0; i < t.lin.length; i++) occ[s0 + t.lin[i]] = 1; return; }
+      // Kenar taşması: tek tek sınırla
+      const g = t.prep.grid, d = t.prep.dims;
+      for (let z = 0; z < d[2]; z++) for (let y = 0; y < d[1]; y++) for (let x = 0; x < d[0]; x++) {
+        if (!g[x + d[0] * (y + d[1] * z)]) continue;
+        const X = sidx[0] + x, Y = sidx[1] + y, Z = sidx[2] + z;
+        if (X < 0 || Y < 0 || Z < 0 || X >= dims[0] || Y >= dims[1] || Z >= dims[2]) continue;
+        occ[lin(X, Y, Z)] = 1;
+      }
+    };
+
+    // Yerleşmiş parçaları işaretle
+    for (const p of points) stamp(templates[p[3]], toS(templates[p[3]], p));
+
+    // Tarama: alttan yukarı, ilk sığan açı
+    const added = [];
+    const vt = variantIdx.map((k) => templates[k]);
+    for (let sz = 0; sz < dims[2]; sz++) for (let sy = 0; sy < dims[1]; sy++) for (let sx = 0; sx < dims[0]; sx++) {
+      for (let v = 0; v < vt.length; v++) {
+        const t = vt[v];
+        if (sx < t.sMin[0] || sy < t.sMin[1] || sz < t.sMin[2] || sx > t.sMax[0] || sy > t.sMax[1] || sz > t.sMax[2]) continue;
+        if (sx + t.minI[0] < 0 || sy + t.minI[1] < 0 || sz + t.minI[2] < 0 ||
+            sx + t.maxI[0] >= dims[0] || sy + t.maxI[1] >= dims[1] || sz + t.maxI[2] >= dims[2]) continue;
+        const s0 = lin(sx, sy, sz);
+        let free = true;
+        const L = t.lin;
+        for (let i = 0; i < L.length; i++) { if (occ[s0 + L[i]]) { free = false; break; } }
+        if (!free) continue;
+        for (let i = 0; i < L.length; i++) occ[s0 + L[i]] = 1;
+        const k = variantIdx[v];
+        added.push([sx * vb - t.base[0], sy * vb - t.base[1], sz * vb - t.base[2], k]);
+        break;
+      }
+    }
+    return { points: added, members: mem, voxel: vb, ms: now() - t0 };
+
+  }
+
   /** 2B zarfların birleşiminin dışbükey zarfı (nokta listesi girer). */
   function hullOfPoints2D(points) {
     const pts = new Float32Array(points.length * 3);
@@ -1040,7 +1153,7 @@
     const hullA = hullResult.hull;
     const tol = hullResult.tolerance;
 
-    // Tek parça kafesi (ince voksel)
+    // Tek parça kafesi (ince voksel); beam ile birkaç alternatif kafes
     const tVox0 = now();
     const prep = prepareShape(tilted, o.gap, VOX_N);
     const voxelMs = now() - tVox0;
@@ -1048,26 +1161,61 @@
     const os = overlapSet(prep.grid, prep.dims);
     const fftMs = now() - tFft0;
     const tLat0 = now();
-    const latSingle = findLattice(os, prep.vox, prep.filledDilated);
+    const latSingle = findLattice(os, prep.vox, prep.filledDilated, { a: 3, b: 2 });
     const latticeMs = now() - tLat0;
     if (!latSingle) {
       return Object.assign(computeNestingBox(tris, opts), { mode: 'box', note: 'Kafes bulunamadı, kutu yöntemi kullanıldı.' });
     }
 
-    // Çift (eş Z'de çevrilmiş) kafesi
-    let config = { kind: 'single', basis0: [latSingle.a, latSingle.b, latSingle.c], cellVolume: latSingle.cellVolume, perCell: 1,
-      hull: hullA, zMin: tiltedBox.min[2], zMax: tiltedBox.max[2], members: [{ hull: hullA, delta: [0, 0, 0], zMin: tiltedBox.min[2], phi: 0 }] };
+    const usable = { x: build.x - 2 * o.margin, y: build.y - 2 * o.margin, z: build.z - 2 * o.margin };
+    const singleConfig = (lat) => ({ kind: 'single', basis0: [lat.a, lat.b, lat.c], cellVolume: lat.cellVolume, perCell: 1,
+      hull: hullA, zMin: tiltedBox.min[2], zMax: tiltedBox.max[2], members: [{ hull: hullA, delta: [0, 0, 0], zMin: tiltedBox.min[2], phi: 0 }] });
+
+    // Bir kafes yapılandırmasını baskı alanında sayar: θ taraması × ofset denemeleri
+    const fr = [0, 0.25, 0.5, 0.75];
+    const sweepConfig = (config, step) => {
+      let bestT = null;
+      const sweep = [];
+      for (let theta = 0; theta < 180; theta += step) {
+        const raw = hullExtentAt(config.hull, theta);
+        const extXY = hullMinMaxAt(config.hull, theta);
+        const basis = config.basis0.map((v) => rotZ(v, theta));
+        // Motif orijini (A parçasının θ ile döndürülmüş mesh koordinat sistemi) için izinli kutu
+        const allowed = {
+          min: [o.margin - extXY.minX + tol / 2, o.margin - extXY.minY + tol / 2, o.margin - config.zMin],
+          max: [build.x - o.margin - extXY.maxX - tol / 2, build.y - o.margin - extXY.maxY - tol / 2, build.z - o.margin - config.zMax],
+        };
+        let bestTheta = null;
+        for (const u of fr) for (const v of fr) for (const w of fr) {
+          const offset = [
+            allowed.min[0] + u * basis[0][0] + v * basis[1][0] + w * basis[2][0],
+            allowed.min[1] + u * basis[0][1] + v * basis[1][1] + w * basis[2][1],
+            allowed.min[2] + u * basis[0][2] + v * basis[1][2] + w * basis[2][2],
+          ];
+          const res = countLatticeInBox(basis, offset, allowed, false);
+          if (!bestTheta || res.count > bestTheta.count) bestTheta = { count: res.count, offset, basis, allowed, theta, w: raw.w + tol, l: raw.l + tol };
+        }
+        sweep.push({ theta, total: bestTheta.count * config.perCell });
+        if (!bestT || bestTheta.count > bestT.count) bestT = bestTheta;
+      }
+      return { best: bestT, sweep, total: bestT.count * config.perCell };
+    };
+
+    // Adaylar: tek kafes alternatifleri + çift kafesi; kutuya sığan adede göre seç
+    const step = Math.max(0.5, o.angleStep);
+    const coarseStep = Math.max(step, 4);
+    const candidates = (latSingle.alternatives || [latSingle]).map(singleConfig);
     let pair = null, pairMs = 0;
     const phis = (o.pairAngles || []).filter((a) => Number.isFinite(a) && a % 360 !== 0);
     if (phis.length) {
       const tPair0 = now();
       pair = pairSearch(tilted, o.gap, phis, stats.volume);
       pairMs = now() - tPair0;
-      if (pair && pair.density > (stats.volume / latSingle.cellVolume) * 1.02) {
+      if (pair) {
         const boxB = bbox3(pair.trisB);
         const hullB = convexHullXY(pair.trisB).hull;
         const hullBShift = hullB.map((p) => [p[0] + pair.delta[0], p[1] + pair.delta[1]]);
-        config = {
+        candidates.push({
           kind: 'pair', phi: pair.phi, delta: pair.delta,
           basis0: [pair.lat.a, pair.lat.b, pair.lat.c], cellVolume: pair.lat.cellVolume, perCell: 2,
           hull: hullOfPoints2D(hullA.concat(hullBShift)),
@@ -1077,38 +1225,19 @@
             { hull: hullA, delta: [0, 0, 0], zMin: tiltedBox.min[2], phi: 0 },
             { hull: hullB, delta: pair.delta, zMin: boxB.min[2] + pair.delta[2], phi: pair.phi },
           ],
-        };
+        });
       }
     }
-
-    // Baskı alanında sayım: θ taraması × ofset denemeleri
-    const usable = { x: build.x - 2 * o.margin, y: build.y - 2 * o.margin, z: build.z - 2 * o.margin };
-    const step = Math.max(0.5, o.angleStep);
-    const fr = [0, 1 / 3, 2 / 3];
-    let best = null;
-    const sweep = [];
-    for (let theta = 0; theta < 180; theta += step) {
-      const raw = hullExtentAt(config.hull, theta);
-      const extXY = hullMinMaxAt(config.hull, theta);
-      const basis = config.basis0.map((v) => rotZ(v, theta));
-      // Motif orijini (A parçasının yatırılmış mesh koordinat sistemi) için izinli kutu
-      const allowed = {
-        min: [o.margin - extXY.minX + tol / 2, o.margin - extXY.minY + tol / 2, o.margin - config.zMin],
-        max: [build.x - o.margin - extXY.maxX - tol / 2, build.y - o.margin - extXY.maxY - tol / 2, build.z - o.margin - config.zMax],
-      };
-      let bestTheta = null;
-      for (const u of fr) for (const v of fr) for (const w of fr) {
-        const offset = [
-          allowed.min[0] + u * basis[0][0] + v * basis[1][0] + w * basis[2][0],
-          allowed.min[1] + u * basis[0][1] + v * basis[1][1] + w * basis[2][1],
-          allowed.min[2] + u * basis[0][2] + v * basis[1][2] + w * basis[2][2],
-        ];
-        const res = countLatticeInBox(basis, offset, allowed, false);
-        if (!bestTheta || res.count > bestTheta.count) bestTheta = { count: res.count, offset, basis, allowed, theta, w: raw.w + tol, l: raw.l + tol };
-      }
-      sweep.push({ theta, total: bestTheta.count * config.perCell });
-      if (!best || bestTheta.count > best.count) best = bestTheta;
+    const tSweep0 = now();
+    let config = null, chosen = null;
+    for (const cfg of candidates) {
+      const r = sweepConfig(cfg, coarseStep);
+      if (!chosen || r.total > chosen.total) { chosen = r; config = cfg; }
     }
+    const fine = coarseStep > step ? sweepConfig(config, step) : chosen;
+    const best = fine.best;
+    const sweep = fine.sweep;
+    const sweepMs = now() - tSweep0;
 
     const placedCells = countLatticeInBox(best.basis, best.offset, best.allowed, true).points;
     // Parça konumları: her hücrede motif üyeleri (θ ile döndürülmüş delta)
@@ -1118,18 +1247,47 @@
       delta: [m.delta[0] * cs - m.delta[1] * sn, m.delta[0] * sn + m.delta[1] * cs, m.delta[2]],
       zMin: m.zMin, phi: m.phi,
     }));
-    const points = [];
+    let points = [];
     for (const p of placedCells) {
       for (let k = 0; k < members.length; k++) {
         const m = members[k];
         points.push([p[0] + m.delta[0], p[1] + m.delta[1], p[2] + m.delta[2], k]);
       }
     }
+    const latticeCount = points.length;
+
+    // Kalan boşlukları tek tek parçayla doldur (Z'de 0/90/180/270°); ayrıca
+    // kafessiz, sıfırdan açgözlü voksel yerleşimini birkaç θ için dene ve
+    // en çok parça vereni kullan.
+    let fillCount = 0, fillMs = 0, finalMembers = members, strategy = 'lattice', finalTheta = best.theta;
+    let latticeCountFinal = latticeCount;
+    if (o.fill !== false) {
+      const tFill0 = now();
+      const angles = o.fillAngles || [0, 180, 90, 270];
+      const fillRes = fillRemaining(tilted, best.theta, o.gap, o.margin, build, points, members, angles);
+      points = points.concat(fillRes.points);
+      finalMembers = fillRes.members;
+      fillCount = fillRes.points.length;
+      if (fillCount > 0) strategy = 'lattice+fill';
+      const thetas = [best.theta, 0, 90].filter((v, i, arr) => arr.indexOf(v) === i);
+      for (const th of thetas) {
+        const blf = fillRemaining(tilted, th, o.gap, o.margin, build, [], [{ phi: 0, zMin: tiltedBox.min[2], polyRel: null }], angles);
+        if (blf.points.length > points.length) {
+          points = blf.points;
+          finalMembers = blf.members;
+          strategy = 'greedy';
+          finalTheta = th;
+          latticeCountFinal = 0;
+          fillCount = blf.points.length;
+        }
+      }
+      fillMs = now() - tFill0;
+    }
     const total = points.length;
     let zMin = Infinity, zMax = -Infinity;
-    for (const p of points) { const zs = p[2] + members[p[3]].zMin; if (zs < zMin) zMin = zs; if (zs > zMax) zMax = zs; }
+    for (const p of points) { const zs = p[2] + finalMembers[p[3]].zMin; if (zs < zMin) zMin = zs; if (zs > zMax) zMax = zs; }
     const bandH = height + o.gap;
-    const bottomCount = points.filter((p) => p[2] + members[p[3]].zMin < zMin + bandH).length;
+    const bottomCount = points.filter((p) => p[2] + finalMembers[p[3]].zMin < zMin + bandH).length;
     const zLevels = points.length ? Math.ceil((zMax - zMin) / bandH + 1e-9) + 1 : 0;
 
     const buildVolume = build.x * build.y * build.z;
@@ -1142,7 +1300,7 @@
       tiltedSize: [best.w, best.l, height],
       tiltedBoxSize: tiltedBox.size,
       usable,
-      bestAngle: best.theta,
+      bestAngle: finalTheta,
       footprint: { w: best.w, l: best.l },
       height,
       lattice: { a: best.basis[0], b: best.basis[1], c: best.basis[2], cellVolume: config.cellVolume, perCell: config.perCell },
@@ -1150,17 +1308,21 @@
       singleDensity: stats.volume / latSingle.cellVolume,
       pair: config.kind === 'pair' ? { phi: config.phi, delta: config.delta } : null,
       pairTried: phis.length ? phis : null,
+      strategy,
+      latticeCount: latticeCountFinal,
+      fillCount,
+      fillVoxel: Math.min(4, Math.max(1.5, Math.max(tiltedBox.size[0], tiltedBox.size[1], tiltedBox.size[2]) / 24)),
       perLayer: bottomCount,
       layers: zLevels,
       bandHeight: bandH,
       total,
       points,
-      members: members.map((m) => ({ polyRel: m.polyRel, zMin: m.zMin, phi: m.phi })),
+      members: finalMembers.map((m) => ({ polyRel: m.polyRel, zMin: m.zMin, phi: m.phi })),
       zRange: [zMin, zMax],
       sweep,
       densityByPart: total * stats.volume / buildVolume,
       densityByBox: total * (best.w * best.l * height) / buildVolume,
-      voxel: { size: prep.vox, dims: prep.dims, filled: prep.filled, filledDilated: prep.filledDilated, ms: voxelMs, fftMs, latticeMs, pairMs, latticeStats: latSingle.stats },
+      voxel: { size: prep.vox, dims: prep.dims, filled: prep.filled, filledDilated: prep.filledDilated, ms: voxelMs, fftMs, latticeMs, pairMs, sweepMs, fillMs, latticeStats: latSingle.stats },
       elapsedMs: now() - t0,
     };
   }
@@ -1278,6 +1440,7 @@
     dimerOverlapSet,
     prepareShape,
     pairSearch,
+    fillRemaining,
     rotateTrisZ,
     countLatticeInBox,
     computeNestingBox,

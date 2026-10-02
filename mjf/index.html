@@ -309,6 +309,9 @@
     if (isLattice) {
       const L = r.lattice;
       const len = (v) => fmt(Math.hypot(v[0], v[1], v[2]), 1);
+      rows.push(['Yerleşim', r.strategy === 'greedy'
+        ? 'açgözlü voksel yerleşimi (tek tek deneme, Z\'de 0/90/180/270°), kafesten fazla verdi'
+        : 'kafes ' + fmt(r.latticeCount, 0) + ' adet' + (r.fillCount ? ' + boşluk doldurma ' + fmt(r.fillCount, 0) + ' adet (Z\'de 0/90/180/270°)' : '')]);
       rows.push(['Alt katman', fmt(r.perLayer, 0) + ' adet (tabandan ' + fmt(r.bandHeight, 0) + ' mm içinde başlayan)']);
       rows.push(['Kafes adımları', len(L.a) + ' / ' + len(L.b) + ' / ' + len(L.c) + ' mm' + (L.perCell > 1 ? ' (hücrede ' + L.perCell + ' parça)' : '')]);
       rows.push(['Kafes doluluğu', fmt(r.latticeDensity * 100, 1) + ' % (parça / hücre)']);
@@ -335,7 +338,7 @@
     $('copy').disabled = false;
     $('plateTitle').textContent = isLattice ? 'Üstten görünüm (alt katman, renk = yükseklik)' : 'Üstten görünüm (bir katman)';
     $('legend').innerHTML = isLattice
-      ? '<span><i style="background:var(--part)"></i>Tabandaki parçalar</span><span><i style="background:var(--part-rot)"></i>Daha yukarıda başlayanlar (iç içe)</span>' + (r.pair ? '<span><i style="border:2px dashed var(--ink);background:transparent"></i>Z\'de ' + fmt(r.pair.phi, 0) + '° çevrilmiş eş</span>' : '')
+      ? '<span><i style="background:var(--part)"></i>Tabandaki parçalar</span><span><i style="background:var(--part-rot)"></i>Daha yukarıda başlayanlar (iç içe)</span><span><i style="border:2px dashed var(--ink);background:transparent"></i>Z\'de çevrilmiş (90/180/270°)</span>'
       : '<span><i style="background:var(--part)"></i>En iyi Z açısı</span><span><i style="background:var(--part-rot)"></i>+90° çevrilmiş</span>';
     drawPlate(r);
   }
