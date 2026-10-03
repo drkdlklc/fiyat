@@ -139,30 +139,38 @@
   let loadedMsg = '';
 
   // ---------------- occt-import-js (STEP/IGES/BREP) tembel yükleme ----------------
+  // Tamamen yerel: vendor/ altındaki JS ve base64 gömülü wasm <script> olarak
+  // yüklenir. fetch() kullanılmadığı için sayfa file:// ile açıldığında da çalışır.
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = src;
+      s.onload = resolve;
+      s.onerror = () => reject(new Error(src + ' yüklenemedi'));
+      document.head.appendChild(s);
+    });
+  }
+  function base64ToBytes(b64) {
+    const bin = atob(b64);
+    const out = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
   let occtPromise = null;
   function loadOcct() {
     if (occtPromise) return occtPromise;
-    occtPromise = new Promise((resolve, reject) => {
-      const sources = [
-        'vendor/occt-import-js.js',
-        'https://cdn.jsdelivr.net/npm/occt-import-js@0.0.23/dist/occt-import-js.js',
-      ];
-      const tryNext = (i) => {
-        if (i >= sources.length) { reject(new Error('STEP okuyucu (occt-import-js) yüklenemedi. Sayfayı bir web sunucusundan (GitHub Pages / localhost) açın.')); return; }
-        const src = sources[i];
-        const s = document.createElement('script');
-        s.src = src;
-        s.onload = () => {
-          const base = src.substring(0, src.lastIndexOf('/') + 1);
-          window.occtimportjs({ locateFile: (p) => base + p })
-            .then(resolve)
-            .catch(() => tryNext(i + 1));
-        };
-        s.onerror = () => tryNext(i + 1);
-        document.head.appendChild(s);
-      };
-      tryNext(0);
-    });
+    occtPromise = (async () => {
+      try {
+        await Promise.all([loadScript('vendor/occt-import-js.js'), loadScript('vendor/occt-import-js.wasm.js')]);
+        const wasmBinary = base64ToBytes(window.occtimportjsWasmBase64);
+        window.occtimportjsWasmBase64 = null; // belleği serbest bırak
+        return await window.occtimportjs({ wasmBinary });
+      } catch (e) {
+        occtPromise = null;
+        throw new Error('STEP okuyucu (vendor/occt-import-js) yüklenemedi: ' + (e && e.message ? e.message : e)
+          + '. mjf/vendor klasörünün index.html ile aynı yerde olduğundan emin olun.');
+      }
+    })();
     return occtPromise;
   }
 
@@ -254,13 +262,25 @@
   $('mode').addEventListener('change', () => { $('mixedWrap').style.visibility = $('mode').value === 'box' ? 'visible' : 'hidden'; });
   $('mixedWrap').style.visibility = 'hidden';
 
-  // Hesap: Web Worker varsa orada, yoksa ana iş parçacığında
+  // Hesap: Web Worker varsa orada, yoksa ana iş parçacığında.
+  // file:// ile açıldığında tarayıcılar (Chrome) ayrı dosyadan worker
+  // başlatmaya izin vermez; o durumda nesting.js'in kaynak kodundan bir
+  // Blob worker kurulur. O da olmazsa hesap ana iş parçacığında yapılır.
   let worker = null;
-  try { worker = new Worker('nesting-worker.js'); } catch (e) { worker = null; }
   let jobId = 0;
   let pending = null;
-  if (worker) {
-    worker.onmessage = (ev) => {
+  function blobWorker() {
+    const code = 'self.MjfNesting = (' + N.factorySource + ')();\n'
+      + 'onmessage = function (ev) {\n'
+      + '  const { id, tris, opts } = ev.data;\n'
+      + '  try { postMessage({ id, result: MjfNesting.computeNesting(tris, opts) }); }\n'
+      + '  catch (err) { postMessage({ id, error: err && err.message ? err.message : String(err) }); }\n'
+      + '};\n';
+    return new Worker(URL.createObjectURL(new Blob([code], { type: 'text/javascript' })));
+  }
+  function attachWorker(w, fallback) {
+    worker = w;
+    w.onmessage = (ev) => {
       const { id, result, error } = ev.data;
       if (id !== jobId) return; // eski iş
       pending = null;
@@ -268,7 +288,20 @@
       lastResult = result;
       render(result);
     };
-    worker.onerror = () => { worker = null; recompute(); };
+    w.onerror = (e) => {
+      if (e && e.preventDefault) e.preventDefault();
+      w.terminate();
+      worker = null;
+      if (fallback) { try { fallback(); } catch (_) { worker = null; } }
+      recompute();
+    };
+  }
+  const useBlobWorker = () => attachWorker(blobWorker(), null);
+  try {
+    if (location.protocol === 'file:') useBlobWorker();
+    else attachWorker(new Worker('nesting-worker.js'), useBlobWorker);
+  } catch (e) {
+    try { useBlobWorker(); } catch (_) { worker = null; }
   }
 
   function recompute() {
