@@ -19,10 +19,13 @@
  * fiyatlandırma için güvenli (muhafazakâr) bir tahmin verir.
  */
 (function (root, factory) {
+  const api = factory();
+  // index.html, file:// altında Blob worker kurabilmek için kaynak koda ihtiyaç duyar.
+  api.factorySource = factory.toString();
   if (typeof module === 'object' && module.exports) {
-    module.exports = factory();
+    module.exports = api;
   } else {
-    root.MjfNesting = factory();
+    root.MjfNesting = api;
   }
 })(typeof self !== 'undefined' ? self : this, function () {
   'use strict';

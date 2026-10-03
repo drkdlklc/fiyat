@@ -38,10 +38,19 @@ boyu) nedeniyle sonuç ±%5 civarında sapabilir. Hesap bir Web Worker'da
 
 ## Kullanım
 
-- GitHub Pages: `https://<kullanıcı>.github.io/fiyat/mjf/`
-- Yerel: `python3 -m http.server --directory mjf 8000` → `http://localhost:8000`
-- `index.html` dosyasını doğrudan çift tıklayarak açmak STL için çalışır;
-  STEP okuyucu (wasm) tarayıcı kısıtı nedeniyle bir sunucu gerektirir.
+Araç tamamen yereldir; internet, sunucu veya GitHub Pages gerektirmez.
+
+- `mjf/index.html` dosyasını çift tıklayarak tarayıcıda açın (Chrome, Edge,
+  Firefox). STL ve STEP/IGES/BREP okuma, Web Worker'da hesap ve çizim bu
+  şekilde çalışır. `mjf/vendor` klasörü `index.html` ile aynı yerde kalmalıdır.
+- İsteğe bağlı olarak yerel bir sunucudan da açılabilir:
+  `python3 -m http.server --directory mjf 8000` → `http://localhost:8000`
+
+STEP okuyucunun WebAssembly modülü `vendor/occt-import-js.wasm.js` içinde
+base64 olarak gömülüdür; `file://` altında `fetch()` çalışmadığı için ayrı
+bir `.wasm` dosyası kullanılmaz. Yeni bir occt-import-js sürümüne geçerken
+`.wasm` dosyasını aynı yöntemle base64'e çevirip bu dosyaya yazın (komut
+dosyanın başındaki yorumda).
 
 ## Test
 
